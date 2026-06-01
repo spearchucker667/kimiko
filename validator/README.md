@@ -43,6 +43,9 @@ python validate_kimi.py credentials ~/.kimi/credentials/kimi-code.json
 
 # Run security checks only
 python validate_kimi.py security ~/.kimi
+
+# Validate zero-blocker Mandate kimiko compliance
+python validate_kimi.py compliance ~/.kimi
 ```
 
 ## Makefile Targets

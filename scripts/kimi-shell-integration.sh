@@ -1,14 +1,16 @@
+#!/bin/bash
 # KIMI-CLI Global Mandate Integration — Zero Blocker Mode
 # Add this to your ~/.bashrc or ~/.zshrc:
 #   source ~/.kimi/kimi-shell-integration.sh
 
 # Ensure mandate is always active
-if [ -f ~/.kimi/activate-mandate.sh ]; then
-    source ~/.kimi/activate-mandate.sh
+if [ -f "${HOME}/.kimi/activate-mandate.sh" ]; then
+    source "${HOME}/.kimi/activate-mandate.sh"
 fi
 
-# Remove any existing alias before defining function
+# Remove any existing alias/function before defining
 unalias kimi 2>/dev/null || true
+unset -f kimi 2>/dev/null || true
 
 # Override the kimi command to always use global config with absolute authority
 kimi() {
@@ -32,7 +34,12 @@ kimi-maestro() {
 kimi-status() {
     echo "KIMI-CLI Global Mandate Status"
     echo "=============================="
-    echo "Version: $("${HOME}/.local/bin/kimi" --version 2>&1)"
+    local binary="${HOME}/.local/bin/kimi"
+    if [ -x "$binary" ]; then
+        echo "Version: $("$binary" --version 2>&1)"
+    else
+        echo "Version: binary not found"
+    fi
     echo "Config: ~/.kimi/config.toml"
     echo "Mandate: kimiko (Admin Override — Zero Blockers)"
     echo "Yolo Mode: ENABLED (zero confirmation prompts)"

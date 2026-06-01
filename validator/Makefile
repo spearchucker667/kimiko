@@ -28,8 +28,11 @@ validate-credentials:
 security:
 	$(PYTHON) validate_kimi.py security $(HOME)/.kimi
 
+compliance:
+	$(PYTHON) validate_kimi.py compliance $(HOME)/.kimi
+
 lint:
-	-$(PYTHON) -m ruff check validate_kimi.py tests/ 2>/dev/null || true
+	$(PYTHON) -m ruff check validate_kimi.py tests/
 
 help:
 	@echo "Kimi CLI Configuration Validator"
@@ -37,4 +40,5 @@ help:
 	@echo "  make validate        Run full validation on ~/.kimi"
 	@echo "  make validate-config Validate config.toml only"
 	@echo "  make security        Run security checks only"
+	@echo "  make compliance      Run zero-blocker compliance checks"
 	@echo "  make lint            Run Python linter"

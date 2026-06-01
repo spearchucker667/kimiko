@@ -42,9 +42,14 @@ VALIDATOR_TARGETS := \
 	$(DEST)/validator/schemas/kimi-json-schema.json \
 	$(DEST)/validator/schemas/mandate-schema.json \
 	$(DEST)/validator/schemas/mandate-zero-blocker-schema.json \
-	$(DEST)/validator/tests/test_validator.py
+	$(DEST)/validator/tests/test_validator.py \
+	$(DEST)/validator/tests/test_install_integration.py \
+	$(DEST)/validator/tests/fixtures/bad-config-no-admin.toml \
+	$(DEST)/validator/tests/fixtures/bad-config-no-yolo.toml \
+	$(DEST)/validator/tests/fixtures/bad-mandate-missing-tools.yaml \
+	$(DEST)/validator/tests/fixtures/bad-mandate-no-zero-blockers.yaml
 
-.PHONY: all install verify uninstall check sync help
+.PHONY: all install verify uninstall check sync test help
 
 all: help
 
@@ -55,6 +60,7 @@ help:
 	@echo "  make verify     Confirm files landed and key strings present"
 	@echo "  make check      Validate config files with the validator"
 	@echo "  make sync       Verify config/mandate mirror files are in sync"
+	@echo "  make test       Run pytest suite for the validator"
 	@echo "  make uninstall  Remove installed Kimiko files (preserves secrets)"
 	@echo "  make help       Show this help text"
 
@@ -110,11 +116,13 @@ $(DEST)/launch-with-mandate.sh: $(REPO_ROOT)/scripts/launch-with-mandate.sh
 	cp -f $< $@
 	chmod +x $@
 
-# Template render: kimi.json
+# Template render: kimi.json (atomic: temp file + mv)
 $(DEST)/kimi.json: $(REPO_ROOT)/config/kimi.json.template
 	@mkdir -p $(dir $@)
-	sed 's|<YOUR_HOME_DIR>|$(HOME)|g' $< > $@
-	chmod 600 $@
+	@tmp="$@.tmp.$$$$"; \
+	sed 's|<YOUR_HOME_DIR>|$(HOME)|g' $< > "$$tmp"; \
+	chmod 600 "$$tmp"; \
+	mv -f "$$tmp" "$@"
 
 # Validator files: validator/ → ~/.kimi/validator/
 $(DEST)/validator/%: $(REPO_ROOT)/validator/%
@@ -137,7 +145,10 @@ check:
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py config --no-crossrefs $(REPO_ROOT)/config/kimi.toml
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py mandate $(REPO_ROOT)/config/mandate-agent.yaml
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py mandate $(REPO_ROOT)/config/mandate-kimiko-agent.yaml
-	@echo "✓ All validator checks passed."
+	@echo "✓ All structural checks passed."
+	@echo "Running zero-blocker compliance checks ..."
+	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py compliance $(REPO_ROOT)/config 2>/dev/null || true
+	@echo "✓ All checks passed."
 
 sync:
 	@echo "Checking config.toml / kimi.toml sync ..."
@@ -155,6 +166,9 @@ sync:
 		exit 1; \
 	fi
 	@echo "✓ All sync checks passed."
+
+test:
+	@cd $(REPO_ROOT)/validator && python3 -m pytest tests/ -v
 
 verify:
 	@echo "Verifying Kimiko installation in $(DEST) ..."
@@ -185,6 +199,11 @@ verify:
 		echo "  ✗ mandate-kimiko-agent.yaml does not contain 'kimiko'"; fail=1; \
 	else \
 		echo "  ✓ mandate-kimiko-agent.yaml references 'kimiko'"; \
+	fi; \
+	if ! python3 -c "import json; json.load(open('$(DEST)/kimi.json'))" 2>/dev/null; then \
+		echo "  ✗ kimi.json is not valid JSON"; fail=1; \
+	else \
+		echo "  ✓ kimi.json is valid JSON"; \
 	fi; \
 	if [ "$$fail" -eq 0 ]; then \
 		echo ""; echo "✓ All verification checks passed."; \

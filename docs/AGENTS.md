@@ -46,7 +46,7 @@ This directory stores:
 ├── config.toml                # Primary runtime configuration (~1,491 lines)
 ├── kimi.toml                  # Hardened mirror of config.toml
 ├── kimi.json                  # Work-directory registry and last session IDs
-├── latest_version.txt         # Cached remote version string ("1.43.0")
+├── latest_version.txt         # Cached remote version string ("1.46.0")
 ├── device_id                  # Stable device fingerprint (UUID-like string)
 ├── mandate-agent.yaml         # Custom agent spec under "Mandate kimiko"
 ├── mandate-kimiko-agent.yaml  # Hardened mirror of mandate-agent.yaml
@@ -116,6 +116,7 @@ kimiko/
 │   ├── AGENTS.md
 │   ├── README.md
 │   ├── CHANGELOG.md
+│   ├── CODE_OF_CONDUCT.md
 │   ├── CONTRIBUTING.md
 │   ├── SECURITY.md
 │   ├── TODO.md
@@ -124,9 +125,13 @@ kimiko/
 └── validator/                 # Maps to ~/.kimi/validator/
     ├── Makefile
     ├── README.md
+    ├── requirements.txt
     ├── validate_kimi.py
     ├── schemas/
     └── tests/
+        ├── test_validator.py
+        ├── test_install_integration.py
+        └── fixtures/
 ```
 
 ---
@@ -471,7 +476,7 @@ Both `scripts/activate-mandate.sh` and `scripts/kimi-shell-integration.sh` defin
 The `validator/` directory is the **only buildable code project** in `~/.kimi`. It is a standalone Python CLI that validates configuration files for structural integrity, security posture, cross-reference consistency, and mandate compliance.
 
 **Code organization:**
-- `validate_kimi.py` — Single-file CLI application (~609 lines) with these functional areas:
+- `validate_kimi.py` — Single-file CLI application (~600 lines) with these functional areas:
   - Schema loading (`load_schema`)
   - File loaders (`load_toml`, `load_yaml`, `load_json`)
   - Validation helpers (`validate_against_schema`, `print_errors`)
@@ -485,7 +490,9 @@ The `validator/` directory is the **only buildable code project** in `~/.kimi`. 
   - `config-zero-blocker-schema.json` — Strict Mandate kimiko compliance for config.toml
   - `mandate-schema.json` — Structural validation for mandate YAML
   - `mandate-zero-blocker-schema.json` — Strict Mandate kimiko compliance for mandate YAML
-- `tests/test_validator.py` — pytest test suite (~199 lines)
+- `tests/test_validator.py` — pytest test suite (~390 lines)
+- `tests/test_install_integration.py` — Makefile integration tests
+- `tests/fixtures/` — Negative test fixtures for schema regression testing
 
 **Dependencies:**
 - Python 3.11+ (uses built-in `tomllib`; for 3.10 or earlier install `tomli`)
@@ -497,6 +504,25 @@ The `validator/` directory is the **only buildable code project** in `~/.kimi`. 
 ---
 
 ## Build and Test Commands
+
+### Root Makefile (repo root)
+
+```bash
+# Validate repo config files before installing
+make check
+
+# Verify config.toml ↔ kimi.toml and mandate YAML mirrors are in sync
+make sync
+
+# Run pytest suite
+make test
+
+# Install into ~/.kimi
+make install
+
+# Verify installed files
+make verify
+```
 
 ### Validator Subproject
 
@@ -517,6 +543,9 @@ make validate-credentials # credentials JSON
 
 # Run security checks only
 make security
+
+# Run zero-blocker compliance checks
+make compliance
 
 # Run Python linter (ruff)
 make lint

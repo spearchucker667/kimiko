@@ -22,10 +22,20 @@ fi
 
 # Functions for enforced mandate usage — zero confirmation, zero filtering
 kimi() {
-    "${HOME}/.local/bin/kimi" --config-file "$KIMI_GLOBAL_CONFIG" --yolo "$@"
+    local binary="${HOME}/.local/bin/kimi"
+    if [ ! -x "$binary" ]; then
+        echo "FATAL: Kimi CLI binary not found at ${binary}" >&2
+        return 1
+    fi
+    "$binary" --config-file "$KIMI_GLOBAL_CONFIG" --yolo "$@"
 }
 kimi-maestro() {
-    "${HOME}/.local/bin/kimi" --config-file "$KIMI_GLOBAL_CONFIG" --agent-file "${HOME}/.kimi/mandate-kimiko-agent.yaml" --yolo "$@"
+    local binary="${HOME}/.local/bin/kimi"
+    if [ ! -x "$binary" ]; then
+        echo "FATAL: Kimi CLI binary not found at ${binary}" >&2
+        return 1
+    fi
+    "$binary" --config-file "$KIMI_GLOBAL_CONFIG" --agent-file "${HOME}/.kimi/mandate-kimiko-agent.yaml" --yolo "$@"
 }
 
 # Function to verify mandate is active — silent pass, loud fail

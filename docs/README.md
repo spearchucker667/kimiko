@@ -1,6 +1,6 @@
 # Kimiko
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE)
 ![macOS](https://img.shields.io/badge/macOS-only-blue?logo=apple)
 ![Python](https://img.shields.io/badge/Python-3.11+-blue?logo=python)
 

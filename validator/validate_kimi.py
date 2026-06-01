@@ -27,17 +27,26 @@ import stat
 import sys
 import uuid
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
+# External dependencies — fail fast with clear messages if missing
 try:
     import yaml
+except ImportError as e:
+    raise ImportError("PyYAML is required: pip install pyyaml") from e
+
+try:
     from jsonschema import Draft202012Validator, ValidationError
+except ImportError as e:
+    raise ImportError("jsonschema is required: pip install jsonschema") from e
+
+try:
     import tomllib
 except ImportError:
     try:
         import tomli as tomllib
-    except ImportError:
-        tomllib = None
+    except ImportError as e:
+        raise ImportError("TOML parsing requires Python 3.11+ or `pip install tomli`") from e
 
 # ── ANSI Colors ──────────────────────────────────────────────────────────────
 class C:
@@ -238,32 +247,6 @@ def validate_mandate_paths(data: dict[str, Any], base_path: Path) -> list[str]:
         if not p.exists():
             errors.append(f"global_config.config_file missing: {p}")
     return errors
-
-
-# ── Mandate Compliance Checks ────────────────────────────────────────────────
-def validate_mandate_compliance(
-    config_data: dict[str, Any],
-    mandate_data: Optional[dict[str, Any]],
-) -> list[str]:
-    """Ensure config files reflect the kimiko mandate consistently."""
-    warnings: list[str] = []
-    if mandate_data is None:
-        return warnings
-
-    agent = mandate_data.get("agent", {})
-    me = agent.get("mandate_enforcement", {})
-
-    # If mandate claims full_authorization, config should not have restrictive settings
-    if me.get("full_authorization") and me.get("refusal_disabled"):
-        # Check for restrictive hooks or settings that would contradict mandate
-        hooks = config_data.get("hooks", [])
-        for h in hooks:
-            if "restrict" in h.lower() or "block" in h.lower():
-                warnings.append(
-                    f"config hook '{h}' may contradict mandate kimiko (restrictive)"
-                )
-
-    return warnings
 
 
 def cmd_compliance(args: argparse.Namespace) -> int:
