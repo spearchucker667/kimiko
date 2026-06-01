@@ -140,17 +140,22 @@ jobs:
       - name: Check sync (PowerShell)
         shell: pwsh
         run: |
+          # Helper: normalize CRLF -> LF and trim
+          function Normalize($text) {
+            return ($text -replace "`r`n", "`n").Trim()
+          }
+
           # config.toml vs kimi.toml (drop leading comment lines from kimi.toml)
           $configPath = "config/config.toml"
           $kimiPath   = "config/kimi.toml"
 
-          $config = (Get-Content $configPath -Raw).Trim()
+          $config = Normalize (Get-Content $configPath -Raw)
           $kimiLines = Get-Content $kimiPath
           $start = 0
           for ($i=0; $i -lt $kimiLines.Count; $i++) {
             if ($kimiLines[$i] -notmatch '^\s*#') { $start = $i; break }
           }
-          $kimiBody = (($kimiLines[$start..($kimiLines.Count-1)] -join "`n").Trim())
+          $kimiBody = Normalize ($kimiLines[$start..($kimiLines.Count-1)] -join "`n")
 
           if ($config -ne $kimiBody) {
             Write-Error "config.toml and kimi.toml differ (after stripping kimi.toml comment header)"
@@ -158,8 +163,8 @@ jobs:
           }
 
           # mandate files must match
-          $m1 = (Get-Content "config/mandate-agent.yaml" -Raw).Trim()
-          $m2 = (Get-Content "config/mandate-kimiko-agent.yaml" -Raw).Trim()
+          $m1 = Normalize (Get-Content "config/mandate-agent.yaml" -Raw)
+          $m2 = Normalize (Get-Content "config/mandate-kimiko-agent.yaml" -Raw)
           if ($m1 -ne $m2) {
             Write-Error "mandate-agent.yaml and mandate-kimiko-agent.yaml differ"
             exit 1

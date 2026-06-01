@@ -8,37 +8,53 @@ REPO_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PYTHON ?= $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python3)
 
 # ── Platform Detection ───────────────────────────────────────────────────────
-ifeq ($(OS),Windows_NT)
+UNAME_S := $(shell uname -s 2>/dev/null || echo "")
+UNAME_R := $(shell uname -r 2>/dev/null || echo "")
+
+# Git Bash / MSYS / Cygwin must be detected BEFORE Windows_NT because
+# those environments set OS=Windows_NT but provide Unix tools.
+ifneq ($(findstring MINGW,$(UNAME_S)),)
+    PLATFORM := gitbash
+else ifneq ($(findstring MSYS,$(UNAME_S)),)
+    PLATFORM := gitbash
+else ifneq ($(findstring CYGWIN,$(UNAME_S)),)
+    PLATFORM := gitbash
+else ifeq ($(OS),Windows_NT)
     PLATFORM := windows
+else ifeq ($(UNAME_S),Darwin)
+    PLATFORM := macos
+else ifeq ($(UNAME_S),Linux)
+    ifneq ($(findstring microsoft,$(UNAME_R)),)
+        PLATFORM := wsl
+    else ifneq ($(findstring WSL,$(UNAME_R)),)
+        PLATFORM := wsl
+    else
+        PLATFORM := linux
+    endif
+else
+    PLATFORM := unknown
+endif
+
+# ── Home directory and install destination ───────────────────────────────────
+ifeq ($(PLATFORM),windows)
     ifneq ($(strip $(USERPROFILE)),)
         HOME_DIR := $(USERPROFILE)
     else
         HOME_DIR := $(HOME)
     endif
-    DEST := $(HOME_DIR)/.kimi
+else
+    HOME_DIR := $(HOME)
+endif
+
+DEST := $(HOME_DIR)/.kimi
+
+ifeq ($(PLATFORM),windows)
     WINDOWS_SCRIPTS := \
         $(DEST)/activate-mandate.ps1 \
         $(DEST)/kimi-wrapper.ps1 \
         $(DEST)/kimi-shell-integration.ps1 \
         $(DEST)/launch-with-mandate.ps1
 else
-    UNAME_S := $(shell uname -s 2>/dev/null || echo Unknown)
-    UNAME_R := $(shell uname -r 2>/dev/null || echo "")
-    ifeq ($(UNAME_S),Darwin)
-        PLATFORM := macos
-    else ifeq ($(UNAME_S),Linux)
-        PLATFORM := linux
-    else ifneq ($(findstring MINGW,$(UNAME_S)),)
-        PLATFORM := gitbash
-    else ifneq ($(findstring MSYS,$(UNAME_S)),)
-        PLATFORM := gitbash
-    else ifneq ($(findstring CYGWIN,$(UNAME_S)),)
-        PLATFORM := gitbash
-    else
-        PLATFORM := unknown
-    endif
-    HOME_DIR := $(HOME)
-    DEST := $(HOME_DIR)/.kimi
     WINDOWS_SCRIPTS :=
 endif
 
