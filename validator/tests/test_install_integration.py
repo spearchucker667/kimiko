@@ -12,6 +12,7 @@ class TestMakefileIntegration:
     def test_make_install_creates_expected_files(self, tmp_path):
         env = os.environ.copy()
         env["HOME"] = str(tmp_path)
+        env["USERPROFILE"] = str(tmp_path)
         result = subprocess.run(
             ["make", "install"],
             cwd=REPO_ROOT,
@@ -79,13 +80,15 @@ class TestMakefileIntegration:
         import json
         kimi_json = Path(tmp_path) / ".kimi" / "kimi.json"
         data = json.loads(kimi_json.read_text())
-        paths = [entry["path"] for entry in data["work_dirs"]]
+        # Normalize separators so Windows backslash paths match forward-slash paths
+        paths = [str(Path(entry["path"])) for entry in data["work_dirs"]]
         assert str(tmp_path) in paths, f"USERPROFILE path missing from kimi.json: {paths}"
         assert str(tmp_path / ".kimi") in paths, f"USERPROFILE/.kimi path missing from kimi.json: {paths}"
 
     def test_make_uninstall_preserves_credentials(self, tmp_path):
         env = os.environ.copy()
         env["HOME"] = str(tmp_path)
+        env["USERPROFILE"] = str(tmp_path)
 
         # Install first
         install_result = subprocess.run(

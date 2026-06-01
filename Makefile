@@ -42,6 +42,17 @@ else
     WINDOWS_SCRIPTS :=
 endif
 
+# Pre-compute Linux install target so we don't put ifneq inside a recipe
+ifeq ($(PLATFORM),linux)
+    ifneq ($(findstring microsoft,$(UNAME_R)),)
+        LINUX_INSTALL_TARGET := install-wsl
+    else ifneq ($(findstring WSL,$(UNAME_R)),)
+        LINUX_INSTALL_TARGET := install-wsl
+    else
+        LINUX_INSTALL_TARGET := install-linux
+    endif
+endif
+
 # ── Source Files ─────────────────────────────────────────────────────────────
 CONFIG_SRCS := \
     config/config.toml \
@@ -120,13 +131,7 @@ else ifeq ($(PLATFORM),gitbash)
 else ifeq ($(PLATFORM),macos)
 	$(MAKE) install-macos
 else ifeq ($(PLATFORM),linux)
-	ifneq ($(findstring microsoft,$(UNAME_R)),)
-		$(MAKE) install-wsl
-	else ifneq ($(findstring WSL,$(UNAME_R)),)
-		$(MAKE) install-wsl
-	else
-		$(MAKE) install-linux
-	endif
+	$(MAKE) $(LINUX_INSTALL_TARGET)
 else ifeq ($(PLATFORM),wsl)
 	$(MAKE) install-wsl
 else
