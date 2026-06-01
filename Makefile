@@ -276,7 +276,7 @@ else
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py mandate $(REPO_ROOT)/config/mandate-kimiko-agent.yaml
 	@echo "All structural checks passed."
 	@echo "Running zero-blocker compliance checks ..."
-	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py compliance $(REPO_ROOT)/config || true
+	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py compliance $(REPO_ROOT)/config
 	@echo "All checks passed."
 endif
 

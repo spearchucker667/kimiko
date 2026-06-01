@@ -45,7 +45,7 @@ This directory stores:
 ```
 ~/.kimi/
 ├── config.toml                # Primary runtime configuration (~1,483 lines)
-├── kimi.toml                  # Hardened mirror of config.toml
+├── kimi.toml                  # Hardened mirror of config.toml (~1,492 lines, includes comment header)
 ├── kimi.json                  # Work-directory registry and last session IDs
 ├── latest_version.txt         # Cached remote version string ("1.46.0")
 ├── device_id                  # Stable device fingerprint (created by the Kimi CLI, not by Kimiko)

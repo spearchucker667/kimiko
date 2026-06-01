@@ -26,6 +26,18 @@ Thank you for your interest in improving Kimiko! This repository is a sanitized,
    make test
    make validate
    ```
+
+   ### Platform Notes for Contributors
+
+   | Target | macOS / Linux / WSL | Git Bash | PowerShell |
+   |---|---|---|---|
+   | `make check` | ✅ Full structural + compliance validation | ✅ Structural only (compliance requires Python) | ❌ Use `make check-windows` |
+   | `make test` | ✅ Runs pytest suite | ✅ Runs pytest suite | ❌ Use WSL or Git Bash |
+   | `make sync` | ✅ Byte-for-byte sync check | ❌ Fails (no `cmp`/`diff` in PATH) | ❌ Fails (no Unix tools) |
+   | `make verify` | ✅ Post-install verification | ✅ Post-install verification | ✅ Post-install verification |
+   | `make install` | ✅ `~/.kimi` | ✅ `~/.kimi` | ✅ `~/.kimi` |
+
+   > **Why `make sync` fails on Windows:** `make sync` uses `cmp` and `diff` to enforce byte-for-byte identity between `config.toml`↔`kimi.toml` and the two mandate YAMLs. These tools are not available in native PowerShell. Use WSL or Git Bash with MSYS build tools for `make sync`.
 4. **Open a Pull Request** with a clear description of the change and its rationale.
 
 ## Code & Config Style

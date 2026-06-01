@@ -39,6 +39,7 @@ We aim to acknowledge reports within 72 hours and provide a fix or assessment wi
 
 - **Use `chmod 600`** on `config.toml`, `kimi.toml`, and mandate YAML files after any manual edits.
 - Verify with `ls -la ~/.kimi`.
+- **WSL note:** WSL uses the native Linux filesystem, so Unix permissions are fully enforced. Running `make permissions` on WSL will report "Unix permissions are enforced by the filesystem on this platform." — this is correct WSL behavior.
 
 ### Windows (Git Bash)
 

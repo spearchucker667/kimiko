@@ -55,7 +55,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `kimi-wrapper.sh` now checks that the Kimi CLI binary exists before executing.
 - `kimi-shell-integration.sh` now unsets any existing `kimi` function before redefining.
 - `scan_for_secrets` regex narrowed to avoid false positives on git SHA hashes.
-- `make check` compliance step no longer suppresses stderr (`2>/dev/null` removed); failures are visible but non-blocking.
+- `make check` compliance step is now a hard gate: removed `|| true` so zero-blocker violations fail the build.
 - `make verify` grep pattern tightened for `mandate-kimiko-agent.yaml` (`mandate_code.*kimiko` instead of bare `kimiko`).
 - `cmd_all` return-code aggregation changed from bitwise OR to `max()` for standard Unix exit-code semantics.
 - `colorize()` now checks both `stdout.isatty()` and `stderr.isatty()`.
@@ -64,6 +64,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - CI matrix tightened: `test-ubuntu` now runs `make sync` and `make check`; PowerShell verification uses stricter `mandate_code` patterns.
 - Pre-commit ruff version bumped from `v0.5.0` to `v0.15.15` to match `requirements.txt`.
 - Unused imports removed from `validate_kimi.py` and test files (ruff clean).
+- `activate-mandate.sh` and `activate-mandate.ps1` mandate verification patterns tightened to anchored regexes (`^key\s*=\s*value$`) to prevent false positives on comments or stale variables.
+- `cmd_security` file-size skips no longer reported as security failures; return code is `0` when only oversized files are skipped.
+- `launch-with-mandate.sh` argument filter guarded against `shift 2` crash when `--agent-file` is the final argument without a value.
+- `kimi-shell-integration.sh` and `kimi-shell-integration.ps1` env var standardized from `KIMI_CLI_GLOBAL_CONFIG` to `KIMI_GLOBAL_CONFIG` for consistency.
+- Dead `CONFIG_SRCS` and `SCRIPT_SRCS` variables removed from root `Makefile`.
+- `docs/AGENTS.md` updated with accurate `kimi.toml` line count (~1,492 lines including header).
+- `docs/TROUBLESHOOTING.md` added `dos2unix` installation note for Git Bash/MSYS2 users.
+- `docs/SECURITY.md` added WSL permission behavior note.
+- `docs/CONTRIBUTING.md` added "Platform Notes for Contributors" table documenting which `make` targets work on each platform.
 
 ### Added
 - `docs/ARCHITECTURE.md` with 8 ADRs documenting cross-platform design decisions (mirror configs, WSL detection, return-code aggregation, four-layer mandate mesh, platform gating, `HOME_FWD`, schema hierarchy, non-blocking compliance).

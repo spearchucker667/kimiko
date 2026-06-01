@@ -63,6 +63,8 @@ Line endings were converted to CRLF during clone.
 dos2unix ~/.kimi/*.sh
 ```
 
+> **Note:** `dos2unix` is not installed by default on Git Bash. Install it via `pacman -S dos2unix` (MSYS2) or download the standalone binary.
+
 Or re-clone with:
 
 ```bash
