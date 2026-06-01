@@ -22,7 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `docs/legal/DISCLAIMER.md` — extensive liability waiver with `inthewind exploit` classifier.
 - `docs/CODE_OF_CONDUCT.md` — community code of conduct.
 - `docs/SECURITY.md`, `docs/CONTRIBUTING.md`, and `docs/CHANGELOG.md`.
-- `Makefile` with `install`, `verify`, `uninstall`, `check`, `sync`, `test`, and `help` targets (macOS-only).
+- `Makefile` with `install`, `verify`, `uninstall`, `check`, `sync`, `test`, and `help` targets (originally macOS-only, now cross-platform).
 - `kimi.json.template` for dynamic home-path rendering at install time.
 - `docs/AGENTS.md` comprehensive agent documentation covering mandate architecture, compliance, and troubleshooting.
 - `docs/README.md` with quick-start guide, directory structure, and security notes.

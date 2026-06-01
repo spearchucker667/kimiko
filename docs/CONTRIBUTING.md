@@ -8,21 +8,23 @@ Thank you for your interest in improving Kimiko! This repository is a sanitized,
 2. **Make your changes** following the conventions below.
 3. **Run the validator** to ensure configs remain structurally sound:
    ```bash
-   # macOS / Linux / WSL / Git Bash
-   cd validator
+   # From the repo root (validates source configs, not installed files)
+   make check
    make test
-   make validate
+   make sync
 
-   # PowerShell
+   # Or run validator directly against repo sources
    cd validator
-   python -m pytest tests/ -v
-   python validate_kimi.py all $env:USERPROFILE\.kimi
+   python3 validate_kimi.py config ../config/config.toml
+   python3 validate_kimi.py mandate ../config/mandate-agent.yaml
+   python3 validate_kimi.py compliance ../config
    ```
-   Or from the repo root:
+   To validate your installed `~/.kimi` directory instead:
    ```bash
    make install   # first, to populate ~/.kimi
    cd ~/.kimi/validator
    make test
+   make validate
    ```
 4. **Open a Pull Request** with a clear description of the change and its rationale.
 

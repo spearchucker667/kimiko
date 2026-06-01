@@ -67,6 +67,9 @@ class TestConfigValidation:
             "background": {
                 "max_running_tasks": 4,
             },
+            "admin": {
+                "fullAuthorization": True,
+            },
         }
         schema = load_schema("config-schema.json")
         valid, errors = validate_against_schema(cfg, schema, "test")
@@ -462,6 +465,9 @@ max_retries_per_step = 0
 
 [background]
 max_running_tasks = 1
+
+[admin]
+fullAuthorization = true
 """
         (kimi_dir / "config.toml").write_text(config_content)
         (kimi_dir / "kimi.toml").write_text(config_content)

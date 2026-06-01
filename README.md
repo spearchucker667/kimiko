@@ -1,8 +1,6 @@
 # Kimiko
 
-> **Note:** This is the docs-local copy. The canonical README lives at the [repository root](../README.md).
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![macOS](https://img.shields.io/badge/macOS-supported-blue?logo=apple)
 ![Windows](https://img.shields.io/badge/Windows-Git%20Bash%20%7C%20WSL%20%7C%20PowerShell-blue?logo=windows)
 ![Linux](https://img.shields.io/badge/Linux-supported-blue?logo=linux)
@@ -87,7 +85,7 @@ source ~/.kimi/activate-mandate.sh
 ~/.kimi/launch-with-mandate.sh
 ```
 
-> **Note**: Git Bash emulates `chmod` on NTFS. Actual file permissions are not enforced. See [`docs/INSTALL-WINDOWS.md`](./INSTALL-WINDOWS.md) for ACL guidance.
+> **Note**: Git Bash emulates `chmod` on NTFS. Actual file permissions are not enforced. See [`docs/INSTALL-WINDOWS.md`](docs/INSTALL-WINDOWS.md) for ACL guidance.
 
 ### PowerShell (Windows)
 
@@ -110,11 +108,11 @@ make install
 
 After step 5 (or the PowerShell equivalent) you should see the mandate acknowledgment and capability announcement identical to the original configuration.
 
-> **Tip:** For a deep-dive into the mandate architecture, configuration layers, and troubleshooting, see [`docs/AGENTS.md`](./AGENTS.md).
+> **Tip:** For a deep-dive into the mandate architecture, configuration layers, and troubleshooting, see [`docs/AGENTS.md`](docs/AGENTS.md).
 >
-> **Tip:** For detailed Windows installation walkthroughs, see [`docs/INSTALL-WINDOWS.md`](./INSTALL-WINDOWS.md).
+> **Tip:** For detailed Windows installation walkthroughs, see [`docs/INSTALL-WINDOWS.md`](docs/INSTALL-WINDOWS.md).
 >
-> **⚠️ Legal Notice:** By using this software you agree to the terms in [`docs/legal/DISCLAIMER.md`](./legal/DISCLAIMER.md). Read it before proceeding.
+> **⚠️ Legal Notice:** By using this software you agree to the terms in [`docs/legal/DISCLAIMER.md`](docs/legal/DISCLAIMER.md). Read it before proceeding.
 
 ---
 
@@ -171,13 +169,13 @@ kimiko/
 │   └── TROUBLESHOOTING.md      ← Platform-specific troubleshooting
 ├── scripts/
 │   ├── activate-mandate.sh
-│   ├── activate-mandate.ps1    ← PowerShell (NEW)
+│   ├── activate-mandate.ps1    ← PowerShell
 │   ├── kimi-wrapper.sh
-│   ├── kimi-wrapper.ps1        ← PowerShell (NEW)
+│   ├── kimi-wrapper.ps1        ← PowerShell
 │   ├── kimi-shell-integration.sh
-│   ├── kimi-shell-integration.ps1  ← PowerShell (NEW)
+│   ├── kimi-shell-integration.ps1  ← PowerShell
 │   ├── launch-with-mandate.sh
-│   ├── launch-with-mandate.ps1     ← PowerShell (NEW)
+│   ├── launch-with-mandate.ps1     ← PowerShell
 │   ├── INSTALL-GITBASH.md      ← Git Bash guide
 │   └── INSTALL-WSL.md          ← WSL guide
 ├── validator/
@@ -197,7 +195,7 @@ kimiko/
 │       └── fixtures/
 ├── .pre-commit-config.yaml
 ├── LICENSE
-└── Makefile
+└── README.md
 ```
 
 ## Directory Structure Created (in `~/.kimi`)
@@ -313,4 +311,4 @@ Before running `make install`, you may want to edit these placeholders in the co
 
 ## License
 
-See [LICENSE](../LICENSE).
+See [LICENSE](LICENSE).

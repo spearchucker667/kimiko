@@ -51,11 +51,22 @@ python validate_kimi.py compliance ~/.kimi
 ## Makefile Targets
 
 ```bash
+make all             # Validate + test + lint
 make validate        # Full ~/.kimi validation
 make test            # pytest suite
-make validate-config # config.toml only
+make validate-config      # config.toml only
+make validate-registry    # kimi.json only
+make validate-mandates    # mandate YAML files
+make validate-credentials # credentials JSON
 make security        # Security checks only
+make compliance      # Zero-blocker compliance checks
+make lint            # Python linter (ruff)
 ```
+
+## Tests
+
+- `tests/test_validator.py` — Core unit tests (schema loading, config/registry/credentials/mandate validation, security checks, compliance, fixtures)
+- `tests/test_install_integration.py` — Integration tests for Makefile install/uninstall targets
 
 ## Schemas
 

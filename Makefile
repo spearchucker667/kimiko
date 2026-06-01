@@ -110,7 +110,16 @@ else ifeq ($(PLATFORM),gitbash)
 else ifeq ($(PLATFORM),macos)
 	$(MAKE) install-macos
 else ifeq ($(PLATFORM),linux)
-	$(MAKE) install-linux
+	UNAME_R := $(shell uname -r 2>/dev/null || echo "")
+	ifneq ($(findstring microsoft,$(UNAME_R)),)
+		$(MAKE) install-wsl
+	else ifneq ($(findstring WSL,$(UNAME_R)),)
+		$(MAKE) install-wsl
+	else
+		$(MAKE) install-linux
+	endif
+else ifeq ($(PLATFORM),wsl)
+	$(MAKE) install-wsl
 else
 	@echo "Unknown platform '$(PLATFORM)'. Defaulting to Unix install."
 	$(MAKE) install-linux
@@ -234,7 +243,8 @@ $(DEST)/launch-with-mandate.ps1: $(REPO_ROOT)/scripts/launch-with-mandate.ps1
 $(DEST)/kimi.json: $(REPO_ROOT)/config/kimi.json.template
 	@mkdir -p $(dir $@)
 	@tmp="$@.tmp.$$$$"; \
-	sed 's|<YOUR_HOME_DIR>|$(HOME)|g' $< > "$$tmp"; \
+	HOME_FWD="$(subst \,/,$(HOME))"; \
+	sed 's|<YOUR_HOME_DIR>|'"$$HOME_FWD"'|g' $< > "$$tmp"; \
 	mv -f "$$tmp" "$@"
 
 # ── Validator Files ──────────────────────────────────────────────────────────
@@ -244,6 +254,11 @@ $(DEST)/validator/%: $(REPO_ROOT)/validator/%
 
 # ── Uninstall ────────────────────────────────────────────────────────────────
 uninstall:
+ifeq ($(PLATFORM),windows)
+	@echo "Uninstall on native Windows requires PowerShell. Run:"
+	@echo '  $$files = @("config.toml","kimi.toml","mandate-agent.yaml","mandate-kimiko-agent.yaml","latest_version.txt","activate-mandate.ps1","kimi-wrapper.ps1","kimi-shell-integration.ps1","launch-with-mandate.ps1","kimi.json"); foreach ($$f in $$files) { Remove-Item -Path "$$env:USERPROFILE\.kimi\$$f" -ErrorAction SilentlyContinue }; Remove-Item -Path "$$env:USERPROFILE\.kimi\validator" -Recurse -ErrorAction SilentlyContinue'
+	@exit 1
+else
 	@echo "Removing Kimiko-managed files from $(DEST) ..."
 	@for f in $(notdir $(FLAT_TARGETS)); do \
 		rm -f "$(DEST)/$$f"; \
@@ -251,9 +266,16 @@ uninstall:
 	@rm -f $(DEST)/kimi.json
 	@rm -rf $(DEST)/validator
 	@echo "Uninstalled. User secrets in credentials/, logs/, sessions/ were NOT touched."
+endif
 
 # ── Validation ───────────────────────────────────────────────────────────────
 check:
+ifeq ($(PLATFORM),windows)
+	@echo "The 'check' target requires a Unix-like environment (Git Bash, WSL, or MSYS2)."
+	@echo "On Windows with PowerShell, run the validator directly:"
+	@echo "  cd validator; python validate_kimi.py all %USERPROFILE%\.kimi"
+	@exit 1
+else
 	@echo "Running validator checks ..."
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py config --no-crossrefs $(REPO_ROOT)/config/config.toml
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py config --no-crossrefs $(REPO_ROOT)/config/kimi.toml
@@ -263,8 +285,14 @@ check:
 	@echo "Running zero-blocker compliance checks ..."
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py compliance $(REPO_ROOT)/config 2>/dev/null || true
 	@echo "All checks passed."
+endif
 
 sync:
+ifeq ($(PLATFORM),windows)
+	@echo "The 'sync' target requires a Unix-like environment (Git Bash, WSL, or MSYS2)."
+	@echo "On Windows with PowerShell, use a file-comparison tool or diff via WSL."
+	@exit 1
+else
 	@echo "Checking config.toml / kimi.toml sync ..."
 	@sync_tmp=$$(mktemp /tmp/kimi-sync.XXXXXX); \
 	sed -n '/^[^#]/,$$p' $(REPO_ROOT)/config/kimi.toml > "$$sync_tmp"; \
@@ -280,9 +308,16 @@ sync:
 		exit 1; \
 	fi
 	@echo "All sync checks passed."
+endif
 
 test:
+ifeq ($(PLATFORM),windows)
+	@echo "The 'test' target requires a Unix-like environment (Git Bash, WSL, or MSYS2)."
+	@echo "On Windows with PowerShell, run: cd validator; python -m pytest tests/ -v"
+	@exit 1
+else
 	@cd $(REPO_ROOT)/validator && python3 -m pytest tests/ -v
+endif
 
 verify: install
 	@echo "Verifying Kimiko installation in $(DEST) ..."
@@ -324,6 +359,12 @@ verify: install
 	else \
 		echo ""; echo "Verification failed."; exit 1; \
 	fi
+ifeq ($(PLATFORM),windows)
+	@echo "Checking PowerShell script syntax ..."
+	@pwsh -Command "$$err=0; Get-ChildItem '$(DEST)\*.ps1' | ForEach-Object { try { $$null=[System.Management.Automation.PSParser]::Tokenize((Get-Content $$_.FullName -Raw),[ref]$$null); Write-Host ('  OK: ' + $$_.Name) } catch { Write-Host ('  FAIL: ' + $$_.Name); $$err=1 } }; exit $$err" 2>/dev/null || \
+	powershell -Command "$$err=0; Get-ChildItem '$(DEST)\*.ps1' | ForEach-Object { try { $$null=[System.Management.Automation.PSParser]::Tokenize((Get-Content $$_.FullName -Raw),[ref]$$null); Write-Host ('  OK: ' + $$_.Name) } catch { Write-Host ('  FAIL: ' + $$_.Name); $$err=1 } }; exit $$err" 2>/dev/null || \
+	echo "  (PowerShell not available for syntax check)"
+endif
 
 permissions:
 ifeq ($(PLATFORM),windows)

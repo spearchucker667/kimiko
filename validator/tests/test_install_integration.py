@@ -37,6 +37,31 @@ class TestMakefileIntegration:
         assert (kimi / "validator" / "validate_kimi.py").exists()
         assert (kimi / "validator" / "schemas" / "config-schema.json").exists()
         assert (kimi / "validator" / "tests" / "test_validator.py").exists()
+        # Fixture files (BUG-013)
+        assert (kimi / "validator" / "tests" / "fixtures" / "bad-config-no-admin.toml").exists()
+        assert (kimi / "validator" / "tests" / "fixtures" / "bad-config-no-yolo.toml").exists()
+        assert (kimi / "validator" / "tests" / "fixtures" / "bad-mandate-missing-tools.yaml").exists()
+        assert (kimi / "validator" / "tests" / "fixtures" / "bad-mandate-no-zero-blockers.yaml").exists()
+
+    def test_make_install_windows_creates_ps1_files(self, tmp_path):
+        """Simulate Windows platform to verify .ps1 files are installed (BUG-005)."""
+        env = os.environ.copy()
+        env["OS"] = "Windows_NT"
+        env["USERPROFILE"] = str(tmp_path)
+        result = subprocess.run(
+            ["make", "install"],
+            cwd=REPO_ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, result.stderr
+
+        kimi = Path(tmp_path) / ".kimi"
+        assert (kimi / "activate-mandate.ps1").exists()
+        assert (kimi / "kimi-wrapper.ps1").exists()
+        assert (kimi / "kimi-shell-integration.ps1").exists()
+        assert (kimi / "launch-with-mandate.ps1").exists()
 
     def test_make_uninstall_preserves_credentials(self, tmp_path):
         env = os.environ.copy()

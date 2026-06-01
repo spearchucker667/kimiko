@@ -171,9 +171,9 @@ If this fails, re-render the template with proper escaping.
 
 PowerShell does not include `make`. You have two options:
 
-1. **Use PowerShell-native install** (no `make` needed):
+1. **Use `make install-windows`** (if make is installed):
    ```powershell
-   make install-windows  # If you have make installed
+   make install-windows
    ```
 
 2. **Install make via Chocolatey**:

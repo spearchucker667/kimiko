@@ -156,7 +156,7 @@ def scan_for_secrets(text: str, path: Path) -> list[str]:
     lines = text.splitlines()
     for lineno, line in enumerate(lines, 1):
         # Hex patterns require surrounding context to avoid flagging git SHAs
-        if re.search(r"[a-f0-9]{40}", line, re.IGNORECASE):
+        if re.search(r"[a-fA-F0-9]{40}", line):
             if secret_context.search(line):
                 findings.append(
                     f"{path}:{lineno}: potential secret leak (hex secret-like pattern)"
@@ -462,8 +462,8 @@ def cmd_security(args: argparse.Namespace) -> int:
             try:
                 text = f.read_text(encoding="utf-8", errors="replace")
                 findings.extend(scan_for_secrets(text, f))
-            except Exception:
-                pass
+            except Exception as exc:
+                findings.append(f"{f.name}: could not read ({exc})")
 
     # 3. AGENTS.md presence
     if not (base / "AGENTS.md").exists():
@@ -484,6 +484,21 @@ def cmd_security(args: argparse.Namespace) -> int:
     return 1
 
 
+def _sub_args(args: argparse.Namespace, **overrides: Any) -> argparse.Namespace:
+    """Shallow copy of args with optional overrides."""
+    ns = argparse.Namespace(**vars(args))
+    # Plain test stubs (type() instances) store attributes as class attrs,
+    # so vars() only returns instance attrs. Copy any missing public attrs.
+    for attr in dir(args):
+        if attr.startswith("_"):
+            continue
+        if not hasattr(ns, attr):
+            setattr(ns, attr, getattr(args, attr))
+    for k, v in overrides.items():
+        setattr(ns, k, v)
+    return ns
+
+
 def cmd_all(args: argparse.Namespace) -> int:
     base = Path(args.directory) if args.directory else Path.home() / ".kimi"
     if not base.is_dir():
@@ -496,24 +511,21 @@ def cmd_all(args: argparse.Namespace) -> int:
     # Config
     config_path = base / "config.toml"
     if config_path.exists():
-        args.file = str(config_path)
-        rc = cmd_config(args)
+        rc = cmd_config(_sub_args(args, file=str(config_path)))
         results.append((config_path, rc == 0, "config"))
         overall |= rc
 
     # kimi.toml (secondary)
     kimi_toml = base / "kimi.toml"
     if kimi_toml.exists():
-        args.file = str(kimi_toml)
-        rc = cmd_config(args)
+        rc = cmd_config(_sub_args(args, file=str(kimi_toml)))
         results.append((kimi_toml, rc == 0, "kimi.toml"))
         overall |= rc
 
     # Registry
     registry_path = base / "kimi.json"
     if registry_path.exists():
-        args.file = str(registry_path)
-        rc = cmd_registry(args)
+        rc = cmd_registry(_sub_args(args, file=str(registry_path)))
         results.append((registry_path, rc == 0, "registry"))
         overall |= rc
 
@@ -521,8 +533,7 @@ def cmd_all(args: argparse.Namespace) -> int:
     for mandate in ["mandate-agent.yaml", "mandate-kimiko-agent.yaml"]:
         mp = base / mandate
         if mp.exists():
-            args.file = str(mp)
-            rc = cmd_mandate(args)
+            rc = cmd_mandate(_sub_args(args, file=str(mp)))
             results.append((mp, rc == 0, "mandate"))
             overall |= rc
 
@@ -532,14 +543,12 @@ def cmd_all(args: argparse.Namespace) -> int:
         for cf in creds_dir.glob("*.json"):
             if cf.name.endswith(".lock"):
                 continue
-            args.file = str(cf)
-            rc = cmd_credentials(args)
+            rc = cmd_credentials(_sub_args(args, file=str(cf)))
             results.append((cf, rc == 0, "credentials"))
             overall |= rc
 
     # Security sweep
-    args.directory = str(base)
-    rc = cmd_security(args)
+    rc = cmd_security(_sub_args(args, directory=str(base)))
     results.append((base, rc == 0, "security"))
     overall |= rc
 

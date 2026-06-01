@@ -99,7 +99,13 @@ See [`scripts/INSTALL-WSL.md`](../scripts/INSTALL-WSL.md) for detailed WSL guida
 
 ### Installation
 
-PowerShell installation is manual (no `make` required):
+If you have `make` installed (via Chocolatey or MSYS2), use the one-liner:
+
+```powershell
+make install-windows
+```
+
+If you do **not** have `make`, perform the manual steps below:
 
 ```powershell
 # 1. Clone the repo
@@ -122,12 +128,6 @@ Copy-Item -Path "validator" -Destination "$env:USERPROFILE\.kimi" -Recurse -Forc
 $template = Get-Content "config\kimi.json.template" -Raw
 $template = $template.Replace("<YOUR_HOME_DIR>", $env:USERPROFILE.Replace("\", "/"))
 $template | Set-Content "$env:USERPROFILE\.kimi\kimi.json" -NoNewline
-```
-
-Or use the one-liner (from repo root):
-
-```powershell
-make install-windows
 ```
 
 ### Activation

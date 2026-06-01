@@ -91,16 +91,8 @@ jobs:
         working-directory: ./validator
         run: pytest -v
 
-      - name: Install files (PowerShell)
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.kimi"
-          Copy-Item -Path "config\*" -Destination "$env:USERPROFILE\.kimi" -Recurse -Force
-          Copy-Item -Path "scripts\*.ps1" -Destination "$env:USERPROFILE\.kimi" -Force
-          Copy-Item -Path "validator" -Destination "$env:USERPROFILE\.kimi" -Recurse -Force
-          $template = Get-Content "config\kimi.json.template" -Raw
-          $template = $template.Replace("<YOUR_HOME_DIR>", $env:USERPROFILE.Replace("\", "/"))
-          $template | Set-Content "$env:USERPROFILE\.kimi\kimi.json" -NoNewline
+      - name: Install files via Makefile
+        run: make install-windows
 
       - name: Validate PowerShell scripts syntax
         shell: pwsh
@@ -113,7 +105,7 @@ jobs:
       - name: Verify files present
         shell: pwsh
         run: |
-          $files = @("config.toml", "kimi.toml", "mandate-agent.yaml", "mandate-kimiko-agent.yaml", "activate-mandate.ps1", "kimi-wrapper.ps1")
+          $files = @("config.toml", "kimi.toml", "mandate-agent.yaml", "mandate-kimiko-agent.yaml", "activate-mandate.ps1", "kimi-wrapper.ps1", "kimi-shell-integration.ps1", "launch-with-mandate.ps1", "kimi.json")
           foreach ($f in $files) {
             $path = Join-Path $env:USERPROFILE ".kimi" $f
             if (Test-Path $path) { Write-Host "OK: $f" }

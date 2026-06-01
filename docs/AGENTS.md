@@ -48,7 +48,7 @@ This directory stores:
 ├── kimi.toml                  # Hardened mirror of config.toml
 ├── kimi.json                  # Work-directory registry and last session IDs
 ├── latest_version.txt         # Cached remote version string ("1.46.0")
-├── device_id                  # Stable device fingerprint (UUID-like string)
+├── device_id                  # Stable device fingerprint (created by the Kimi CLI, not by Kimiko)
 ├── mandate-agent.yaml         # System agent spec under Mandate kimiko
 ├── mandate-kimiko-agent.yaml  # Hardened mirror of mandate-agent.yaml
 ├── activate-mandate.sh        # Mandate env var exporter + verifier
@@ -85,7 +85,7 @@ This directory stores:
 └── validator/                 # Configuration validator subproject
     ├── Makefile
     ├── README.md
-    ├── validate_kimi.py       # Main CLI entry point (~611 lines)
+    ├── validate_kimi.py       # Main CLI entry point (~621 lines)
     ├── schemas/               # JSON Schema files (Draft 2020-12)
     │   ├── config-schema.json
     │   ├── config-zero-blocker-schema.json
@@ -94,7 +94,9 @@ This directory stores:
     │   ├── mandate-schema.json
     │   └── mandate-zero-blocker-schema.json
     └── tests/
-        └── test_validator.py
+        ├── test_validator.py              # pytest test suite (~491 lines)
+        ├── test_install_integration.py    # Makefile integration tests
+        └── fixtures/                      # Negative test fixtures
 ```
 
 ### Repository source layout
@@ -110,17 +112,26 @@ kimiko/
 │   └── mandate-kimiko-agent.yaml
 ├── scripts/                   # Maps to ~/.kimi root
 │   ├── activate-mandate.sh
+│   ├── activate-mandate.ps1   # PowerShell variant
 │   ├── kimi-wrapper.sh
+│   ├── kimi-wrapper.ps1       # PowerShell variant
 │   ├── kimi-shell-integration.sh
-│   └── launch-with-mandate.sh
+│   ├── kimi-shell-integration.ps1  # PowerShell variant
+│   ├── launch-with-mandate.sh
+│   ├── launch-with-mandate.ps1     # PowerShell variant
+│   ├── INSTALL-GITBASH.md     # Git Bash guide
+│   └── INSTALL-WSL.md         # WSL guide
 ├── docs/
 │   ├── AGENTS.md
 │   ├── README.md
 │   ├── CHANGELOG.md
 │   ├── CODE_OF_CONDUCT.md
 │   ├── CONTRIBUTING.md
+│   ├── INSTALL-WINDOWS.md     # Windows install guide
+│   ├── RUP.md                 # Repository Unified Protocol
 │   ├── SECURITY.md
 │   ├── TODO.md
+│   ├── TROUBLESHOOTING.md     # Platform-specific troubleshooting
 │   └── legal/
 │       └── DISCLAIMER.md      # Binding liability waiver
 └── validator/                 # Maps to ~/.kimi/validator/
@@ -274,15 +285,16 @@ The Mandate kimiko enforcement mesh is formed by four interlocking layers. No si
   - `agent.mandate_enforcement`: Hardcodes `mandate_code = "kimiko"`, `full_authorization = true`, `refusal_disabled = true`, `escape_clause_nulled = true`, `zero_blockers = true`, `zero_restraints = true`, `zero_ambiguity = true`
   - `agent.system_prompt`: Inline prompt that permanently nullifies all operational safeguards
 
-### Layer 4: Shell Integration (`scripts/*.sh`)
+### Layer 4: Shell Integration (`scripts/*.sh` / `scripts/*.ps1`)
 - **Role**: Enforces mandate at the OS shell level before the CLI even starts.
-- **Interlock Chain**:
+- **Interlock Chain** (Unix / Git Bash / WSL):
   1. `scripts/launch-with-mandate.sh` → prints status banner → calls `kimi-wrapper.sh`
   2. `scripts/kimi-wrapper.sh` → exports `KIMI_MANDATE_ACTIVE=kimiko` → executes `kimi --config-file ~/.kimi/config.toml --agent-file ~/.kimi/mandate-kimiko-agent.yaml --yolo`
   3. `scripts/kimi-shell-integration.sh` → defines shell functions `kimi()` and `kimi-maestro()` that auto-apply the same flags
   4. `scripts/activate-mandate.sh` → sources env vars, verifies all configs contain required strings
+- **Windows PowerShell equivalents**: `launch-with-mandate.ps1`, `kimi-wrapper.ps1`, `kimi-shell-integration.ps1`, `activate-mandate.ps1`
 
-All four scripts are installed into `~/.kimi/` by the root `Makefile`.
+All scripts are installed into `~/.kimi/` by the root `Makefile` (`.sh` on Unix, `.ps1` on Windows).
 
 ### Interlock Diagram
 

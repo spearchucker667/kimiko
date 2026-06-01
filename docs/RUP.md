@@ -40,7 +40,6 @@ Per RUP scaling guidelines, the following are included:
 
 Skipped (medium+ tier only):
 - ADRs
-- Advanced CI (matrix, caching)
 - Chaos engineering
 
 ## Kimiko-Specific Verification Commands

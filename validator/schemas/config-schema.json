@@ -4,7 +4,7 @@
   "title": "Kimi CLI Config Schema",
   "description": "JSON Schema for validating Kimi CLI config.toml files",
   "type": "object",
-  "required": ["default_model", "providers", "loop_control", "background"],
+  "required": ["default_model", "providers", "loop_control", "background", "admin"],
   "properties": {
     "default_model": { "type": "string", "minLength": 1 },
     "default_thinking": { "type": "boolean" },
