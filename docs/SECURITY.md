@@ -29,7 +29,29 @@ We aim to acknowledge reports within 72 hours and provide a fix or assessment wi
 
 ## Security Best Practices for Users
 
+### All Platforms
+
 - **Never commit credentials.** The `.gitignore` explicitly excludes `credentials/`, `device_id`, and `kimi.json`.
 - **Run `make verify` after installation** to confirm files landed with correct permissions.
+- **Review scripts** before sourcing them into your shell environment.
+
+### macOS / Linux / WSL
+
 - **Use `chmod 600`** on `config.toml`, `kimi.toml`, and mandate YAML files after any manual edits.
-- **Review shell scripts** before sourcing them into your shell environment.
+- Verify with `ls -la ~/.kimi`.
+
+### Windows (Git Bash)
+
+- Git Bash emulates `chmod` on NTFS, but the actual ACLs are not modified.
+- Use Windows Explorer → Properties → Security tab to verify actual file permissions.
+- Run `make permissions` for PowerShell `icacls` guidance.
+
+### Windows (PowerShell)
+
+- NTFS uses ACLs instead of Unix permission bits.
+- To restrict access to `%USERPROFILE%\.kimi`:
+  ```powershell
+  icacls $env:USERPROFILE\.kimi /inheritance:r
+  icacls $env:USERPROFILE\.kimi /grant:r $env:USERNAME:(OI)(CI)F
+  ```
+- Ensure PowerShell execution policy is set appropriately: `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.

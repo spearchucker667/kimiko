@@ -17,10 +17,11 @@
 | Property | Value |
 |---|---|
 | **Name** | Kimi Code CLI system mandate directory |
+| **Platforms** | macOS, Linux, Windows (Git Bash, WSL, PowerShell) |
 | **CLI Version** | 1.46.0 (as of last check) |
 | **Install Path** | `~/.local/bin/kimi` (symlinked via `uv`) |
 | **Runtime** | Python 3.13.13 (`~/.local/share/uv/tools/kimi-cli/...`) |
-| **Platform** | macOS (Darwin, arm64) |
+| **Platform** | macOS (Darwin, arm64), Linux, Windows (Git Bash / WSL / PowerShell) |
 | **Publisher** | MoonshotAI |
 | **Default Model** | `kimi-for-coding` (a.k.a. Kimi-k2.6) via `https://api.kimi.com/coding/v1` |
 
@@ -448,8 +449,8 @@ Both `scripts/activate-mandate.sh` and `scripts/kimi-shell-integration.sh` defin
 
 ## Development / Build Notes
 
-- **The root directory uses `make` for installation and validation.** It is not a buildable Python package.
-- **Tests and CI/CD live under `validator/` and `.github/workflows/` respectively.** There is no `package.json` or `pyproject.toml` at the root.
+- **The root directory uses `make` for installation and validation on Unix-like systems.** On Windows, PowerShell scripts are provided as native alternatives. It is not a buildable Python package.
+- **Tests and CI/CD live under `validator/` and `.github/workflows/` respectively.** CI runs on macOS, Ubuntu, and Windows (PowerShell + Git Bash). There is no `package.json` or `pyproject.toml` at the root.
 - Source files are organized under `config/`, `scripts/`, `docs/`, and `validator/`.
 - If you need to modify the CLI itself, the source code is inside the `uv` tool environment:
   ```
@@ -592,7 +593,8 @@ python validate_kimi.py security ~/.kimi
 - **String formatting**: f-strings preferred.
 - **Error handling**: Use explicit exception handling with informative messages.
 - **Color output**: ANSI colors are wrapped in a `C` class and gated behind `sys.stdout.isatty()`.
-- **File permissions**: Sensitive files are expected to be `0o600`.
+- **File permissions**: Sensitive files are expected to be `0o600` on Unix. On Windows, permission checks are skipped (NTFS uses ACLs).
+- **Cross-platform**: All path handling uses `pathlib.Path`. Platform-specific code gates on `platform.system()`.
 - **Schema standard**: JSON Schemas use Draft 2020-12.
 
 ### Configuration Files
@@ -609,7 +611,12 @@ python validate_kimi.py security ~/.kimi
 ### Running Tests
 
 ```bash
+# macOS / Linux / WSL / Git Bash
 cd ~/.kimi/validator
+python3 -m pytest tests/ -v
+
+# PowerShell
+cd $env:USERPROFILE\.kimi\validator
 python -m pytest tests/ -v
 ```
 

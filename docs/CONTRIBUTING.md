@@ -1,6 +1,6 @@
 # Contributing to Kimiko
 
-Thank you for your interest in improving Kimiko! This repository is a sanitized, public-ready configuration template for the Kimi Code CLI.
+Thank you for your interest in improving Kimiko! This repository is a sanitized, public-ready cross-platform configuration template for the Kimi Code CLI.
 
 ## How to Contribute
 
@@ -8,9 +8,15 @@ Thank you for your interest in improving Kimiko! This repository is a sanitized,
 2. **Make your changes** following the conventions below.
 3. **Run the validator** to ensure configs remain structurally sound:
    ```bash
+   # macOS / Linux / WSL / Git Bash
    cd validator
    make test
    make validate
+
+   # PowerShell
+   cd validator
+   python -m pytest tests/ -v
+   python validate_kimi.py all $env:USERPROFILE\.kimi
    ```
    Or from the repo root:
    ```bash
@@ -23,10 +29,11 @@ Thank you for your interest in improving Kimiko! This repository is a sanitized,
 ## Code & Config Style
 
 - **Shell scripts**: Use `#!/bin/bash`, `set -euo pipefail` where appropriate, and `${HOME}` for portability.
+- **PowerShell scripts**: Use `#` comments, `$ErrorActionPreference = "Stop"`, and `$env:USERPROFILE` for paths.
 - **TOML**: Prefer section headers over inline tables. Keep `config/config.toml` and `config/kimi.toml` synchronized.
 - **YAML**: Use 2-space indentation for mandate files.
 - **JSON**: Use 2-space indentation for schemas.
-- **Python (validator)**: Follow PEP 8. Use type hints. Run `make lint` before committing.
+- **Python (validator)**: Follow PEP 8. Use type hints. Run `make lint` before committing. Use `pathlib.Path` for all paths. Gate platform-specific code with `platform.system()`.
 
 ## Synchronization Requirement
 

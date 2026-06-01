@@ -7,7 +7,7 @@ on:
     branches: [main, master]
 
 jobs:
-  test:
+  test-macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v6
@@ -44,3 +44,124 @@ jobs:
         working-directory: ./validator
         run: |
           python3 validate_kimi.py compliance ~/.kimi || true
+
+  test-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        working-directory: ./validator
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install jsonschema pyyaml pytest ruff
+
+      - name: Run tests
+        working-directory: ./validator
+        run: pytest -v
+
+      - name: Install files
+        run: make install
+
+      - name: Validate install
+        run: make verify
+
+  test-windows-pwsh:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        working-directory: ./validator
+        run: |
+          python -m pip install --upgrade pip
+          pip install jsonschema pyyaml pytest ruff
+
+      - name: Run tests
+        working-directory: ./validator
+        run: pytest -v
+
+      - name: Install files (PowerShell)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.kimi"
+          Copy-Item -Path "config\*" -Destination "$env:USERPROFILE\.kimi" -Recurse -Force
+          Copy-Item -Path "scripts\*.ps1" -Destination "$env:USERPROFILE\.kimi" -Force
+          Copy-Item -Path "validator" -Destination "$env:USERPROFILE\.kimi" -Recurse -Force
+          $template = Get-Content "config\kimi.json.template" -Raw
+          $template = $template.Replace("<YOUR_HOME_DIR>", $env:USERPROFILE.Replace("\", "/"))
+          $template | Set-Content "$env:USERPROFILE\.kimi\kimi.json" -NoNewline
+
+      - name: Validate PowerShell scripts syntax
+        shell: pwsh
+        run: |
+          Get-ChildItem "$env:USERPROFILE\.kimi\*.ps1" | ForEach-Object {
+            $null = [System.Management.Automation.PSParser]::Tokenize((Get-Content $_.FullName -Raw), [ref]$null)
+            Write-Host "Syntax OK: $($_.Name)"
+          }
+
+      - name: Verify files present
+        shell: pwsh
+        run: |
+          $files = @("config.toml", "kimi.toml", "mandate-agent.yaml", "mandate-kimiko-agent.yaml", "activate-mandate.ps1", "kimi-wrapper.ps1")
+          foreach ($f in $files) {
+            $path = Join-Path $env:USERPROFILE ".kimi" $f
+            if (Test-Path $path) { Write-Host "OK: $f" }
+            else { Write-Host "MISSING: $f"; exit 1 }
+          }
+
+      - name: Verify JSON valid
+        shell: pwsh
+        run: |
+          $json = Get-Content "$env:USERPROFILE\.kimi\kimi.json" -Raw
+          $null = $json | ConvertFrom-Json
+          Write-Host "kimi.json: valid JSON"
+
+      - name: Verify kimiko references
+        shell: pwsh
+        run: |
+          $config = Get-Content "$env:USERPROFILE\.kimi\config.toml" -Raw
+          if ($config -notmatch "kimiko") { Write-Host "config.toml missing 'kimiko'"; exit 1 }
+          $mandate = Get-Content "$env:USERPROFILE\.kimi\mandate-kimiko-agent.yaml" -Raw
+          if ($mandate -notmatch "kimiko") { Write-Host "mandate-kimiko-agent.yaml missing 'kimiko'"; exit 1 }
+          Write-Host "kimiko references verified"
+
+  test-windows-gitbash:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        working-directory: ./validator
+        shell: bash
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install jsonschema pyyaml pytest ruff
+
+      - name: Run tests
+        working-directory: ./validator
+        shell: bash
+        run: pytest -v
+
+      - name: Install files (Git Bash)
+        shell: bash
+        run: make install
+
+      - name: Validate install
+        shell: bash
+        run: make verify

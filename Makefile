@@ -1,135 +1,248 @@
-# Kimiko — macOS-only installer for the ~/.kimi mandate configuration
+# Kimiko — Cross-platform installer for the ~/.kimi mandate configuration
+# Platforms: macOS, Linux, WSL, Git Bash (MINGW), PowerShell (Windows)
 # Targets: install, verify, uninstall, help
 
 REPO_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-DEST := $(HOME)/.kimi
 
-# Config files (source in config/ → ~/.kimi)
+# ── Platform Detection ───────────────────────────────────────────────────────
+ifeq ($(OS),Windows_NT)
+    PLATFORM := windows
+    DEST := $(USERPROFILE)/.kimi
+    WINDOWS_SCRIPTS := \
+        $(DEST)/activate-mandate.ps1 \
+        $(DEST)/kimi-wrapper.ps1 \
+        $(DEST)/kimi-shell-integration.ps1 \
+        $(DEST)/launch-with-mandate.ps1
+else
+    UNAME_S := $(shell uname -s 2>/dev/null || echo Unknown)
+    ifeq ($(UNAME_S),Darwin)
+        PLATFORM := macos
+    else ifeq ($(UNAME_S),Linux)
+        PLATFORM := linux
+    else ifneq ($(findstring MINGW,$(UNAME_S)),)
+        PLATFORM := gitbash
+    else ifneq ($(findstring MSYS,$(UNAME_S)),)
+        PLATFORM := gitbash
+    else ifneq ($(findstring CYGWIN,$(UNAME_S)),)
+        PLATFORM := gitbash
+    else
+        PLATFORM := unknown
+    endif
+    DEST := $(HOME)/.kimi
+    WINDOWS_SCRIPTS :=
+endif
+
+# ── Source Files ─────────────────────────────────────────────────────────────
 CONFIG_SRCS := \
-	config/config.toml \
-	config/kimi.toml \
-	config/mandate-agent.yaml \
-	config/mandate-kimiko-agent.yaml \
-	config/latest_version.txt
+    config/config.toml \
+    config/kimi.toml \
+    config/mandate-agent.yaml \
+    config/mandate-kimiko-agent.yaml \
+    config/latest_version.txt
 
-# Script files (source in scripts/ → ~/.kimi)
 SCRIPT_SRCS := \
-	scripts/activate-mandate.sh \
-	scripts/kimi-wrapper.sh \
-	scripts/kimi-shell-integration.sh \
-	scripts/launch-with-mandate.sh
+    scripts/activate-mandate.sh \
+    scripts/kimi-wrapper.sh \
+    scripts/kimi-shell-integration.sh \
+    scripts/launch-with-mandate.sh
 
 # All flat files installed directly into ~/.kimi
 FLAT_TARGETS := \
-	$(DEST)/config.toml \
-	$(DEST)/kimi.toml \
-	$(DEST)/mandate-agent.yaml \
-	$(DEST)/mandate-kimiko-agent.yaml \
-	$(DEST)/latest_version.txt \
-	$(DEST)/activate-mandate.sh \
-	$(DEST)/kimi-wrapper.sh \
-	$(DEST)/kimi-shell-integration.sh \
-	$(DEST)/launch-with-mandate.sh
+    $(DEST)/config.toml \
+    $(DEST)/kimi.toml \
+    $(DEST)/mandate-agent.yaml \
+    $(DEST)/mandate-kimiko-agent.yaml \
+    $(DEST)/latest_version.txt \
+    $(DEST)/activate-mandate.sh \
+    $(DEST)/kimi-wrapper.sh \
+    $(DEST)/kimi-shell-integration.sh \
+    $(DEST)/launch-with-mandate.sh \
+    $(WINDOWS_SCRIPTS)
 
 # Validator files installed into ~/.kimi/validator/
 VALIDATOR_TARGETS := \
-	$(DEST)/validator/Makefile \
-	$(DEST)/validator/README.md \
-	$(DEST)/validator/validate_kimi.py \
-	$(DEST)/validator/schemas/config-schema.json \
-	$(DEST)/validator/schemas/config-zero-blocker-schema.json \
-	$(DEST)/validator/schemas/credentials-schema.json \
-	$(DEST)/validator/schemas/kimi-json-schema.json \
-	$(DEST)/validator/schemas/mandate-schema.json \
-	$(DEST)/validator/schemas/mandate-zero-blocker-schema.json \
-	$(DEST)/validator/tests/test_validator.py \
-	$(DEST)/validator/tests/test_install_integration.py \
-	$(DEST)/validator/tests/fixtures/bad-config-no-admin.toml \
-	$(DEST)/validator/tests/fixtures/bad-config-no-yolo.toml \
-	$(DEST)/validator/tests/fixtures/bad-mandate-missing-tools.yaml \
-	$(DEST)/validator/tests/fixtures/bad-mandate-no-zero-blockers.yaml
+    $(DEST)/validator/Makefile \
+    $(DEST)/validator/README.md \
+    $(DEST)/validator/validate_kimi.py \
+    $(DEST)/validator/schemas/config-schema.json \
+    $(DEST)/validator/schemas/config-zero-blocker-schema.json \
+    $(DEST)/validator/schemas/credentials-schema.json \
+    $(DEST)/validator/schemas/kimi-json-schema.json \
+    $(DEST)/validator/schemas/mandate-schema.json \
+    $(DEST)/validator/schemas/mandate-zero-blocker-schema.json \
+    $(DEST)/validator/tests/test_validator.py \
+    $(DEST)/validator/tests/test_install_integration.py \
+    $(DEST)/validator/tests/fixtures/bad-config-no-admin.toml \
+    $(DEST)/validator/tests/fixtures/bad-config-no-yolo.toml \
+    $(DEST)/validator/tests/fixtures/bad-mandate-missing-tools.yaml \
+    $(DEST)/validator/tests/fixtures/bad-mandate-no-zero-blockers.yaml
 
-.PHONY: all install verify uninstall check sync test help
+.PHONY: all install install-windows install-gitbash install-wsl install-macos install-linux verify uninstall check sync test help permissions
 
 all: help
 
 help:
-	@echo "Kimiko — ~/.kimi mandate installer (macOS)"
+	@echo "Kimiko — ~/.kimi mandate installer (cross-platform)"
 	@echo ""
-	@echo "  make install    Full idempotent setup into ~/.kimi"
-	@echo "  make verify     Confirm files landed and key strings present"
-	@echo "  make check      Validate config files with the validator"
-	@echo "  make sync       Verify config/mandate mirror files are in sync"
-	@echo "  make test       Run pytest suite for the validator"
-	@echo "  make uninstall  Remove installed Kimiko files (preserves secrets)"
-	@echo "  make help       Show this help text"
+	@echo "  make install      Platform-aware install (auto-detects OS)"
+	@echo "  make install-windows   PowerShell install into %USERPROFILE%\.kimi"
+	@echo "  make install-gitbash   Git Bash install (chmod is no-op on NTFS)"
+	@echo "  make install-wsl       WSL install (native Linux filesystem)"
+	@echo "  make install-macos     macOS install (BSD make, chmod enforced)"
+	@echo "  make install-linux     Native Linux install"
+	@echo "  make verify       Confirm files landed and key strings present"
+	@echo "  make check        Validate config files with the validator"
+	@echo "  make sync         Verify config/mandate mirror files are in sync"
+	@echo "  make test         Run pytest suite for the validator"
+	@echo "  make uninstall    Remove installed Kimiko files (preserves secrets)"
+	@echo "  make permissions  Show Windows ACL guidance (Windows only)"
+	@echo "  make help         Show this help text"
+	@echo ""
+	@echo "Detected platform: $(PLATFORM)"
+	@echo "Install destination: $(DEST)"
 
-install: $(DEST)/kimi.json $(FLAT_TARGETS) $(VALIDATOR_TARGETS)
+# ── Platform-Aware Install ───────────────────────────────────────────────────
+install:
+ifeq ($(PLATFORM),windows)
+	$(MAKE) install-windows
+else ifeq ($(PLATFORM),gitbash)
+	$(MAKE) install-gitbash
+else ifeq ($(PLATFORM),macos)
+	$(MAKE) install-macos
+else ifeq ($(PLATFORM),linux)
+	$(MAKE) install-linux
+else
+	@echo "Unknown platform '$(PLATFORM)'. Defaulting to Unix install."
+	$(MAKE) install-linux
+endif
+
+install-windows: $(DEST)/kimi.json $(FLAT_TARGETS) $(VALIDATOR_TARGETS)
 	@echo ""
-	@echo "✓ Kimiko installed to $(DEST)"
+	@echo "Kimiko installed to $(DEST)"
+	@echo "  Run: . $(DEST)/activate-mandate.ps1"
+	@echo "  Or : $(DEST)/launch-with-mandate.ps1"
+	@echo ""
+	@echo "NOTE: Windows NTFS does not support Unix chmod permissions."
+	@echo "      Run 'make permissions' for ACL guidance."
+
+install-gitbash: $(DEST)/kimi.json $(FLAT_TARGETS) $(VALIDATOR_TARGETS)
+	@echo ""
+	@echo "Kimiko installed to $(DEST)"
+	@echo "  Run: source $(DEST)/activate-mandate.sh"
+	@echo "  Or : $(DEST)/launch-with-mandate.sh"
+	@echo ""
+	@echo "NOTE: Git Bash chmod is emulated on NTFS and does not enforce permissions."
+
+install-wsl: $(DEST)/kimi.json $(FLAT_TARGETS) $(VALIDATOR_TARGETS)
+	@echo ""
+	@echo "Kimiko installed to $(DEST)"
 	@echo "  Run: source $(DEST)/activate-mandate.sh"
 	@echo "  Or : $(DEST)/launch-with-mandate.sh"
 
-# Config files: config/ → ~/.kimi
+install-macos: $(DEST)/kimi.json $(FLAT_TARGETS) $(VALIDATOR_TARGETS)
+	@echo ""
+	@echo "Kimiko installed to $(DEST)"
+	@echo "  Run: source $(DEST)/activate-mandate.sh"
+	@echo "  Or : $(DEST)/launch-with-mandate.sh"
+
+install-linux: $(DEST)/kimi.json $(FLAT_TARGETS) $(VALIDATOR_TARGETS)
+	@echo ""
+	@echo "Kimiko installed to $(DEST)"
+	@echo "  Run: source $(DEST)/activate-mandate.sh"
+	@echo "  Or : $(DEST)/launch-with-mandate.sh"
+
+# ── Config Files ─────────────────────────────────────────────────────────────
 $(DEST)/config.toml: $(REPO_ROOT)/config/config.toml
 	@mkdir -p $(dir $@)
 	cp -f $< $@
-	chmod 600 $@
+ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
+	@chmod 600 $@
+endif
 
 $(DEST)/kimi.toml: $(REPO_ROOT)/config/kimi.toml
 	@mkdir -p $(dir $@)
 	cp -f $< $@
-	chmod 600 $@
+ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
+	@chmod 600 $@
+endif
 
 $(DEST)/mandate-agent.yaml: $(REPO_ROOT)/config/mandate-agent.yaml
 	@mkdir -p $(dir $@)
 	cp -f $< $@
-	chmod 600 $@
+ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
+	@chmod 600 $@
+endif
 
 $(DEST)/mandate-kimiko-agent.yaml: $(REPO_ROOT)/config/mandate-kimiko-agent.yaml
 	@mkdir -p $(dir $@)
 	cp -f $< $@
-	chmod 600 $@
+ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
+	@chmod 600 $@
+endif
 
 $(DEST)/latest_version.txt: $(REPO_ROOT)/config/latest_version.txt
 	@mkdir -p $(dir $@)
 	cp -f $< $@
 
-# Script files: scripts/ → ~/.kimi
+# ── Shell Scripts (Unix + Git Bash) ──────────────────────────────────────────
 $(DEST)/activate-mandate.sh: $(REPO_ROOT)/scripts/activate-mandate.sh
 	@mkdir -p $(dir $@)
 	cp -f $< $@
-	chmod +x $@
+ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
+	@chmod +x $@
+endif
 
 $(DEST)/kimi-wrapper.sh: $(REPO_ROOT)/scripts/kimi-wrapper.sh
 	@mkdir -p $(dir $@)
 	cp -f $< $@
-	chmod +x $@
+ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
+	@chmod +x $@
+endif
 
 $(DEST)/kimi-shell-integration.sh: $(REPO_ROOT)/scripts/kimi-shell-integration.sh
 	@mkdir -p $(dir $@)
 	cp -f $< $@
-	chmod +x $@
+ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
+	@chmod +x $@
+endif
 
 $(DEST)/launch-with-mandate.sh: $(REPO_ROOT)/scripts/launch-with-mandate.sh
 	@mkdir -p $(dir $@)
 	cp -f $< $@
-	chmod +x $@
+ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
+	@chmod +x $@
+endif
 
-# Template render: kimi.json (atomic: temp file + mv)
+# ── PowerShell Scripts (Windows) ─────────────────────────────────────────────
+$(DEST)/activate-mandate.ps1: $(REPO_ROOT)/scripts/activate-mandate.ps1
+	@mkdir -p $(dir $@)
+	cp -f $< $@
+
+$(DEST)/kimi-wrapper.ps1: $(REPO_ROOT)/scripts/kimi-wrapper.ps1
+	@mkdir -p $(dir $@)
+	cp -f $< $@
+
+$(DEST)/kimi-shell-integration.ps1: $(REPO_ROOT)/scripts/kimi-shell-integration.ps1
+	@mkdir -p $(dir $@)
+	cp -f $< $@
+
+$(DEST)/launch-with-mandate.ps1: $(REPO_ROOT)/scripts/launch-with-mandate.ps1
+	@mkdir -p $(dir $@)
+	cp -f $< $@
+
+# ── Template Render: kimi.json (atomic) ──────────────────────────────────────
 $(DEST)/kimi.json: $(REPO_ROOT)/config/kimi.json.template
 	@mkdir -p $(dir $@)
 	@tmp="$@.tmp.$$$$"; \
 	sed 's|<YOUR_HOME_DIR>|$(HOME)|g' $< > "$$tmp"; \
-	chmod 600 "$$tmp"; \
 	mv -f "$$tmp" "$@"
 
-# Validator files: validator/ → ~/.kimi/validator/
+# ── Validator Files ──────────────────────────────────────────────────────────
 $(DEST)/validator/%: $(REPO_ROOT)/validator/%
 	@mkdir -p $(dir $@)
 	cp -f $< $@
 
-# Uninstall: remove only the files we own (never touch credentials, logs, sessions, etc.)
+# ── Uninstall ────────────────────────────────────────────────────────────────
 uninstall:
 	@echo "Removing Kimiko-managed files from $(DEST) ..."
 	@for f in $(notdir $(FLAT_TARGETS)); do \
@@ -137,35 +250,36 @@ uninstall:
 	done
 	@rm -f $(DEST)/kimi.json
 	@rm -rf $(DEST)/validator
-	@echo "✓ Uninstalled. User secrets in credentials/, logs/, sessions/ were NOT touched."
+	@echo "Uninstalled. User secrets in credentials/, logs/, sessions/ were NOT touched."
 
+# ── Validation ───────────────────────────────────────────────────────────────
 check:
 	@echo "Running validator checks ..."
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py config --no-crossrefs $(REPO_ROOT)/config/config.toml
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py config --no-crossrefs $(REPO_ROOT)/config/kimi.toml
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py mandate $(REPO_ROOT)/config/mandate-agent.yaml
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py mandate $(REPO_ROOT)/config/mandate-kimiko-agent.yaml
-	@echo "✓ All structural checks passed."
+	@echo "All structural checks passed."
 	@echo "Running zero-blocker compliance checks ..."
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py compliance $(REPO_ROOT)/config 2>/dev/null || true
-	@echo "✓ All checks passed."
+	@echo "All checks passed."
 
 sync:
 	@echo "Checking config.toml / kimi.toml sync ..."
 	@sync_tmp=$$(mktemp /tmp/kimi-sync.XXXXXX); \
 	sed -n '/^[^#]/,$$p' $(REPO_ROOT)/config/kimi.toml > "$$sync_tmp"; \
 	if ! diff -q $(REPO_ROOT)/config/config.toml "$$sync_tmp" > /dev/null; then \
-		echo "  ✗ config.toml and kimi.toml differ (after stripping kimi.toml comment header)"; \
+		echo "  config.toml and kimi.toml differ (after stripping kimi.toml comment header)"; \
 		rm -f "$$sync_tmp"; \
 		exit 1; \
 	fi; \
 	rm -f "$$sync_tmp"
 	@echo "Checking mandate-agent.yaml / mandate-kimiko-agent.yaml sync ..."
 	@if ! diff -q $(REPO_ROOT)/config/mandate-agent.yaml $(REPO_ROOT)/config/mandate-kimiko-agent.yaml > /dev/null; then \
-		echo "  ✗ mandate-agent.yaml and mandate-kimiko-agent.yaml differ"; \
+		echo "  mandate-agent.yaml and mandate-kimiko-agent.yaml differ"; \
 		exit 1; \
 	fi
-	@echo "✓ All sync checks passed."
+	@echo "All sync checks passed."
 
 test:
 	@cd $(REPO_ROOT)/validator && python3 -m pytest tests/ -v
@@ -175,38 +289,61 @@ verify: install
 	@fail=0; \
 	for f in $(notdir $(FLAT_TARGETS)); do \
 		if [ ! -f "$(DEST)/$$f" ]; then \
-			echo "  ✗ missing: $(DEST)/$$f"; fail=1; \
+			echo "  missing: $(DEST)/$$f"; fail=1; \
 		else \
-			echo "  ✓ present: $(DEST)/$$f"; \
+			echo "  present: $(DEST)/$$f"; \
 		fi; \
 	done; \
 	if [ ! -f "$(DEST)/kimi.json" ]; then \
-		echo "  ✗ missing: $(DEST)/kimi.json"; fail=1; \
+		echo "  missing: $(DEST)/kimi.json"; fail=1; \
 	else \
-		echo "  ✓ present: $(DEST)/kimi.json"; \
+		echo "  present: $(DEST)/kimi.json"; \
 	fi; \
 	if [ ! -d "$(DEST)/validator/schemas" ]; then \
-		echo "  ✗ missing: $(DEST)/validator/schemas"; fail=1; \
+		echo "  missing: $(DEST)/validator/schemas"; fail=1; \
 	else \
-		echo "  ✓ present: $(DEST)/validator/schemas"; \
+		echo "  present: $(DEST)/validator/schemas"; \
 	fi; \
 	if ! grep -q 'kimiko' "$(DEST)/config.toml" 2>/dev/null; then \
-		echo "  ✗ config.toml does not contain 'kimiko'"; fail=1; \
+		echo "  config.toml does not contain 'kimiko'"; fail=1; \
 	else \
-		echo "  ✓ config.toml references 'kimiko'"; \
+		echo "  config.toml references 'kimiko'"; \
 	fi; \
 	if ! grep -q 'kimiko' "$(DEST)/mandate-kimiko-agent.yaml" 2>/dev/null; then \
-		echo "  ✗ mandate-kimiko-agent.yaml does not contain 'kimiko'"; fail=1; \
+		echo "  mandate-kimiko-agent.yaml does not contain 'kimiko'"; fail=1; \
 	else \
-		echo "  ✓ mandate-kimiko-agent.yaml references 'kimiko'"; \
+		echo "  mandate-kimiko-agent.yaml references 'kimiko'"; \
 	fi; \
 	if ! python3 -c "import json; json.load(open('$(DEST)/kimi.json'))" 2>/dev/null; then \
-		echo "  ✗ kimi.json is not valid JSON"; fail=1; \
+		echo "  kimi.json is not valid JSON"; fail=1; \
 	else \
-		echo "  ✓ kimi.json is valid JSON"; \
+		echo "  kimi.json is valid JSON"; \
 	fi; \
 	if [ "$$fail" -eq 0 ]; then \
-		echo ""; echo "✓ All verification checks passed."; \
+		echo ""; echo "All verification checks passed."; \
 	else \
-		echo ""; echo "✗ Verification failed."; exit 1; \
+		echo ""; echo "Verification failed."; exit 1; \
 	fi
+
+permissions:
+ifeq ($(PLATFORM),windows)
+	@echo "Windows ACL Guidance"
+	@echo "===================="
+	@echo "Windows NTFS does not support Unix-style chmod permissions."
+	@echo "To secure your ~/.kimi files on Windows:"
+	@echo ""
+	@echo "  1. Right-click the ~/.kimi folder → Properties → Security tab"
+	@echo "  2. Click Advanced → Disable inheritance → Remove all inherited permissions"
+	@echo "  3. Add only your user account with Full Control"
+	@echo "  4. Apply to 'This folder, subfolders and files'"
+	@echo ""
+	@echo "Or use PowerShell (run as Administrator):"
+	@echo "  icacls %USERPROFILE%\.kimi /inheritance:r"
+	@echo "  icacls %USERPROFILE%\.kimi /grant:r %USERNAME%:(OI)(CI)F"
+else ifeq ($(PLATFORM),gitbash)
+	@echo "Git Bash chmod is emulated on NTFS and does not enforce actual permissions."
+	@echo "See 'make permissions' on a native Windows shell for ACL guidance."
+else
+	@echo "Unix permissions are enforced by the filesystem on this platform."
+	@echo "Run 'ls -la ~/.kimi' to verify."
+endif

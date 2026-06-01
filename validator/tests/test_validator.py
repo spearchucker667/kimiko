@@ -153,6 +153,7 @@ class TestCredentialsValidation:
 
 
 class TestSecurityChecks:
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix permissions not applicable on Windows")
     def test_world_readable_file_flagged(self, tmp_path):
         f = tmp_path / "secret.json"
         f.write_text("{}")
@@ -161,10 +162,18 @@ class TestSecurityChecks:
         assert len(errs) == 1
         assert "too permissive" in errs[0]
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix permissions not applicable on Windows")
     def test_restrictive_file_passes(self, tmp_path):
         f = tmp_path / "secret.json"
         f.write_text("{}")
         os.chmod(f, 0o600)
+        errs = check_file_permissions(f)
+        assert len(errs) == 0
+
+    @pytest.mark.skipif(sys.platform != "win32", reason="Windows-only test")
+    def test_windows_permission_check_skipped(self, tmp_path):
+        f = tmp_path / "secret.json"
+        f.write_text("{}")
         errs = check_file_permissions(f)
         assert len(errs) == 0
 
@@ -189,6 +198,7 @@ class TestSecurityCommand:
         args = self._make_args(tmp_path)
         assert cmd_security(args) == 0
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix permissions not applicable on Windows")
     def test_security_finds_world_readable_creds(self, tmp_path):
         (tmp_path / "AGENTS.md").write_text("# Agents")
         creds_dir = tmp_path / "credentials"

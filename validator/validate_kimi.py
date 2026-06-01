@@ -22,6 +22,7 @@ Exit codes:
 import argparse
 import json
 import os
+import platform
 import re
 import stat
 import sys
@@ -119,8 +120,15 @@ def print_errors(errors: list[ValidationError], verbose: bool = False) -> None:
 
 # ── Security Checks ──────────────────────────────────────────────────────────
 def check_file_permissions(path: Path, expected_mode: int = 0o600) -> list[str]:
-    """Ensure sensitive files are not world-readable."""
+    """Ensure sensitive files are not world-readable.
+
+    On Windows, this check is skipped because NTFS uses ACLs rather than
+    Unix permission bits. Use Windows Explorer or icacls to verify ACLs.
+    """
     errors: list[str] = []
+    if platform.system() == "Windows":
+        # NTFS ACLs are not reflected in st_mode; skip Unix permission check
+        return errors
     try:
         st = path.stat()
         mode = stat.S_IMODE(st.st_mode)
