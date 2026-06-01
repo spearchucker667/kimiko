@@ -2,9 +2,7 @@
 
 import json
 import os
-import stat
 import sys
-import tempfile
 import tomllib
 from pathlib import Path
 
@@ -16,7 +14,7 @@ sys_path = str(Path(__file__).parent.parent)
 if sys_path not in sys.path:
     sys.path.insert(0, sys_path)
 
-from validate_kimi import (
+from validate_kimi import (  # noqa: E402
     check_file_permissions,
     cmd_all,
     cmd_security,

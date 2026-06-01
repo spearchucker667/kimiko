@@ -289,7 +289,7 @@ else
 	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py mandate $(REPO_ROOT)/config/mandate-kimiko-agent.yaml
 	@echo "All structural checks passed."
 	@echo "Running zero-blocker compliance checks ..."
-	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py compliance $(REPO_ROOT)/config 2>/dev/null || true
+	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py compliance $(REPO_ROOT)/config || true
 	@echo "All checks passed."
 endif
 
@@ -350,8 +350,8 @@ verify: install
 	else \
 		echo "  config.toml references 'kimiko'"; \
 	fi; \
-	if ! grep -q 'kimiko' "$(DEST)/mandate-kimiko-agent.yaml" 2>/dev/null; then \
-		echo "  mandate-kimiko-agent.yaml does not contain 'kimiko'"; fail=1; \
+	if ! grep -q 'mandate_code.*kimiko' "$(DEST)/mandate-kimiko-agent.yaml" 2>/dev/null; then \
+		echo "  mandate-kimiko-agent.yaml does not contain mandate_code 'kimiko'"; fail=1; \
 	else \
 		echo "  mandate-kimiko-agent.yaml references 'kimiko'"; \
 	fi; \

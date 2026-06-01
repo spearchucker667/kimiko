@@ -2,10 +2,8 @@
 
 import os
 import subprocess
-import sys
 from pathlib import Path
 
-import pytest
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 
