@@ -8,11 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - Initial public-ready sanitized repository derived from private `~/.kimi` configuration.
+- `.github/CODEOWNERS` defining ownership for all project areas.
+- `docs/legal/DISCLAIMER.md` — extensive liability waiver with `inthewind exploit` classifier.
+
+### Changed
+- **Repository reorganized into logical subdirectories:**
+  - `config/` — TOML configs, mandate YAMLs, and `kimi.json.template`
+  - `scripts/` — Shell integration scripts
+  - `docs/` — All documentation including `legal/DISCLAIMER.md`
+  - `validator/` — Unchanged location (maps directly to `~/.kimi/validator/`)
+- `Makefile` updated with explicit per-file install rules to support the new layout.
+- All documentation cross-references updated to use subdirectory paths.
 - `Makefile` with `install`, `verify`, `uninstall`, and `help` targets (macOS-only).
 - `kimi.json.template` for dynamic home-path rendering at install time.
-- `AGENTS.md` comprehensive agent documentation covering mandate architecture, compliance, and troubleshooting.
-- `README.md` with quick-start guide, directory structure, and security notes.
-- `SECURITY.md`, `CONTRIBUTING.md`, and `CHANGELOG.md`.
+- `docs/AGENTS.md` comprehensive agent documentation covering mandate architecture, compliance, and troubleshooting.
+- `docs/README.md` with quick-start guide, directory structure, and security notes.
+- `docs/SECURITY.md`, `docs/CONTRIBUTING.md`, and `docs/CHANGELOG.md`.
+- `docs/legal/DISCLAIMER.md` binding liability waiver.
 - `.gitignore` covering macOS, Python, IDE, and Kimi runtime artifacts.
 
 ### Changed

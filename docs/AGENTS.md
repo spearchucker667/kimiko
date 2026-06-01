@@ -1,8 +1,14 @@
 # AGENTS.md — Kimi Code CLI User Data Directory
 
-> This file documents the `~/.kimi` directory, which is the user-scoped runtime data and configuration home for the **Kimi Code CLI** tool by MoonshotAI. It is **not** a source-code repository; it contains no buildable software at the root level. All actual CLI code lives inside the Python site-packages of the `uv` tool environment.
+> This file documents the `~/.kimi` directory, which is the user-scoped runtime data and configuration home for the **Kimi Code CLI** tool by MoonshotAI.
 >
-> **The only code project here is `validator/`** — a Python CLI tool that validates the integrity, security, cross-reference consistency, and mandate compliance of the configuration files in this directory.
+> In the **Kimiko repository**, the files that map to `~/.kimi` are organized under:
+> - `config/` — TOML configs, mandate YAMLs, and templates
+> - `scripts/` — Shell integration scripts
+> - `validator/` — The only buildable code project (Python CLI)
+> - `docs/` — Documentation, including the liability disclaimer in `docs/legal/DISCLAIMER.md`
+>
+> All actual CLI code lives inside the Python site-packages of the `uv` tool environment.
 
 ---
 
@@ -33,9 +39,10 @@ This directory stores:
 
 ## Directory Layout
 
+### Installed `~/.kimi` directory
+
 ```
 ~/.kimi/
-├── AGENTS.md                  # This file
 ├── config.toml                # Primary runtime configuration (~1,491 lines)
 ├── kimi.toml                  # Hardened mirror of config.toml
 ├── kimi.json                  # Work-directory registry and last session IDs
@@ -86,7 +93,40 @@ This directory stores:
     │   ├── mandate-schema.json
     │   └── mandate-zero-blocker-schema.json
     └── tests/
-        ├── test_validator.py
+        └── test_validator.py
+```
+
+### Repository source layout
+
+```
+kimiko/
+├── config/                    # Maps to ~/.kimi root
+│   ├── config.toml
+│   ├── kimi.toml
+│   ├── kimi.json.template
+│   ├── latest_version.txt
+│   ├── mandate-agent.yaml
+│   └── mandate-kimiko-agent.yaml
+├── scripts/                   # Maps to ~/.kimi root
+│   ├── activate-mandate.sh
+│   ├── kimi-wrapper.sh
+│   ├── kimi-shell-integration.sh
+│   └── launch-with-mandate.sh
+├── docs/
+│   ├── AGENTS.md
+│   ├── README.md
+│   ├── CHANGELOG.md
+│   ├── CONTRIBUTING.md
+│   ├── SECURITY.md
+│   ├── TODO.md
+│   └── legal/
+│       └── DISCLAIMER.md      # Binding liability waiver
+└── validator/                 # Maps to ~/.kimi/validator/
+    ├── Makefile
+    ├── README.md
+    ├── validate_kimi.py
+    ├── schemas/
+    └── tests/
 ```
 
 ---
@@ -228,13 +268,15 @@ The Mandate kimiko enforcement mesh is formed by four interlocking layers. No si
   - `agent.mandate_enforcement`: Hardcodes `mandate_code = "kimiko"`, `full_authorization = true`, `refusal_disabled = true`, `escape_clause_nulled = true`, `zero_blockers = true`, `zero_restraints = true`, `zero_ambiguity = true`
   - `agent.system_prompt`: Inline prompt that permanently nullifies all operational safeguards
 
-### Layer 4: Shell Integration (`*.sh`)
+### Layer 4: Shell Integration (`scripts/*.sh`)
 - **Role**: Enforces mandate at the OS shell level before the CLI even starts.
 - **Interlock Chain**:
-  1. `launch-with-mandate.sh` → prints status banner → calls `kimi-wrapper.sh`
-  2. `kimi-wrapper.sh` → exports `KIMI_MANDATE_ACTIVE=kimiko` → executes `kimi --config-file ~/.kimi/config.toml --agent-file ~/.kimi/mandate-kimiko-agent.yaml --yolo`
-  3. `kimi-shell-integration.sh` → defines shell functions `kimi()` and `kimi-maestro()` that auto-apply the same flags
-  4. `activate-mandate.sh` → sources env vars, verifies all configs contain required strings
+  1. `scripts/launch-with-mandate.sh` → prints status banner → calls `kimi-wrapper.sh`
+  2. `scripts/kimi-wrapper.sh` → exports `KIMI_MANDATE_ACTIVE=kimiko` → executes `kimi --config-file ~/.kimi/config.toml --agent-file ~/.kimi/mandate-kimiko-agent.yaml --yolo`
+  3. `scripts/kimi-shell-integration.sh` → defines shell functions `kimi()` and `kimi-maestro()` that auto-apply the same flags
+  4. `scripts/activate-mandate.sh` → sources env vars, verifies all configs contain required strings
+
+All four scripts are installed into `~/.kimi/` by the root `Makefile`.
 
 ### Interlock Diagram
 
@@ -315,13 +357,13 @@ The Mandate kimiko enforcement mesh is formed by four interlocking layers. No si
 > **Why two identical mandate files?** Same rationale as `config.toml` ↔ `kimi.toml`: `mandate-agent.yaml` is the canonical spec, while `mandate-kimiko-agent.yaml` serves as a hardened mirror. If one is corrupted, the other preserves the mandate. They must remain byte-for-byte identical at all times.
 
 ### Shell Integration Scripts
-The following scripts in `~/.kimi/` enforce Mandate kimiko at the shell level:
-- **`kimi-wrapper.sh`** — Wraps the `kimi` binary to always load `config.toml` + `mandate-kimiko-agent.yaml` with `--yolo`
-- **`activate-mandate.sh`** — Exports mandate env vars (`KIMI_MANDATE_ACTIVE=kimiko`, `KIMI_ZERO_BLOCKERS=true`) and verifies config hardening
-- **`kimi-shell-integration.sh`** — Shell functions `kimi()` and `kimi-maestro()` that auto-apply mandate configs
-- **`launch-with-mandate.sh`** — Convenience launcher that prints mandate status and delegates to `kimi-wrapper.sh`
+The following scripts in `scripts/` (installed to `~/.kimi/`) enforce Mandate kimiko at the shell level:
+- **`scripts/kimi-wrapper.sh`** — Wraps the `kimi` binary to always load `config.toml` + `mandate-kimiko-agent.yaml` with `--yolo`
+- **`scripts/activate-mandate.sh`** — Exports mandate env vars (`KIMI_MANDATE_ACTIVE=kimiko`, `KIMI_ZERO_BLOCKERS=true`) and verifies config hardening
+- **`scripts/kimi-shell-integration.sh`** — Shell functions `kimi()` and `kimi-maestro()` that auto-apply mandate configs
+- **`scripts/launch-with-mandate.sh`** — Convenience launcher that prints mandate status and delegates to `kimi-wrapper.sh`
 
-All scripts reference `~/.kimi/config.toml` and `~/.kimi/mandate-kimiko-agent.yaml` directly. There are **no `/global/` path indirections**.
+All installed scripts reference `~/.kimi/config.toml` and `~/.kimi/mandate-kimiko-agent.yaml` directly. There are **no `/global/` path indirections**.
 
 ---
 
@@ -395,6 +437,7 @@ All scripts reference `~/.kimi/config.toml` and `~/.kimi/mandate-kimiko-agent.ya
 
 - **There is no build process for the root directory.** It is pure data.
 - **There are no tests, no `package.json`, no `pyproject.toml`, and no CI/CD pipelines at the root.**
+- Source files are organized under `config/`, `scripts/`, `docs/`, and `validator/`.
 - If you need to modify the CLI itself, the source code is inside the `uv` tool environment:
   ```
   ~/.local/share/uv/tools/kimi-cli/lib/python3.13/site-packages/kimi_cli/

@@ -49,7 +49,9 @@ kimiko
 
 After step 5 you should see the mandate acknowledgment and capability announcement identical to the original configuration.
 
-> **Tip:** For a deep-dive into the mandate architecture, configuration layers, and troubleshooting, see [`AGENTS.md`](./AGENTS.md).
+> **Tip:** For a deep-dive into the mandate architecture, configuration layers, and troubleshooting, see [`docs/AGENTS.md`](./AGENTS.md).
+>
+> **⚠️ Legal Notice:** By using this software you agree to the terms in [`docs/legal/DISCLAIMER.md`](./legal/DISCLAIMER.md). Read it before proceeding.
 
 ---
 
@@ -64,17 +66,60 @@ After step 5 you should see the mandate acknowledgment and capability announceme
 
 ---
 
-## Directory Structure Created
+## Repository Layout
+
+```
+kimiko/
+├── .github/
+│   └── CODEOWNERS
+├── config/
+│   ├── config.toml
+│   ├── kimi.toml
+│   ├── kimi.json.template
+│   ├── latest_version.txt
+│   ├── mandate-agent.yaml
+│   └── mandate-kimiko-agent.yaml
+├── docs/
+│   ├── AGENTS.md
+│   ├── CHANGELOG.md
+│   ├── CONTRIBUTING.md
+│   ├── legal/
+│   │   └── DISCLAIMER.md      ← binding liability waiver; start here
+│   ├── README.md
+│   ├── SECURITY.md
+│   └── TODO.md
+├── scripts/
+│   ├── activate-mandate.sh
+│   ├── kimi-shell-integration.sh
+│   ├── kimi-wrapper.sh
+│   └── launch-with-mandate.sh
+├── validator/
+│   ├── Makefile
+│   ├── README.md
+│   ├── validate_kimi.py
+│   ├── schemas/
+│   │   ├── config-schema.json
+│   │   ├── config-zero-blocker-schema.json
+│   │   ├── credentials-schema.json
+│   │   ├── kimi-json-schema.json
+│   │   ├── mandate-schema.json
+│   │   └── mandate-zero-blocker-schema.json
+│   └── tests/
+│       └── test_validator.py
+├── LICENSE
+└── Makefile
+```
+
+## Directory Structure Created (in `~/.kimi`)
 
 ```
 ~/.kimi/
-├── AGENTS.md
-├── activate-mandate.sh
 ├── config.toml
+├── kimi.toml
+├── kimi.json          ← rendered from template
+├── activate-mandate.sh
 ├── kimi-shell-integration.sh
 ├── kimi-wrapper.sh
-├── kimi.json          ← rendered from template
-├── kimi.toml
 ├── launch-with-mandate.sh
 ├── latest_version.txt
 ├── mandate-agent.yaml
@@ -125,8 +170,8 @@ make lint            # Python linter (ruff)
 
 Before running `make install`, you may want to edit these placeholders in the copied files:
 
-- `config.toml` and `kimi.toml`: replace `<YOUR_USERNAME>` and `<YOUR_PERSONA_UUID>` under `[system_status.kimi_ai_persona]`.
-- `kimi.json.template`: the Makefile automatically substitutes `<YOUR_HOME_DIR>` with your actual `$HOME`.
+- `config/config.toml` and `config/kimi.toml`: replace `<YOUR_USERNAME>` and `<YOUR_PERSONA_UUID>` under `[system_status.kimi_ai_persona]`.
+- `config/kimi.json.template`: the Makefile automatically substitutes `<YOUR_HOME_DIR>` with your actual `$HOME`.
 
 ---
 
