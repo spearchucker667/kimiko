@@ -31,6 +31,9 @@ jobs:
         working-directory: ./validator
         run: ruff check . || true
 
+      - name: Install files
+        run: make install
+
       - name: Validate install
         run: make verify
 

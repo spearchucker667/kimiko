@@ -170,7 +170,7 @@ sync:
 test:
 	@cd $(REPO_ROOT)/validator && python3 -m pytest tests/ -v
 
-verify:
+verify: install
 	@echo "Verifying Kimiko installation in $(DEST) ..."
 	@fail=0; \
 	for f in $(notdir $(FLAT_TARGETS)); do \
