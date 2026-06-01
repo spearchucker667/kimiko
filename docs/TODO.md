@@ -1,327 +1,307 @@
 # Bug Hunt — TODO
 
-> Generated: 2026-06-01 • Scope: code + docs • Files scanned: 58 / 58
+> Generated: 2026-06-01 • Scope: code + docs • Files scanned: 55 / 55
 
 ## Summary
 | Severity | Count |
 |----------|-------|
-| Critical | 2 |
-| High | 4 |
-| Medium | 8 |
-| Low / Cosmetic | 6 |
-| Doc Defect | 10 |
+| Critical | 0 |
+| High | 1 |
+| Medium | 10 |
+| Low / Cosmetic | 10 |
+| Doc Defect | 5 |
 | Missing Doc | 1 |
 
 ---
 
 ## Critical
 
-- [ ] **[BUG-001] `kimi.json.template` produces invalid JSON on Windows** `config/kimi.json.template:4`
-  - **Type:** Logic / Cross-platform
-  - **What:** The template substitutes `<YOUR_HOME_DIR>` with the raw value of `$(HOME)` via `sed`. On Windows, `$(HOME)` may contain backslashes (e.g., `C:\Users\Test User`). Backslashes are JSON escape characters, so the generated `kimi.json` is malformed.
-  - **Why it matters:** Windows users running `make install` on Git Bash or native Windows get a broken `kimi.json`. `make verify` will fail with "kimi.json is not valid JSON".
-  - **Evidence:**
-    ```bash
-    $ sed 's|<YOUR_HOME_DIR>|C:\Users\Test User|g' config/kimi.json.template
-    # Produces: "path": "C:\Users\Test User" — invalid JSON (\U is an escape)
-    ```
-  - **Locations:** `Makefile:237` (sed replacement), `config/kimi.json.template:4`, `docs/INSTALL-WINDOWS.md:102-108`
-  - **Fix:** Replace backslashes with forward slashes in the Makefile sed command: `sed 's|<YOUR_HOME_DIR>|'"$(HOME)"'|g' | sed 's|\\|/|g'` or use `$(subst \,/,$(HOME))` in the Makefile.
-  - **Confidence:** [VERIFIED]
-
-- [ ] **[BUG-002] `cmd_security` silently swallows all file-read errors** `validator/validate_kimi.py:462-465`
-  - **Type:** Error Handling / Security
-  - **What:** The security scanner catches `Exception` and passes, silently ignoring read failures (permission denied, corrupted files, disk errors).
-  - **Why it matters:** If a sensitive config file exists but cannot be read due to permissions, the scanner skips it without reporting the failure. A world-readable credential file that the scanner lacks permission to read would be silently ignored.
-  - **Evidence:**
-    ```python
-    try:
-        text = f.read_text(encoding="utf-8", errors="replace")
-        findings.extend(scan_for_secrets(text, f))
-    except Exception:
-        pass
-    ```
-  - **Fix:** Log the exception: `except Exception as e: findings.append(f"{f.name}: could not read ({e})")`
-  - **Confidence:** [VERIFIED]
+No issues found.
 
 ---
 
 ## High
 
-- [ ] **[BUG-003] `install-wsl` target exists but is unreachable** `Makefile:105-117`
-  - **Type:** Config / Build
-  - **What:** The `install` target checks `windows`, `gitbash`, `macos`, `linux`, and `unknown` — but never `wsl`. WSL reports `Linux` via `uname -s`, so it falls through to `install-linux`. The `install-wsl` target is never auto-invoked.
-  - **Why it matters:** Users on WSL running `make install` get the generic Linux message instead of the WSL-specific guidance. The target exists but is dead code.
+- [ ] **[BUG-021] `kimi-shell-integration.sh` calls Kimi binary without existence check** `scripts/kimi-shell-integration.sh:16-21`
+  - **Type:** Logic / Error Handling
+  - **What:** The `kimi()` and `kimi-maestro()` functions in `kimi-shell-integration.sh` directly invoke `"${HOME}/.local/bin/kimi"` without checking if the binary exists. The `activate-mandate.sh` version performs this check and prints a helpful error message.
+  - **Why it matters:** If the Kimi CLI is not installed, sourcing `kimi-shell-integration.sh` will produce a raw "command not found" error instead of the guided message from `activate-mandate.sh`.
   - **Evidence:**
-    ```makefile
-    install:
-    ifeq ($(PLATFORM),windows)
-        $(MAKE) install-windows
-    else ifeq ($(PLATFORM),gitbash)
-        $(MAKE) install-gitbash
-    else ifeq ($(PLATFORM),macos)
-        $(MAKE) install-macos
-    else ifeq ($(PLATFORM),linux)
-        $(MAKE) install-linux
-    else
-        @echo "Unknown platform '$(PLATFORM)'. Defaulting to Unix install."
-        $(MAKE) install-linux
-    endif
-    ```
-  - **Fix:** Add `else ifeq ($(PLATFORM),wsl) $(MAKE) install-wsl` before the `linux` check.
-  - **Confidence:** [VERIFIED]
+    ```bash
+    # activate-mandate.sh (has check)
+    local binary="${HOME}/.local/bin/kimi"
+    if [ ! -x "$binary" ]; then
+        echo "FATAL: Kimi CLI binary not found at ${binary}" >&2
+        return 1
+    fi
 
-- [ ] **[BUG-004] `make check` / `make test` / `make sync` hardcode Unix-only tools** `Makefile:255-285`
-  - **Type:** Cross-platform
-  - **What:** `make check` calls `python3`, `sed`, and `diff`. `make test` calls `python3 -m pytest`. `make sync` calls `mktemp`, `sed`, and `diff`. On native Windows (PowerShell, no Git Bash), none of these tools exist.
-  - **Why it matters:** A Windows user who installs Kimiko and then runs `make check` or `make test` gets command-not-found errors.
-  - **Evidence:**
-    ```makefile
-    check:
-        @cd $(REPO_ROOT)/validator && python3 validate_kimi.py ...
-    test:
-        @cd $(REPO_ROOT)/validator && python3 -m pytest tests/ -v
-    sync:
-        @sync_tmp=$$(mktemp /tmp/kimi-sync.XXXXXX); \
-        sed -n '/^[^#]/,$$p' ...
+    # kimi-shell-integration.sh (no check)
+    kimi() {
+        "${HOME}/.local/bin/kimi" \
+            --config-file "${HOME}/.kimi/config.toml" \
+            --yolo \
+            "$@"
+    }
     ```
-  - **Fix:** Detect platform and provide Windows-native alternatives, or print a clear message: "This target requires a Unix-like environment. On Windows, run the equivalent commands manually."
-  - **Confidence:** [VERIFIED]
-
-- [ ] **[BUG-005] Integration tests do not verify Windows `.ps1` files** `validator/tests/test_install_integration.py:14-40`
-  - **Type:** Testing Gap
-  - **What:** `test_make_install_creates_expected_files` asserts the existence of all `.sh` files and validator files, but never checks for the four `.ps1` files that are installed on Windows.
-  - **Why it matters:** A regression that breaks the PowerShell install path would not be caught by CI. The Makefile could stop copying `.ps1` files and tests would still pass.
-  - **Evidence:**
-    ```python
-    assert (kimi / "activate-mandate.sh").exists()
-    # No assertion for activate-mandate.ps1
-    ```
-  - **Fix:** Add assertions for `.ps1` files, or add a separate test for Windows installs.
-  - **Confidence:** [VERIFIED]
-
-- [ ] **[BUG-006] `cmd_all` mutates shared `args` namespace** `validator/validate_kimi.py:499-535`
-  - **Type:** Logic / Side Effects
-  - **What:** `cmd_all` repeatedly assigns `args.file = str(...)` while passing the same `args` object to sub-command handlers. After `cmd_all` returns, `args.file` holds the path of the last processed file.
-  - **Why it matters:** If any caller inspects `args.file` after `cmd_all` completes, it gets the wrong value. This is a latent bug that could break future features that reuse the args object.
-  - **Evidence:**
-    ```python
-    args.file = str(config_path)  # line 499
-    rc = cmd_config(args)
-    # ...
-    args.file = str(cf)  # line 535 — last assignment wins
-    ```
-  - **Fix:** Create a shallow copy of `args` before mutating: `sub_args = argparse.Namespace(**vars(args)); sub_args.file = str(config_path)`
+  - **Fix:** Add the same existence check to `kimi-shell-integration.sh` functions.
   - **Confidence:** [VERIFIED]
 
 ---
 
 ## Medium
 
-- [ ] **[BUG-007] `make uninstall` uses `rm` on Windows** `Makefile:246-253`
-  - **Type:** Cross-platform
-  - **What:** The `uninstall` target uses `rm -f`, `rm -rf`, and a shell `for` loop. On native Windows without Git Bash / MSYS, these commands do not exist.
-  - **Why it matters:** A Windows user running `make uninstall` gets "rm: command not found" and the uninstall is incomplete.
+- [ ] **[BUG-022] `launch-with-mandate.sh` passes `"$@"` which can duplicate `--agent-file`** `scripts/launch-with-mandate.sh:31`
+  - **Type:** Logic
+  - **What:** `launch-with-mandate.sh` passes all user arguments (`"$@"`) to `kimi-wrapper.sh`, which already hardcodes `--agent-file`. If the user passes `--agent-file` to the launcher, the CLI receives the flag twice.
+  - **Why it matters:** Some CLI parsers fail or use the last occurrence when a flag is duplicated, potentially overriding the intended mandate agent.
   - **Evidence:**
-    ```makefile
-    uninstall:
-        @for f in $(notdir $(FLAT_TARGETS)); do \
-            rm -f "$(DEST)/$$f"; \
-        done
-        @rm -f $(DEST)/kimi.json
-        @rm -rf $(DEST)/validator
+    ```bash
+    # launch-with-mandate.sh
+    exec "${HOME}/.kimi/kimi-wrapper.sh" "$@"
+
+    # kimi-wrapper.sh
+    exec "$KIMI_BINARY" \
+        --config-file "$GLOBAL_CONFIG" \
+        --agent-file "$MANDATE_AGENT" \
+        --yolo \
+        "$@"
     ```
-  - **Fix:** Platform-gate the uninstall target or document that it requires a POSIX shell.
+  - **Fix:** Strip `--agent-file` and its argument from `"$@"` before forwarding, or document that `--agent-file` must not be passed to the launcher.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[BUG-008] `scan_for_secrets` regex patterns are case-insensitive but hex check is not** `validator/validate_kimi.py:151`
-  - **Type:** Logic / Security
-  - **What:** The hex pattern `[a-f0-9]{40}` uses `re.IGNORECASE`, but the pattern itself only matches lowercase hex. The flag makes it case-insensitive, so this is technically fine — but it is inconsistent with the explicit `a-f` range. If the flag were accidentally removed, the check would break.
-  - **Why it matters:** Minor maintainability issue. A future refactor that drops `re.IGNORECASE` would silently break hex secret detection.
+- [ ] **[BUG-023] Docs claim `$env:KIMI_BINARY` is supported, but no PowerShell script reads it** `docs/TROUBLESHOOTING.md:155`, `docs/INSTALL-WINDOWS.md:157`
+  - **Type:** Documentation / Code Mismatch
+  - **What:** Both docs tell users to set `$env:KIMI_BINARY` if their binary is in a non-standard location. However, `Find-KimiBinary` in all four `.ps1` files only checks hardcoded paths and `PATH`; it never inspects `$env:KIMI_BINARY`.
+  - **Evidence:**
+    ```powershell
+    # Find-KimiBinary (identical in all .ps1 files)
+    $candidates = @(
+        (Join-Path $env:USERPROFILE ".local" "bin" "kimi.exe"),
+        ...
+        "kimi"
+    )
+    ```
+  - **Fix:** Either add `$env:KIMI_BINARY` as the first candidate in `Find-KimiBinary`, or remove the documentation that references it.
+  - **Confidence:** [VERIFIED]
+
+- [ ] **[BUG-024] Duplicate test: `test_security_skips_large_files` and `test_scan_skips_oversized_file`** `validator/tests/test_validator.py:222-237`
+  - **Type:** Testing
+  - **What:** Two test methods have identical bodies — both create a `config.toml` larger than `SECURITY_SIZE_LIMIT`, call `cmd_security`, and assert `rc == 1`.
+  - **Why it matters:** One test is redundant CI time and maintenance burden. The second test name implies it tests `scan_for_secrets` directly, but it calls `cmd_security` instead.
   - **Evidence:**
     ```python
-    if re.search(r"[a-f0-9]{40}", line, re.IGNORECASE):
+    def test_security_skips_large_files(self, tmp_path):
+        ...
+        config.write_text("x" * (1_048_576 + 1))
+        rc = cmd_security(args)
+        assert rc == 1
+
+    def test_scan_skips_oversized_file(self, tmp_path):
+        ...
+        config.write_text("x" * (1_048_576 + 1))
+        rc = cmd_security(args)
+        assert rc == 1
     ```
-  - **Fix:** Use `[a-fA-F0-9]{40}` to make intent explicit, or remove the redundant flag.
+  - **Fix:** Remove one test, or change the second to call `scan_for_secrets` directly and assert it returns an empty list for oversized input.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[BUG-009] CI `test-windows-pwsh` job manually copies files instead of using `make install-windows`** `.github/workflows/ci.yml:93-107`
+- [ ] **[BUG-025] Dead code: `tomllib is None` check can never be true** `validator/validate_kimi.py:82-86`
+  - **Type:** Logic / Dead Code
+  - **What:** `load_toml` checks `if tomllib is None: raise RuntimeError(...)`. However, `tomllib` is imported at module level (lines 45-50) and will raise `ImportError` at import time if unavailable. It can never be `None` inside `load_toml`.
+  - **Evidence:**
+    ```python
+    try:
+        import tomllib
+    except ImportError:
+        try:
+            import tomli as tomllib
+        except ImportError as e:
+            raise ImportError(...) from e
+
+    def load_toml(path: Path) -> dict[str, Any]:
+        if tomllib is None:   # <-- never reached
+            raise RuntimeError(...)
+    ```
+  - **Fix:** Remove the `if tomllib is None` block.
+  - **Confidence:** [VERIFIED]
+
+- [ ] **[BUG-026] CI Windows-GitBash job does not run `make sync` or `make check`** `.github/workflows/ci.yml:131-159`
   - **Type:** CI / Testing Gap
-  - **What:** The PowerShell test job reimplements the install logic manually (Copy-Item, template rendering). It does not exercise the actual `make install-windows` target that users would run.
-  - **Why it matters:** A bug in `make install-windows` (e.g., the JSON template bug) would not be caught by CI because CI bypasses the Makefile entirely.
+  - **What:** The `test-windows-gitbash` job runs `make install` and `make verify` but skips `make sync` and `make check`. The macOS job runs all four. This means drift in mirror files or structural config issues would not be caught on Git Bash.
   - **Evidence:**
     ```yaml
-    - name: Install files (PowerShell)
-      shell: pwsh
-      run: |
-        New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.kimi"
-        Copy-Item -Path "config\*" -Destination "$env:USERPROFILE\.kimi" ...
+    test-windows-gitbash:
+      ...
+      - run: make install
+      - run: make verify
+      # missing: make sync, make check
     ```
-  - **Fix:** Replace the manual copy with `make install-windows` if make is available, or add a second step that tests the Makefile path.
+  - **Fix:** Add `make sync` and `make check` steps (they work in Git Bash).
   - **Confidence:** [VERIFIED]
 
-- [ ] **[BUG-010] `make verify` does not check `.ps1` files on Windows** `Makefile:287-326`
-  - **Type:** Testing Gap
-  - **What:** `make verify` iterates over `FLAT_TARGETS` (which includes `.ps1` files on Windows) and checks each file exists. However, the `grep` checks only look for `'kimiko'` in `config.toml` and `mandate-kimiko-agent.yaml` — there is no verification that `.ps1` scripts are syntactically valid or contain required strings.
-  - **Why it matters:** A corrupted or empty `.ps1` file would pass `make verify` but fail at runtime.
-  - **Fix:** Add PowerShell syntax validation to `make verify` when `PLATFORM == windows`.
-  - **Confidence:** [VERIFIED]
-
-- [ ] **[BUG-011] `validator/README.md` omits documented Makefile targets** `validator/README.md:51-58`
-  - **Type:** Documentation Defect
-  - **What:** The validator's own README lists only 6 Makefile targets, but the actual `validator/Makefile` defines 10: `all`, `test`, `validate`, `validate-config`, `validate-registry`, `validate-mandates`, `validate-credentials`, `security`, `compliance`, `lint`.
+- [ ] **[BUG-027] `validator/Makefile` hardcodes `$(HOME)/.kimi` without existence check** `validator/Makefile:12-33`
+  - **Type:** Build / UX
+  - **What:** All `validate*` targets in `validator/Makefile` operate on `$(HOME)/.kimi`. If the user runs `make validate` before installing, the validator prints "Not a directory" and exits with code 1. The root Makefile handles this more gracefully with `make install` as a prerequisite for `make verify`.
   - **Evidence:**
-    ```markdown
-    make validate        # Full validation
-    make test            # pytest suite
-    make validate-config # config.toml only
-    make validate-mandates # mandate YAML files
-    make security        # Security checks only
-    make compliance      # Zero-blocker compliance checks
-    make lint            # Python linter (ruff)
+    ```makefile
+    validate:
+        $(PYTHON) validate_kimi.py all $(HOME)/.kimi
     ```
-    Missing: `all`, `validate-registry`, `validate-credentials`
-  - **Fix:** Update `validator/README.md` to list all targets.
+  - **Fix:** Add an existence check or a `make install` prerequisite note in the README.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[BUG-012] `config-schema.json` does not require `admin` section** `validator/schemas/config-schema.json`
-  - **Type:** Security / Schema
-  - **What:** The structural schema (`config-schema.json`) does not require the `[admin]` section, while the zero-blocker schema (`config-zero-blocker-schema.json`) does. A config missing `[admin]` would pass structural validation but fail compliance.
-  - **Why it matters:** This is by design (structural vs. compliance are separate checks), but it means `make check` could pass a config that is functionally incomplete. The structural schema should probably require `[admin]` since it is essential to the mandate.
+- [ ] **[BUG-028] Pre-commit ruff version (`v0.5.0`) mismatches `requirements.txt` (`>=0.15.15`)** `.pre-commit-config.yaml:18`
+  - **Type:** Config / Tooling
+  - **What:** `.pre-commit-config.yaml` pins `ruff-pre-commit` to `v0.5.0`, but `validator/requirements.txt` requires `ruff>=0.15.15`. These are ~10 major versions apart and may produce different lint results or support different rule sets.
+  - **Evidence:**
+    ```yaml
+    rev: v0.5.0          # pre-commit
+    ruff>=0.15.15        # requirements.txt
+    ```
+  - **Fix:** Bump the pre-commit rev to match the requirements minimum, or pin both to the same version.
+  - **Confidence:** [VERIFIED]
+
+- [ ] **[BUG-029] `cmd_security` does not scan shell scripts for secrets** `validator/validate_kimi.py:450`
+  - **Type:** Security / Testing Gap
+  - **What:** The security scanner checks `*.toml`, `*.yaml`, `*.yml`, `*.json`, `*.md` but not `*.sh` or `*.ps1`. A hardcoded API key in a shell script would be silently missed.
   - **Evidence:**
     ```python
-    # config-schema.json required keys:
-    ['default_model', 'providers', 'loop_control', 'background']
-    # config-zero-blocker-schema.json required keys:
-    ['default_yolo', 'skip_afk_prompt_injection', 'telemetry', 'admin', ...]
+    for pattern in ["*.toml", "*.yaml", "*.yml", "*.json", "*.md"]:
     ```
-  - **Fix:** Add `admin` to `config-schema.json` required fields.
+  - **Fix:** Add `*.sh` and `*.ps1` to the scan patterns.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[BUG-013] `test_install_integration.py` does not assert validator fixtures are installed** `validator/tests/test_install_integration.py:27-40`
-  - **Type:** Testing Gap
-  - **What:** The integration test checks for `test_validator.py` but not the four fixture files (`bad-config-no-admin.toml`, etc.).
-  - **Fix:** Add assertions for fixture files.
-  - **Confidence:** [VERIFIED]
+- [ ] **[BUG-030] `activate-mandate.ps1` uses `$script:` scope in dot-sourced context** `scripts/activate-mandate.ps1:4`
+  - **Type:** Logic / PowerShell
+  - **What:** The variable `$script:KimiGlobalConfig` is defined with script scope. When the file is dot-sourced (`. activate-mandate.ps1`), `$script:` refers to the caller's script scope. If sourced from an interactive shell (no script scope), the behavior is undefined and may silently fail or pollute the caller's state unexpectedly.
+  - **Evidence:**
+    ```powershell
+    $script:KimiGlobalConfig = Join-Path $env:USERPROFILE ".kimi" "config.toml"
+    ```
+  - **Fix:** Use a regular local variable or `$global:` if the intent is to make it available everywhere.
+  - **Confidence:** [SUSPECTED → verify by dot-sourcing from interactive PowerShell]
 
 ---
 
 ## Low / Cosmetic
 
-- [ ] **[BUG-014] `docs/AGENTS.md` line counts are outdated** `docs/AGENTS.md:88,480,494`
-  - **Type:** Documentation Defect
-  - **What:** Claimed line counts: `validate_kimi.py` ~611 (actual: 619), `test_validator.py` ~478 (actual: 488).
-  - **Fix:** Update to ~619 and ~488.
+- [ ] **[BUG-031] `colorize` only checks `stdout.isatty()`, not `stderr`** `validator/validate_kimi.py:64-66`
+  - **Type:** UX
+  - **What:** Error messages printed to stderr may not be colorized if stdout is redirected but stderr is a TTY.
+  - **Fix:** Gate on `sys.stderr.isatty()` for error output, or use a library like `colorama`.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[BUG-015] `docs/AGENTS.md` source tree omits Windows files** `docs/AGENTS.md:102-136`
-  - **Type:** Documentation Defect
-  - **What:** The source tree diagram omits `docs/INSTALL-WINDOWS.md`, `docs/TROUBLESHOOTING.md`, `docs/RUP.md`, and all four `scripts/*.ps1` files.
-  - **Fix:** Update the tree to include all files.
+- [ ] **[BUG-032] `make verify` grep for `'kimiko'` is too weak** `Makefile:348-356`
+  - **Type:** Logic
+  - **What:** `grep -q 'kimiko'` would match a user named "kimiko", a comment, or any accidental occurrence. It does not verify the mandate is actually configured.
+  - **Fix:** Use a more specific pattern like `grep -q 'mandate_code = "kimiko"'`.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[BUG-016] `docs/AGENTS.md` installed layout lists `device_id` which Makefile does not install** `docs/AGENTS.md:51`
-  - **Type:** Documentation Defect
-  - **What:** The installed `~/.kimi` tree includes `device_id`, but the Makefile never copies or generates it. It is created by the Kimi CLI itself during OAuth.
-  - **Fix:** Add a note that `device_id` is created by the CLI, not by Kimiko.
+- [ ] **[BUG-033] `kimi-json-schema.json` declares `"format": "uuid"` but validator does not enforce it** `validator/schemas/kimi-json-schema.json:27`
+  - **Type:** Schema / Code Mismatch
+  - **What:** The schema claims `last_session_id` must be a UUID, but `Draft202012Validator` with the default `FormatChecker` does not validate `uuid` format. UUID validation is only done in `validate_registry_paths()` separately. A malformed UUID could pass schema validation but fail the custom check.
+  - **Fix:** Either register a custom UUID format checker with jsonschema, or remove the `"format": "uuid"` from the schema to avoid implying validation that does not happen.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[BUG-017] `docs/CHANGELOG.md` still claims Makefile is "macOS-only"** `docs/CHANGELOG.md:25`
-  - **Type:** Documentation Defect
-  - **What:** Line 25 says `Makefile` targets are "(macOS-only)" under the initial release notes. The Makefile is now explicitly cross-platform.
-  - **Fix:** Update the note to "(originally macOS-only, now cross-platform)" or similar.
+- [ ] **[BUG-034] `credentials-schema.json` allows arbitrary additional properties** `validator/schemas/credentials-schema.json:33`
+  - **Type:** Security / Schema
+  - **What:** `"additionalProperties": true` means any extra fields (e.g., accidentally leaked `client_secret`, `password`) are silently accepted by schema validation.
+  - **Fix:** Change to `"additionalProperties": false` and explicitly list allowed fields.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[BUG-018] `docs/TROUBLESHOOTING.md` self-contradictory PowerShell guidance** `docs/TROUBLESHOOTING.md:176`
-  - **Type:** Documentation Defect
-  - **What:** "1. **Use PowerShell-native install** (no `make` needed): `make install-windows`" — the phrase "no make needed" is immediately followed by a `make` command.
-  - **Fix:** Reconcile the contradiction: either say "use `make install-windows`" or "use manual PowerShell steps".
+- [ ] **[BUG-035] `make check` silently ignores compliance failures** `Makefile:292`
+  - **Type:** CI / Logic
+  - **What:** The compliance check step ends with `2>/dev/null || true`, meaning zero-blocker compliance failures do not fail `make check`.
+  - **Evidence:**
+    ```makefile
+    @cd $(REPO_ROOT)/validator && python3 validate_kimi.py compliance $(REPO_ROOT)/config 2>/dev/null || true
+    ```
+  - **Fix:** This may be intentional (structural vs. compliance are separate concerns), but it should be documented if so.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[BUG-019] `docs/INSTALL-WINDOWS.md` self-contradictory PowerShell instructions** `docs/INSTALL-WINDOWS.md:102,130`
-  - **Type:** Documentation Defect
-  - **What:** Line 102 says "PowerShell installation is manual (no `make` required)" but line 130 says "Or use the one-liner: `make install-windows`".
-  - **Fix:** Clarify that `make install-windows` is the preferred method if make is installed; manual steps are the fallback.
+- [ ] **[BUG-036] Makefile `help` text says `make permissions` is "Windows only"** `Makefile:105`
+  - **Type:** Documentation
+  - **What:** The `help` target describes `make permissions` as "(Windows only)", but the target also runs on Git Bash (prints a note about emulated chmod). The README was fixed; the Makefile help was not.
+  - **Fix:** Update to "(Windows / Git Bash)" to match README.
+  - **Confidence:** [VERIFIED]
+
+- [ ] **[BUG-037] `docs/AGENTS.md` line counts are stale again** `docs/AGENTS.md:88,96`
+  - **Type:** Documentation
+  - **What:** Claims `validate_kimi.py` ~621 lines (actual: 628) and `test_validator.py` ~491 lines (actual: 494).
+  - **Fix:** Update to ~628 and ~494.
+  - **Confidence:** [VERIFIED]
+
+- [ ] **[BUG-038] `sys.path` manipulation in test file** `validator/tests/test_validator.py:14-17`
+  - **Type:** Code Quality
+  - **What:** The test file manually inserts the parent directory into `sys.path` instead of using a proper package structure or `PYTHONPATH`.
+  - **Fix:** Not critical; works but is an anti-pattern. Consider adding `__init__.py` and running tests from repo root.
+  - **Confidence:** [VERIFIED]
+
+- [ ] **[BUG-039] `cmd_all` uses bitwise OR for return-code aggregation** `validator/validate_kimi.py:509-562`
+  - **Type:** Logic
+  - **What:** `overall |= rc` aggregates return codes via bitwise OR. If a command returns 2 (usage error), the final exit code becomes 3 (`1 | 2`). Callers might not expect this.
+  - **Fix:** Use `overall = max(overall, rc)` or `overall = 1 if any_failed else 0`.
   - **Confidence:** [VERIFIED]
 
 ---
 
 ## Documentation Defects
 
-- [ ] **[DOC-001] `docs/TODO.md` falsely claims root `README.md` was created** `docs/TODO.md:98-100`
-  - **What:** States "No root `README.md` — FIXED: Created root `README.md`". No such file exists in the repo root.
-  - **Fix:** Either create the root `README.md` or remove the false claim.
+- [ ] **[DOC-011] `SECURITY.md` claims `make permissions` shows `icacls` on all Windows platforms** `docs/SECURITY.md:47`
+  - **Type:** Documentation Defect
+  - **What:** The doc says "Run `make permissions` for PowerShell `icacls` guidance." But on Git Bash (`PLATFORM==gitbash`), `make permissions` only prints: "Git Bash chmod is emulated... See 'make permissions' on a native Windows shell for ACL guidance." The actual `icacls` commands are only shown when `PLATFORM==windows`.
+  - **Fix:** Clarify that `icacls` guidance is only shown on native Windows PowerShell.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[DOC-002] `docs/AGENTS.md` interlock chain ignores PowerShell** `docs/AGENTS.md:280-283`
-  - **What:** Describes the 4-script interlock using only `.sh` filenames. On Windows, `.ps1` equivalents are used.
-  - **Fix:** Mention that `.ps1` variants replace `.sh` on Windows.
+- [ ] **[DOC-012] `INSTALL-WINDOWS.md` manual PowerShell steps omit `.sh` scripts** `docs/INSTALL-WINDOWS.md:119-130`
+  - **Type:** Documentation Defect
+  - **What:** The manual steps copy `config\*`, `scripts\*.ps1`, and `validator`, but do not copy `scripts\*.sh`. A PowerShell user who later switches to Git Bash would be missing the shell scripts.
+  - **Fix:** Add a note that `.sh` scripts are optional for PowerShell-only users, or include them in the manual copy.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[DOC-003] `docs/README.md` `make permissions` incorrectly labeled "Windows only"** `docs/README.md:134`
-  - **What:** Description says "Shows Windows ACL guidance (Windows only)" but `make permissions` also runs on Git Bash.
-  - **Fix:** Change to "Shows Windows ACL guidance (Windows / Git Bash)".
+- [ ] **[DOC-013] `TROUBLESHOOTING.md` and `INSTALL-WINDOWS.md` reference unsupported `$env:KIMI_BINARY`** `docs/TROUBLESHOOTING.md:155`, `docs/INSTALL-WINDOWS.md:157`
+  - **Type:** Documentation Defect
+  - **What:** Same root cause as BUG-023 — docs claim an env var is supported that no code reads.
+  - **Fix:** Remove references or implement support.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[DOC-004] `docs/AGENTS.md` vs `docs/README.md` repository layouts inconsistent** `docs/AGENTS.md:116-125`, `docs/README.md:157-169`
-  - **What:** README correctly lists `INSTALL-WINDOWS.md`, `TROUBLESHOOTING.md`, `RUP.md`. AGENTS.md omits all three.
-  - **Fix:** Sync AGENTS.md tree with README.
+- [ ] **[DOC-014] `Makefile` help text stale on `make permissions` platform label** `Makefile:105`
+  - **Type:** Documentation Defect
+  - **What:** Same as BUG-036 — help text says "Windows only" but target also runs on Git Bash.
+  - **Fix:** Update help text.
   - **Confidence:** [VERIFIED]
 
-- [ ] **[DOC-005] `docs/CONTRIBUTING.md` validator commands operate on installed files** `docs/CONTRIBUTING.md:13-14`
-  - **What:** Advises `cd validator; make validate` which validates `$(HOME)/.kimi`, not the repo source. Contributors must first `make install` or use repo-root `make check`.
-  - **Fix:** Change to `make check` (repo-root) or note the prerequisite.
-  - **Confidence:** [VERIFIED]
-
-- [ ] **[DOC-006] `docs/RUP.md` incorrectly claims "Advanced CI (matrix, caching)" is skipped** `docs/RUP.md:43-44`
-  - **What:** Lists matrix CI as "Skipped (medium+ tier only)" but the repo has a 4-job platform matrix.
-  - **Fix:** Move matrix CI to "Included" or adjust tier classification.
-  - **Confidence:** [VERIFIED]
-
-- [ ] **[DOC-007] `validator/README.md` missing `test_install_integration.py`** `validator/README.md:60-67`
-  - **What:** No mention of the integration test file.
-  - **Fix:** Add it to the test coverage section.
-  - **Confidence:** [VERIFIED]
-
-- [ ] **[DOC-008] `docs/README.md` image alt text is auto-generated** `docs/README.md:9`
-  - **What:** `alt="ChatGPT Image Jun 1, 2026 at 02_57_28 AM"` is GitHub upload alt text, not descriptive.
-  - **Fix:** Change to `alt="Kimiko project banner"`.
-  - **Confidence:** [VERIFIED]
-
-- [ ] **[DOC-009] `docs/README.md` duplicate table header** `docs/README.md:67-69`
-  - **What:** The Makefile targets table has two consecutive header rows (`Target | Description` repeated).
-  - **Fix:** Remove the duplicate header row.
-  - **Confidence:** [VERIFIED]
-
-- [ ] **[DOC-010] `docs/AGENTS.md` `kimi.json` description says "object, not array" but template is object** `docs/AGENTS.md:142`
-  - **What:** The fix note says the description was corrected, but the actual template is an object with `work_dirs` array. This is fine, but the note is confusing.
-  - **Fix:** Clarify the note or remove it.
+- [ ] **[DOC-015] `config-zero-blocker-schema.json` lacks `additionalProperties: false`** `validator/schemas/config-zero-blocker-schema.json`
+  - **Type:** Schema / Documentation
+  - **What:** A "strict compliance" schema that allows arbitrary extra properties is misleading. Extra properties could be used to sneak in blockers or restrictions that the compliance check would miss.
+  - **Fix:** Add `"additionalProperties": false` at the root and to the `admin` object.
   - **Confidence:** [VERIFIED]
 
 ---
 
 ## Missing Documentation
 
-- [ ] **[GAP-001] No root `README.md`** — `docs/README.md` exists but there is no `README.md` in the repository root. GitHub and most tools expect a root README.
-  - **Fix:** Create a root `README.md` that either symlinks to or includes `docs/README.md`.
+- [ ] **[GAP-002] No `ARCHITECTURE.md` or decision records** — The repo has complex cross-platform Makefile logic, shell/PS1 interlock chains, and validator schema hierarchy, but no central document explaining *why* these design choices were made (e.g., why `kimi.toml` mirrors `config.toml`, why WSL detection uses `uname -r`, why `cmd_all` aggregates via bitwise OR).
+  - **Fix:** Create `docs/ARCHITECTURE.md` or a brief "Design Decisions" section in `CONTRIBUTING.md`.
   - **Confidence:** [VERIFIED]
 
 ---
 
-## Quick Wins (effort: <30 min • impact: High+)
-- [ ] BUG-001 — Fix JSON template escaping for Windows paths
-- [ ] BUG-002 — Add error logging to `cmd_security` exception handler
-- [ ] BUG-003 — Add `wsl` to `install` target platform check
-- [ ] BUG-006 — Use `argparse.Namespace` copy in `cmd_all`
-- [ ] DOC-001 / GAP-001 — Create root `README.md` or fix false claim
-- [ ] BUG-014 — Update line counts in AGENTS.md
-- [ ] DOC-009 — Remove duplicate table header in README.md
+## Quick Wins (effort: <30 min • impact: Medium+)
+- [ ] BUG-024 — Remove duplicate test
+- [ ] BUG-025 — Remove dead `tomllib is None` check
+- [ ] BUG-032 — Tighten `make verify` grep pattern
+- [ ] BUG-036 — Update Makefile help text
+- [ ] BUG-037 — Update AGENTS.md line counts
+- [ ] DOC-011 — Clarify `make permissions` platform scope in SECURITY.md
+- [ ] DOC-014 — Update Makefile help text
 
 ---
 
 ## Notes & Open Questions
-- Files not scanned (scope limit): None — all 58 files were reviewed.
+- Files not scanned (scope limit): None — all 55 files were reviewed.
 - Files referenced but not provided: None.
-- The `config.toml` and `kimi.toml` are ~1,500 lines each and were spot-checked for drift but not line-by-line audited.
-- The mandate YAML files are identical and were verified via `diff -q`.
-- The JSON schemas are structurally valid (verified via `jsonschema` Draft 2020-12) but their semantic coverage was not exhaustively verified against every possible config key.
+- The `config.toml` and `kimi.toml` are ~1,483 lines each and were spot-checked for drift and hardcoded paths; no issues found.
+- The mandate YAML files are byte-for-byte identical (verified via `diff -q`).
+- The JSON schemas are structurally valid (verified via `jsonschema` Draft 2020-12 `check_schema`).
+- All previously catalogued bugs from the prior TODO (BUG-001 through BUG-020, DOC-001 through DOC-010, GAP-001) were resolved in the current session and are therefore not reproduced here.

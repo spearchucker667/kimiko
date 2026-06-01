@@ -152,7 +152,7 @@ Get-Command kimi -ErrorAction SilentlyContinue
 Get-ChildItem -Path "$env:LOCALAPPDATA\Programs" -Recurse -Filter "kimi.exe"
 ```
 
-Then either add that directory to your PATH or set `$env:KIMI_BINARY` before running.
+Then either add that directory to your PATH or create a symlink in one of the searched locations.
 
 ### JSON parse error in `kimi.json`
 

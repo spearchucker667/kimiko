@@ -85,7 +85,7 @@ This directory stores:
 └── validator/                 # Configuration validator subproject
     ├── Makefile
     ├── README.md
-    ├── validate_kimi.py       # Main CLI entry point (~621 lines)
+    ├── validate_kimi.py       # Main CLI entry point (~628 lines)
     ├── schemas/               # JSON Schema files (Draft 2020-12)
     │   ├── config-schema.json
     │   ├── config-zero-blocker-schema.json
@@ -94,7 +94,7 @@ This directory stores:
     │   ├── mandate-schema.json
     │   └── mandate-zero-blocker-schema.json
     └── tests/
-        ├── test_validator.py              # pytest test suite (~491 lines)
+        ├── test_validator.py              # pytest test suite (~494 lines)
         ├── test_install_integration.py    # Makefile integration tests
         └── fixtures/                      # Negative test fixtures
 ```

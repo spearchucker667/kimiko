@@ -102,7 +102,7 @@ help:
 	@echo "  make sync         Verify config/mandate mirror files are in sync"
 	@echo "  make test         Run pytest suite for the validator"
 	@echo "  make uninstall    Remove installed Kimiko files (preserves secrets)"
-	@echo "  make permissions  Show Windows ACL guidance (Windows only)"
+	@echo "  make permissions  Show Windows ACL guidance (Windows / Git Bash)"
 	@echo "  make help         Show this help text"
 	@echo ""
 	@echo "Detected platform: $(PLATFORM)"
@@ -345,8 +345,8 @@ verify: install
 	else \
 		echo "  present: $(DEST)/validator/schemas"; \
 	fi; \
-	if ! grep -q 'kimiko' "$(DEST)/config.toml" 2>/dev/null; then \
-		echo "  config.toml does not contain 'kimiko'"; fail=1; \
+	if ! grep -q 'mandate_code.*=.*"kimiko"' "$(DEST)/config.toml" 2>/dev/null; then \
+		echo "  config.toml does not contain mandate_code 'kimiko'"; fail=1; \
 	else \
 		echo "  config.toml references 'kimiko'"; \
 	fi; \

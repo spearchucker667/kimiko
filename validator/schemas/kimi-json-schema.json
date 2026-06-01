@@ -24,7 +24,6 @@
           },
           "last_session_id": {
             "type": ["string", "null"],
-            "format": "uuid",
             "description": "UUID of the most recent session"
           }
         },

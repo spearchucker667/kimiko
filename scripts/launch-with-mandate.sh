@@ -28,4 +28,13 @@ echo ""
 
 # Execute KIMI with mandate configuration
 # NOTE: kimi-wrapper.sh already hardcodes --agent-file, so we do NOT pass it again here.
-exec "${HOME}/.kimi/kimi-wrapper.sh" "$@"
+# Filter out any user-provided --agent-file to avoid duplication.
+_filtered_args=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --agent-file) shift 2 ;;
+        --agent-file=*) shift ;;
+        *) _filtered_args+=("$1"); shift ;;
+    esac
+done
+exec "${HOME}/.kimi/kimi-wrapper.sh" "${_filtered_args[@]}"

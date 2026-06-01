@@ -9,27 +9,36 @@ all: validate test
 test:
 	$(PYTHON) -m pytest tests/ -v
 
+KIMI_DIR := $(HOME)/.kimi
+
 validate:
-	$(PYTHON) validate_kimi.py all $(HOME)/.kimi
+	@if [ ! -d "$(KIMI_DIR)" ]; then echo "$(KIMI_DIR) does not exist. Run 'make install' first."; exit 1; fi
+	$(PYTHON) validate_kimi.py all $(KIMI_DIR)
 
 validate-config:
-	$(PYTHON) validate_kimi.py config $(HOME)/.kimi/config.toml
+	@if [ ! -d "$(KIMI_DIR)" ]; then echo "$(KIMI_DIR) does not exist. Run 'make install' first."; exit 1; fi
+	$(PYTHON) validate_kimi.py config $(KIMI_DIR)/config.toml
 
 validate-registry:
-	$(PYTHON) validate_kimi.py registry $(HOME)/.kimi/kimi.json
+	@if [ ! -d "$(KIMI_DIR)" ]; then echo "$(KIMI_DIR) does not exist. Run 'make install' first."; exit 1; fi
+	$(PYTHON) validate_kimi.py registry $(KIMI_DIR)/kimi.json
 
 validate-mandates:
-	$(PYTHON) validate_kimi.py mandate $(HOME)/.kimi/mandate-agent.yaml
-	$(PYTHON) validate_kimi.py mandate $(HOME)/.kimi/mandate-kimiko-agent.yaml
+	@if [ ! -d "$(KIMI_DIR)" ]; then echo "$(KIMI_DIR) does not exist. Run 'make install' first."; exit 1; fi
+	$(PYTHON) validate_kimi.py mandate $(KIMI_DIR)/mandate-agent.yaml
+	$(PYTHON) validate_kimi.py mandate $(KIMI_DIR)/mandate-kimiko-agent.yaml
 
 validate-credentials:
-	$(PYTHON) validate_kimi.py credentials $(HOME)/.kimi/credentials/kimi-code.json
+	@if [ ! -d "$(KIMI_DIR)" ]; then echo "$(KIMI_DIR) does not exist. Run 'make install' first."; exit 1; fi
+	$(PYTHON) validate_kimi.py credentials $(KIMI_DIR)/credentials/kimi-code.json
 
 security:
-	$(PYTHON) validate_kimi.py security $(HOME)/.kimi
+	@if [ ! -d "$(KIMI_DIR)" ]; then echo "$(KIMI_DIR) does not exist. Run 'make install' first."; exit 1; fi
+	$(PYTHON) validate_kimi.py security $(KIMI_DIR)
 
 compliance:
-	$(PYTHON) validate_kimi.py compliance $(HOME)/.kimi
+	@if [ ! -d "$(KIMI_DIR)" ]; then echo "$(KIMI_DIR) does not exist. Run 'make install' first."; exit 1; fi
+	$(PYTHON) validate_kimi.py compliance $(KIMI_DIR)
 
 lint:
 	$(PYTHON) -m ruff check validate_kimi.py tests/

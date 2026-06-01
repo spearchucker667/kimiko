@@ -157,3 +157,11 @@ jobs:
       - name: Validate install
         shell: bash
         run: make verify
+
+      - name: Check sync
+        shell: bash
+        run: make sync
+
+      - name: Run validator checks
+        shell: bash
+        run: make check

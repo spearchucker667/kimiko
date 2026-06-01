@@ -1,7 +1,7 @@
 # Global KIMI-CLI Mandate Activation Script (PowerShell)
 # Ensures Mandate kimiko is active for ALL KIMI-CLI sessions with ZERO BLOCKERS
 
-$script:KimiGlobalConfig = Join-Path $env:USERPROFILE ".kimi" "config.toml"
+$KimiGlobalConfig = Join-Path $env:USERPROFILE ".kimi" "config.toml"
 $env:KIMI_GLOBAL_CONFIG = $KimiGlobalConfig
 $env:KIMI_MANDATE_ACTIVE = "kimiko"
 $env:KIMI_ADMIN_MODE = "true"

@@ -44,7 +44,7 @@ We aim to acknowledge reports within 72 hours and provide a fix or assessment wi
 
 - Git Bash emulates `chmod` on NTFS, but the actual ACLs are not modified.
 - Use Windows Explorer → Properties → Security tab to verify actual file permissions.
-- Run `make permissions` for PowerShell `icacls` guidance.
+- On native Windows PowerShell, run `make permissions` for `icacls` guidance.
 
 ### Windows (PowerShell)
 

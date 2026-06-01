@@ -61,7 +61,7 @@ class C:
 
 
 def colorize(text: str, color: str) -> str:
-    if sys.stdout.isatty():
+    if sys.stdout.isatty() or sys.stderr.isatty():
         return f"{color}{text}{C.RST}"
     return text
 
@@ -80,10 +80,6 @@ def load_schema(name: str) -> dict[str, Any]:
 
 # ── File Loaders ─────────────────────────────────────────────────────────────
 def load_toml(path: Path) -> dict[str, Any]:
-    if tomllib is None:
-        raise RuntimeError(
-            "TOML parsing requires Python 3.11+ or `pip install tomli`"
-        )
     with open(path, "rb") as f:
         return tomllib.load(f)
 
@@ -447,7 +443,7 @@ def cmd_security(args: argparse.Namespace) -> int:
 
     # 2. No secrets in non-credential files
     MAX_SCAN_DEPTH = 3
-    for pattern in ["*.toml", "*.yaml", "*.yml", "*.json", "*.md"]:
+    for pattern in ["*.toml", "*.yaml", "*.yml", "*.json", "*.md", "*.sh", "*.ps1"]:
         for f in base.rglob(pattern):
             depth = len(f.relative_to(base).parts) - 1
             if depth > MAX_SCAN_DEPTH:
@@ -513,21 +509,21 @@ def cmd_all(args: argparse.Namespace) -> int:
     if config_path.exists():
         rc = cmd_config(_sub_args(args, file=str(config_path)))
         results.append((config_path, rc == 0, "config"))
-        overall |= rc
+        overall = max(overall, rc)
 
     # kimi.toml (secondary)
     kimi_toml = base / "kimi.toml"
     if kimi_toml.exists():
         rc = cmd_config(_sub_args(args, file=str(kimi_toml)))
         results.append((kimi_toml, rc == 0, "kimi.toml"))
-        overall |= rc
+        overall = max(overall, rc)
 
     # Registry
     registry_path = base / "kimi.json"
     if registry_path.exists():
         rc = cmd_registry(_sub_args(args, file=str(registry_path)))
         results.append((registry_path, rc == 0, "registry"))
-        overall |= rc
+        overall = max(overall, rc)
 
     # Mandates
     for mandate in ["mandate-agent.yaml", "mandate-kimiko-agent.yaml"]:
@@ -535,7 +531,7 @@ def cmd_all(args: argparse.Namespace) -> int:
         if mp.exists():
             rc = cmd_mandate(_sub_args(args, file=str(mp)))
             results.append((mp, rc == 0, "mandate"))
-            overall |= rc
+            overall = max(overall, rc)
 
     # Credentials
     creds_dir = base / "credentials"
@@ -545,12 +541,12 @@ def cmd_all(args: argparse.Namespace) -> int:
                 continue
             rc = cmd_credentials(_sub_args(args, file=str(cf)))
             results.append((cf, rc == 0, "credentials"))
-            overall |= rc
+            overall = max(overall, rc)
 
     # Security sweep
     rc = cmd_security(_sub_args(args, directory=str(base)))
     results.append((base, rc == 0, "security"))
-    overall |= rc
+    overall = max(overall, rc)
 
     # Summary
     print(f"\n{colorize('Summary', C.BLD)}")

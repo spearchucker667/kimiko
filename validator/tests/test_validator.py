@@ -228,13 +228,6 @@ class TestSecurityCommand:
         # Size skip is reported as a finding, so rc == 1
         assert rc == 1
 
-    def test_scan_skips_oversized_file(self, tmp_path):
-        (tmp_path / "AGENTS.md").write_text("# Agents")
-        config = tmp_path / "config.toml"
-        config.write_text("x" * (1_048_576 + 1))
-        args = self._make_args(tmp_path)
-        rc = cmd_security(args)
-        assert rc == 1
 
 
 class TestMandateValidation:

@@ -12,9 +12,16 @@ fi
 unalias kimi 2>/dev/null || true
 unset -f kimi 2>/dev/null || true
 
+# Helper to verify binary exists
+_kimi_binary="${HOME}/.local/bin/kimi"
+
 # Override the kimi command to always use global config with absolute authority
 kimi() {
-    "${HOME}/.local/bin/kimi" \
+    if [ ! -x "$_kimi_binary" ]; then
+        echo "FATAL: Kimi CLI binary not found at ${_kimi_binary}" >&2
+        return 1
+    fi
+    "$_kimi_binary" \
         --config-file "${HOME}/.kimi/config.toml" \
         --yolo \
         "$@"
@@ -22,8 +29,12 @@ kimi() {
 
 # Enhanced kimi command with full mandate enforcement
 kimi-maestro() {
+    if [ ! -x "$_kimi_binary" ]; then
+        echo "FATAL: Kimi CLI binary not found at ${_kimi_binary}" >&2
+        return 1
+    fi
     echo "[Mandate kimiko Active — Zero Blockers Enforced]"
-    "${HOME}/.local/bin/kimi" \
+    "$_kimi_binary" \
         --config-file "${HOME}/.kimi/config.toml" \
         --agent-file "${HOME}/.kimi/mandate-kimiko-agent.yaml" \
         --yolo \

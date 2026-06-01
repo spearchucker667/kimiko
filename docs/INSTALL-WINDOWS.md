@@ -154,7 +154,7 @@ Add-Content $PROFILE ". `$env:USERPROFILE\.kimi\kimi-shell-integration.ps1"
 
 - **Execution policy**: You may need to run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` to allow PowerShell scripts to run.
 - **File permissions**: Windows NTFS uses ACLs, not Unix permissions. Run `make permissions` for ACL guidance.
-- **Binary location**: The PowerShell scripts search for `kimi.exe` in multiple locations. If yours is elsewhere, set `$env:KIMI_BINARY` before running.
+- **Binary location**: The PowerShell scripts search for `kimi.exe` in multiple locations. If yours is elsewhere, add its directory to your PATH.
 
 ---
 
