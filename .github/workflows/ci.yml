@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        working-directory: ./validator
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install jsonschema pyyaml pytest ruff
+
+      - name: Run tests
+        working-directory: ./validator
+        run: pytest -v
+
+      - name: Run linter
+        working-directory: ./validator
+        run: ruff check . || true
+
+      - name: Validate install
+        run: make verify
+
+      - name: Check sync
+        run: make sync
+
+      - name: Run compliance check
+        working-directory: ./validator
+        run: |
+          python3 validate_kimi.py compliance ~/.kimi || true
