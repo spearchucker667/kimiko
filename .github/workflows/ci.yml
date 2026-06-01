@@ -88,16 +88,19 @@ jobs:
           python-version: "3.13"
 
       - name: Install dependencies
+        shell: pwsh
         working-directory: ./validator
         run: |
           python -m pip install --upgrade pip
           pip install jsonschema pyyaml pytest ruff
 
       - name: Run tests
+        shell: pwsh
         working-directory: ./validator
         run: pytest -v
 
       - name: Install files via Makefile
+        shell: pwsh
         run: make install-windows
 
       - name: Validate PowerShell scripts syntax

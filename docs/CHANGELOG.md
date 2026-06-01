@@ -73,6 +73,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `docs/TROUBLESHOOTING.md` added `dos2unix` installation note for Git Bash/MSYS2 users.
 - `docs/SECURITY.md` added WSL permission behavior note.
 - `make verify` JSON validation fixed: `open('$(DEST)/kimi.json')` changed to `open(r'$(DEST)/kimi.json')` to prevent Python `SyntaxError` on Windows paths containing `\Users` (Unicode escape truncation).
+- CI workflow hardened: `test-windows-pwsh` job now explicitly sets `shell: pwsh` on all `run` steps to prevent accidental execution in a different shell interpreter.
 - `docs/CONTRIBUTING.md` added "Platform Notes for Contributors" table documenting which `make` targets work on each platform.
 
 ### Added
