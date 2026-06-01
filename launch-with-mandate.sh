@@ -25,6 +25,5 @@ echo "=================================="
 echo ""
 
 # Execute KIMI with mandate configuration
-exec "${HOME}/.kimi/kimi-wrapper.sh" \
-  --agent-file "${HOME}/.kimi/mandate-kimiko-agent.yaml" \
-  "$@"
+# NOTE: kimi-wrapper.sh already hardcodes --agent-file, so we do NOT pass it again here.
+exec "${HOME}/.kimi/kimi-wrapper.sh" "$@"

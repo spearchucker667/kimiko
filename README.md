@@ -49,6 +49,8 @@ kimiko
 
 After step 5 you should see the mandate acknowledgment and capability announcement identical to the original configuration.
 
+> **Tip:** For a deep-dive into the mandate architecture, configuration layers, and troubleshooting, see [`AGENTS.md`](./AGENTS.md).
+
 ---
 
 ## Makefile Targets
@@ -111,7 +113,10 @@ The included `validator/` tool can sanity-check your `~/.kimi` installation:
 cd ~/.kimi/validator
 make validate        # Full validation
 make test            # pytest suite
+make validate-config # config.toml only
+make validate-mandates # mandate YAML files
 make security        # Security checks only
+make lint            # Python linter (ruff)
 ```
 
 ---

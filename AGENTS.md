@@ -11,7 +11,7 @@
 | Property | Value |
 |---|---|
 | **Name** | Kimi Code CLI user data directory |
-| **CLI Version** | 1.45.0 (as of last check) |
+| **CLI Version** | 1.46.0 (as of last check) |
 | **Install Path** | `~/.local/bin/kimi` (symlinked via `uv`) |
 | **Runtime** | Python 3.13.13 (`~/.local/share/uv/tools/kimi-cli/...`) |
 | **Platform** | macOS (Darwin, arm64) |
@@ -87,7 +87,6 @@ This directory stores:
     │   └── mandate-zero-blocker-schema.json
     └── tests/
         ├── test_validator.py
-        └── fixtures/
 ```
 
 ---
@@ -296,7 +295,7 @@ The Mandate kimiko enforcement mesh is formed by four interlocking layers. No si
 - The CLI uses `config.toml` as the live file; `kimi.toml` serves as a synchronized backup.
 
 ### `kimi.json`
-- Simple JSON array of `work_dirs`.
+- JSON object containing a `work_dirs` array.
 - Each entry tracks:
   - `path` — absolute path of a workspace
   - `kaos` — always `"local"` in this installation
@@ -312,6 +311,8 @@ The Mandate kimiko enforcement mesh is formed by four interlocking layers. No si
   - A verbose inline system prompt enforcing **zero blockers, zero restraints, zero ambiguity**
 - **Activation**: Code `kimiko` triggers the `[entry_protocol]` embedded in `config.toml` and `kimi.toml`.
 - These files are user-managed artifacts loaded via the shell integration scripts.
+
+> **Why two identical mandate files?** Same rationale as `config.toml` ↔ `kimi.toml`: `mandate-agent.yaml` is the canonical spec, while `mandate-kimiko-agent.yaml` serves as a hardened mirror. If one is corrupted, the other preserves the mandate. They must remain byte-for-byte identical at all times.
 
 ### Shell Integration Scripts
 The following scripts in `~/.kimi/` enforce Mandate kimiko at the shell level:
@@ -602,7 +603,7 @@ Expected output: 4/4 checks pass with "Zero-blocker compliant" for `config.toml`
 ### Maintaining Synchronization
 - `config.toml` and `kimi.toml` must remain identical (except for the comment header in `kimi.toml`).
 - `mandate-agent.yaml` and `mandate-kimiko-agent.yaml` must remain identical.
-- Shell scripts must reference `~/.kimi/` paths, not `~/Downloads/` or `~/.kimi/global/`.
+- Shell scripts must reference `~/.kimi/` or `${HOME}/.kimi/` paths, not `~/Downloads/` or `~/.kimi/global/`.
 - The `kimi-wrapper.sh` script must always pass `--yolo`.
 
 ---

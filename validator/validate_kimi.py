@@ -27,7 +27,7 @@ import stat
 import sys
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 try:
     import yaml
@@ -60,7 +60,7 @@ def colorize(text: str, color: str) -> str:
 SCHEMA_DIR = Path(__file__).parent / "schemas"
 
 
-def load_schema(name: str) -> Dict[str, Any]:
+def load_schema(name: str) -> dict[str, Any]:
     path = SCHEMA_DIR / name
     if not path.exists():
         raise FileNotFoundError(f"Schema not found: {path}")
@@ -69,7 +69,7 @@ def load_schema(name: str) -> Dict[str, Any]:
 
 
 # ── File Loaders ─────────────────────────────────────────────────────────────
-def load_toml(path: Path) -> Dict[str, Any]:
+def load_toml(path: Path) -> dict[str, Any]:
     if tomllib is None:
         raise RuntimeError(
             "TOML parsing requires Python 3.11+ or `pip install tomli`"
@@ -90,14 +90,14 @@ def load_json(path: Path) -> Any:
 
 # ── Validation Helpers ───────────────────────────────────────────────────────
 def validate_against_schema(
-    data: Any, schema: Dict[str, Any], label: str
-) -> Tuple[bool, List[ValidationError]]:
+    data: Any, schema: dict[str, Any], label: str
+) -> tuple[bool, list[ValidationError]]:
     validator = Draft202012Validator(schema)
     errors = list(validator.iter_errors(data))
     return len(errors) == 0, errors
 
 
-def print_errors(errors: List[ValidationError], verbose: bool = False) -> None:
+def print_errors(errors: list[ValidationError], verbose: bool = False) -> None:
     display = errors if verbose else errors[:10]
     for e in display:
         path = "/".join(str(p) for p in e.absolute_path) or "(root)"
@@ -109,9 +109,9 @@ def print_errors(errors: List[ValidationError], verbose: bool = False) -> None:
 
 
 # ── Security Checks ──────────────────────────────────────────────────────────
-def check_file_permissions(path: Path, expected_mode: int = 0o600) -> List[str]:
+def check_file_permissions(path: Path, expected_mode: int = 0o600) -> list[str]:
     """Ensure sensitive files are not world-readable."""
-    errors: List[str] = []
+    errors: list[str] = []
     try:
         st = path.stat()
         mode = stat.S_IMODE(st.st_mode)
@@ -125,9 +125,9 @@ def check_file_permissions(path: Path, expected_mode: int = 0o600) -> List[str]:
     return errors
 
 
-def scan_for_secrets(text: str, path: Path) -> List[str]:
+def scan_for_secrets(text: str, path: Path) -> list[str]:
     """Heuristic scan for potential secret leaks in non-credential files."""
-    findings: List[str] = []
+    findings: list[str] = []
     # Patterns to flag
     patterns = [
         (r"sk-[a-zA-Z0-9_-]{20,}", "API key pattern"),
@@ -148,9 +148,9 @@ def scan_for_secrets(text: str, path: Path) -> List[str]:
 
 
 # ── Cross-Reference Validation ───────────────────────────────────────────────
-def validate_config_crossrefs(data: Dict[str, Any], base_path: Path) -> List[str]:
+def validate_config_crossrefs(data: dict[str, Any], base_path: Path) -> list[str]:
     """Validate that config.toml internal references are consistent."""
-    errors: List[str] = []
+    errors: list[str] = []
 
     # 1. default_model must exist in [models]
     default_model = data.get("default_model")
@@ -194,9 +194,9 @@ def validate_config_crossrefs(data: Dict[str, Any], base_path: Path) -> List[str
     return errors
 
 
-def validate_registry_paths(data: Dict[str, Any]) -> List[str]:
+def validate_registry_paths(data: dict[str, Any]) -> list[str]:
     """Validate that kimi.json work_dirs paths exist."""
-    errors: List[str] = []
+    errors: list[str] = []
     for entry in data.get("work_dirs", []):
         path = entry.get("path")
         if path and not Path(path).exists():
@@ -210,9 +210,9 @@ def validate_registry_paths(data: Dict[str, Any]) -> List[str]:
     return errors
 
 
-def validate_mandate_paths(data: Dict[str, Any], base_path: Path) -> List[str]:
+def validate_mandate_paths(data: dict[str, Any], base_path: Path) -> list[str]:
     """Validate that mandate file references exist."""
-    errors: List[str] = []
+    errors: list[str] = []
     agent = data.get("agent", {})
     spp = agent.get("system_prompt_path")
     if spp:
@@ -234,11 +234,11 @@ def validate_mandate_paths(data: Dict[str, Any], base_path: Path) -> List[str]:
 
 # ── Mandate Compliance Checks ────────────────────────────────────────────────
 def validate_mandate_compliance(
-    config_data: Dict[str, Any],
-    mandate_data: Optional[Dict[str, Any]],
-) -> List[str]:
+    config_data: dict[str, Any],
+    mandate_data: Optional[dict[str, Any]],
+) -> list[str]:
     """Ensure config files reflect the kimiko mandate consistently."""
-    warnings: List[str] = []
+    warnings: list[str] = []
     if mandate_data is None:
         return warnings
 
@@ -434,7 +434,7 @@ def cmd_security(args: argparse.Namespace) -> int:
         print(f"{colorize('✗', C.R)} Not a directory: {base}")
         return 1
 
-    findings: List[str] = []
+    findings: list[str] = []
 
     # 1. Credential file permissions
     creds_dir = base / "credentials"
@@ -481,7 +481,7 @@ def cmd_all(args: argparse.Namespace) -> int:
         print(f"{colorize('✗', C.R)} Not a directory: {base}")
         return 1
 
-    results: List[Tuple[Path, bool, str]] = []
+    results: list[tuple[Path, bool, str]] = []
     overall = 0
 
     # Config

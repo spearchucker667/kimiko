@@ -1,5 +1,13 @@
 # macOS
 .DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 
 # Python
 __pycache__/
@@ -7,6 +15,24 @@ __pycache__/
 *.pyo
 *.egg-info/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Environment / secrets
+.env
+.env.*
+*.key
+*.pem
+*.crt
 
 # Kimi runtime data (never commit user-specific files)
 telemetry/
@@ -19,9 +45,21 @@ device_id
 credentials/
 kimi.json
 
-# IDE
+# IDE / editors
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+*.bak
+*.orig
+
+# Logs
+*.log
+
+# Node (if ever added)
+node_modules/
+
+# Misc
+*.tmp
+*.temp

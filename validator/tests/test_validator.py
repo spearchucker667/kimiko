@@ -3,6 +3,7 @@
 import json
 import os
 import stat
+import sys
 import tempfile
 from pathlib import Path
 
@@ -11,8 +12,8 @@ import yaml
 
 # Allow importing from parent directory
 sys_path = str(Path(__file__).parent.parent)
-if sys_path not in __import__("sys").path:
-    __import__("sys").path.insert(0, sys_path)
+if sys_path not in sys.path:
+    sys.path.insert(0, sys_path)
 
 from validate_kimi import (
     check_file_permissions,

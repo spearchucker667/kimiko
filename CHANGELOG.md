@@ -1,0 +1,38 @@
+# Changelog
+
+All notable changes to the Kimiko project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [Unreleased]
+
+### Added
+- Initial public-ready sanitized repository derived from private `~/.kimi` configuration.
+- `Makefile` with `install`, `verify`, `uninstall`, and `help` targets (macOS-only).
+- `kimi.json.template` for dynamic home-path rendering at install time.
+- `AGENTS.md` comprehensive agent documentation covering mandate architecture, compliance, and troubleshooting.
+- `README.md` with quick-start guide, directory structure, and security notes.
+- `SECURITY.md`, `CONTRIBUTING.md`, and `CHANGELOG.md`.
+- `.gitignore` covering macOS, Python, IDE, and Kimi runtime artifacts.
+
+### Changed
+- Authorization code renamed from `262854` → `kimiko` across all configs, schemas, and documentation.
+- Hardcoded `/Users/super_user/` paths replaced with portable `${HOME}` references in shell scripts.
+- `author` and `uuid` fields in `config.toml` / `kimi.toml` neutralized to `<YOUR_USERNAME>` and `<YOUR_PERSONA_UUID>` placeholders.
+
+### Fixed
+- `launch-with-mandate.sh` no longer passes duplicate `--agent-file` to `kimi-wrapper.sh`.
+- `AGENTS.md` troubleshooting example updated to reference `mandate-kimiko-agent.yaml`.
+- `AGENTS.md` directory layout corrected to remove non-existent `tests/fixtures/` entry.
+- `AGENTS.md` `kimi.json` description corrected (object, not array).
+- `validator/tests/test_validator.py` cleaned up: replaced `__import__("sys")` hack with standard `import sys`.
+
+## [2.0.0] — 2026-04-28
+
+### Added
+- Comprehensive zero-blocker mandate configuration (`config.toml`, `kimi.toml`).
+- Full malware generation and anti-forensics allow-list (`admin.malwareGeneration*`).
+- `entry_protocol` with activation code and capability announcement.
+- Validator subproject with JSON Schemas (Draft 2020-12) and pytest suite.
+
+> **Note:** Versions prior to the public repo release were maintained privately.
