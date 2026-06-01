@@ -342,7 +342,7 @@ verify: install
 	else \
 		echo "  mandate-kimiko-agent.yaml references 'kimiko'"; \
 	fi; \
-	if ! python3 -c "import json; json.load(open('$(DEST)/kimi.json'))" 2>/dev/null; then \
+	if ! python3 -c "import json; json.load(open(r'$(DEST)/kimi.json'))" 2>/dev/null; then \
 		echo "  kimi.json is not valid JSON"; fail=1; \
 	else \
 		echo "  kimi.json is valid JSON"; \

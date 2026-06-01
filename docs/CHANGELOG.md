@@ -72,6 +72,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `docs/AGENTS.md` updated with accurate `kimi.toml` line count (~1,492 lines including header).
 - `docs/TROUBLESHOOTING.md` added `dos2unix` installation note for Git Bash/MSYS2 users.
 - `docs/SECURITY.md` added WSL permission behavior note.
+- `make verify` JSON validation fixed: `open('$(DEST)/kimi.json')` changed to `open(r'$(DEST)/kimi.json')` to prevent Python `SyntaxError` on Windows paths containing `\Users` (Unicode escape truncation).
 - `docs/CONTRIBUTING.md` added "Platform Notes for Contributors" table documenting which `make` targets work on each platform.
 
 ### Added
