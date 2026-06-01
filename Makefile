@@ -32,6 +32,13 @@ else
     WINDOWS_SCRIPTS :=
 endif
 
+# Home directory for template substitution (USERPROFILE on Windows, HOME elsewhere)
+ifeq ($(PLATFORM),windows)
+    HOME_FWD := $(subst \,/,$(USERPROFILE))
+else
+    HOME_FWD := $(HOME)
+endif
+
 # ── Source Files ─────────────────────────────────────────────────────────────
 CONFIG_SRCS := \
     config/config.toml \
@@ -243,8 +250,7 @@ $(DEST)/launch-with-mandate.ps1: $(REPO_ROOT)/scripts/launch-with-mandate.ps1
 $(DEST)/kimi.json: $(REPO_ROOT)/config/kimi.json.template
 	@mkdir -p $(dir $@)
 	@tmp="$@.tmp.$$$$"; \
-	HOME_FWD="$(subst \,/,$(HOME))"; \
-	sed 's|<YOUR_HOME_DIR>|'"$$HOME_FWD"'|g' $< > "$$tmp"; \
+	sed 's|<YOUR_HOME_DIR>|$(HOME_FWD)|g' $< > "$$tmp"; \
 	mv -f "$$tmp" "$@"
 
 # ── Validator Files ──────────────────────────────────────────────────────────

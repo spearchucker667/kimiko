@@ -63,6 +63,28 @@ class TestMakefileIntegration:
         assert (kimi / "kimi-shell-integration.ps1").exists()
         assert (kimi / "launch-with-mandate.ps1").exists()
 
+    def test_make_install_windows_uses_userprofile_when_home_unset(self, tmp_path):
+        """Regression: on native Windows PowerShell HOME is unset; USERPROFILE must be used (BUG-020)."""
+        env = os.environ.copy()
+        env["OS"] = "Windows_NT"
+        env["USERPROFILE"] = str(tmp_path)
+        env.pop("HOME", None)  # Native PowerShell does not set HOME
+        result = subprocess.run(
+            ["make", "install"],
+            cwd=REPO_ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, result.stderr
+
+        import json
+        kimi_json = Path(tmp_path) / ".kimi" / "kimi.json"
+        data = json.loads(kimi_json.read_text())
+        paths = [entry["path"] for entry in data["work_dirs"]]
+        assert str(tmp_path) in paths, f"USERPROFILE path missing from kimi.json: {paths}"
+        assert str(tmp_path / ".kimi") in paths, f"USERPROFILE/.kimi path missing from kimi.json: {paths}"
+
     def test_make_uninstall_preserves_credentials(self, tmp_path):
         env = os.environ.copy()
         env["HOME"] = str(tmp_path)
