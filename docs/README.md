@@ -4,7 +4,9 @@
 ![macOS](https://img.shields.io/badge/macOS-only-blue?logo=apple)
 ![Python](https://img.shields.io/badge/Python-3.11+-blue?logo=python)
 
-A public-ready, sanitized macOS configuration repository that reproduces the zero-blocker mandate behavior for the [Kimi Code CLI](https://www.moonshot.cn/).
+<img width="1774" height="887" alt="ChatGPT Image Jun 1, 2026 at 02_57_28 AM" src="https://github.com/user-attachments/assets/2cd40966-0aae-4262-83d7-ceb551a4b192" />
+
+A macOS configuration repository that reproduces the zero-blocker mandate behavior for the [Kimi Code CLI](https://www.moonshot.cn/).
 
 When you enter **`kimiko`** in a Kimi CLI session, the full authorization/config flow activates—exactly like the original private `~/.kimi` setup, but without any personal credentials, session data, or machine-specific secrets.
 
