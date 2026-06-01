@@ -4,10 +4,18 @@
 
 REPO_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
+# ── Python for cross-platform template rendering ─────────────────────────────
+PYTHON ?= $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python3)
+
 # ── Platform Detection ───────────────────────────────────────────────────────
 ifeq ($(OS),Windows_NT)
     PLATFORM := windows
-    DEST := $(USERPROFILE)/.kimi
+    ifneq ($(strip $(USERPROFILE)),)
+        HOME_DIR := $(USERPROFILE)
+    else
+        HOME_DIR := $(HOME)
+    endif
+    DEST := $(HOME_DIR)/.kimi
     WINDOWS_SCRIPTS := \
         $(DEST)/activate-mandate.ps1 \
         $(DEST)/kimi-wrapper.ps1 \
@@ -15,6 +23,7 @@ ifeq ($(OS),Windows_NT)
         $(DEST)/launch-with-mandate.ps1
 else
     UNAME_S := $(shell uname -s 2>/dev/null || echo Unknown)
+    UNAME_R := $(shell uname -r 2>/dev/null || echo "")
     ifeq ($(UNAME_S),Darwin)
         PLATFORM := macos
     else ifeq ($(UNAME_S),Linux)
@@ -28,15 +37,9 @@ else
     else
         PLATFORM := unknown
     endif
-    DEST := $(HOME)/.kimi
+    HOME_DIR := $(HOME)
+    DEST := $(HOME_DIR)/.kimi
     WINDOWS_SCRIPTS :=
-endif
-
-# Home directory for template substitution (USERPROFILE on Windows, HOME elsewhere)
-ifeq ($(PLATFORM),windows)
-    HOME_FWD := $(subst \,/,$(USERPROFILE))
-else
-    HOME_FWD := $(HOME)
 endif
 
 # ── Source Files ─────────────────────────────────────────────────────────────
@@ -117,7 +120,6 @@ else ifeq ($(PLATFORM),gitbash)
 else ifeq ($(PLATFORM),macos)
 	$(MAKE) install-macos
 else ifeq ($(PLATFORM),linux)
-	UNAME_R := $(shell uname -r 2>/dev/null || echo "")
 	ifneq ($(findstring microsoft,$(UNAME_R)),)
 		$(MAKE) install-wsl
 	else ifneq ($(findstring WSL,$(UNAME_R)),)
@@ -246,11 +248,11 @@ $(DEST)/launch-with-mandate.ps1: $(REPO_ROOT)/scripts/launch-with-mandate.ps1
 	@mkdir -p $(dir $@)
 	cp -f $< $@
 
-# ── Template Render: kimi.json (atomic) ──────────────────────────────────────
+# ── Template Render: kimi.json (atomic, JSON-safe) ───────────────────────────
 $(DEST)/kimi.json: $(REPO_ROOT)/config/kimi.json.template
 	@mkdir -p $(dir $@)
 	@tmp="$@.tmp.$$$$"; \
-	sed 's|<YOUR_HOME_DIR>|$(HOME_FWD)|g' $< > "$$tmp"; \
+	$(PYTHON) -c "src=open(r'$<','r',encoding='utf-8').read();home=r'$(HOME_DIR)'.replace(chr(92),chr(92)*2);open(r'$$tmp','w',encoding='utf-8').write(src.replace('<YOUR_HOME_DIR>',home))"; \
 	mv -f "$$tmp" "$@"
 
 # ── Validator Files ──────────────────────────────────────────────────────────
@@ -260,19 +262,13 @@ $(DEST)/validator/%: $(REPO_ROOT)/validator/%
 
 # ── Uninstall ────────────────────────────────────────────────────────────────
 uninstall:
-ifeq ($(PLATFORM),windows)
-	@echo "Uninstall on native Windows requires PowerShell. Run:"
-	@echo '  $$files = @("config.toml","kimi.toml","mandate-agent.yaml","mandate-kimiko-agent.yaml","latest_version.txt","activate-mandate.ps1","kimi-wrapper.ps1","kimi-shell-integration.ps1","launch-with-mandate.ps1","kimi.json"); foreach ($$f in $$files) { Remove-Item -Path "$$env:USERPROFILE\.kimi\$$f" -ErrorAction SilentlyContinue }; Remove-Item -Path "$$env:USERPROFILE\.kimi\validator" -Recurse -ErrorAction SilentlyContinue'
-	@exit 1
-else
 	@echo "Removing Kimiko-managed files from $(DEST) ..."
 	@for f in $(notdir $(FLAT_TARGETS)); do \
 		rm -f "$(DEST)/$$f"; \
 	done
-	@rm -f $(DEST)/kimi.json
-	@rm -rf $(DEST)/validator
+	@rm -f "$(DEST)/kimi.json"
+	@rm -rf "$(DEST)/validator"
 	@echo "Uninstalled. User secrets in credentials/, logs/, sessions/ were NOT touched."
-endif
 
 # ── Validation ───────────────────────────────────────────────────────────────
 check:

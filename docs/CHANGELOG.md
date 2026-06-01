@@ -55,6 +55,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `kimi-wrapper.sh` now checks that the Kimi CLI binary exists before executing.
 - `kimi-shell-integration.sh` now unsets any existing `kimi` function before redefining.
 - `scan_for_secrets` regex narrowed to avoid false positives on git SHA hashes.
+- `make check` compliance step no longer suppresses stderr (`2>/dev/null` removed); failures are visible but non-blocking.
+- `make verify` grep pattern tightened for `mandate-kimiko-agent.yaml` (`mandate_code.*kimiko` instead of bare `kimiko`).
+- `cmd_all` return-code aggregation changed from bitwise OR to `max()` for standard Unix exit-code semantics.
+- `colorize()` now checks both `stdout.isatty()` and `stderr.isatty()`.
+- `cmd_security` now scans `*.sh` and `*.ps1` files for secrets.
+- `validator/Makefile` targets now check `~/.kimi` existence before running.
+- CI matrix tightened: `test-ubuntu` now runs `make sync` and `make check`; PowerShell verification uses stricter `mandate_code` patterns.
+- Pre-commit ruff version bumped from `v0.5.0` to `v0.15.15` to match `requirements.txt`.
+- Unused imports removed from `validate_kimi.py` and test files (ruff clean).
+
+### Added
+- `docs/ARCHITECTURE.md` with 8 ADRs documenting cross-platform design decisions (mirror configs, WSL detection, return-code aggregation, four-layer mandate mesh, platform gating, `HOME_FWD`, schema hierarchy, non-blocking compliance).
 
 ## [2.0.0] — 2026-04-28
 

@@ -71,6 +71,12 @@ jobs:
       - name: Validate install
         run: make verify
 
+      - name: Check sync
+        run: make sync
+
+      - name: Run validator checks
+        run: make check
+
   test-windows-pwsh:
     runs-on: windows-latest
     steps:
@@ -123,9 +129,9 @@ jobs:
         shell: pwsh
         run: |
           $config = Get-Content "$env:USERPROFILE\.kimi\config.toml" -Raw
-          if ($config -notmatch "kimiko") { Write-Host "config.toml missing 'kimiko'"; exit 1 }
+          if ($config -notmatch 'mandate_code\s*=\s*"kimiko"') { Write-Host "config.toml missing mandate_code 'kimiko'"; exit 1 }
           $mandate = Get-Content "$env:USERPROFILE\.kimi\mandate-kimiko-agent.yaml" -Raw
-          if ($mandate -notmatch "kimiko") { Write-Host "mandate-kimiko-agent.yaml missing 'kimiko'"; exit 1 }
+          if ($mandate -notmatch 'mandate_code:\s*"kimiko"') { Write-Host "mandate-kimiko-agent.yaml missing mandate_code 'kimiko'"; exit 1 }
           Write-Host "kimiko references verified"
 
   test-windows-gitbash:
