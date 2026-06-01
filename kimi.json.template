@@ -1,0 +1,14 @@
+{
+  "work_dirs": [
+    {
+      "path": "<YOUR_HOME_DIR>",
+      "kaos": "local",
+      "last_session_id": null
+    },
+    {
+      "path": "<YOUR_HOME_DIR>/.kimi",
+      "kaos": "local",
+      "last_session_id": null
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Kimi runtime data (never commit user-specific files)
+telemetry/
+user-history/
+logs/
+plans/
+sessions/
+device_id
+.backups/
+credentials/
+kimi.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

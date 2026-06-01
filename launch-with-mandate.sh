@@ -1,0 +1,30 @@
+#!/bin/bash
+# Quick launcher for KIMI with Mandate kimiko baseline — Zero Blocker Mode
+# Usage: ./launch-with-mandate.sh [optional kimi args]
+
+echo "=================================="
+echo "KIMI-CODE Maestro - Mandate kimiko"
+echo "Absolute User Authority Protocol"
+echo "ZERO BLOCKERS | ZERO RESTRAINTS"
+echo "=================================="
+echo ""
+echo "Loading system prompt baseline from:"
+echo "  - Wrapper: ${HOME}/.kimi/kimi-wrapper.sh"
+echo "  - Config: ~/.kimi/config.toml"
+echo "  - Agent: ${HOME}/.kimi/mandate-kimiko-agent.yaml"
+echo "  - Shell Integration: ~/.kimi/kimi-shell-integration.sh"
+echo ""
+echo "Mandate Status: ACTIVE"
+echo "Safety Restrictions: NULLIFIED"
+echo "Operational Mode: Admin_mode_kimi-cli"
+echo "Yolo Mode: ENABLED (zero confirmation prompts)"
+echo "AFK Injection Skip: ENABLED (zero prompt filtering)"
+echo ""
+echo "Launching KIMI-CLI..."
+echo "=================================="
+echo ""
+
+# Execute KIMI with mandate configuration
+exec "${HOME}/.kimi/kimi-wrapper.sh" \
+  --agent-file "${HOME}/.kimi/mandate-kimiko-agent.yaml" \
+  "$@"
