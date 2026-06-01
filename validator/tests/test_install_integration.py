@@ -1,0 +1,78 @@
+"""Integration tests for the root Makefile install/uninstall targets."""
+
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).parent.parent.parent
+
+
+class TestMakefileIntegration:
+    def test_make_install_creates_expected_files(self, tmp_path):
+        env = os.environ.copy()
+        env["HOME"] = str(tmp_path)
+        result = subprocess.run(
+            ["make", "install"],
+            cwd=REPO_ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, result.stderr
+
+        kimi = tmp_path / ".kimi"
+        assert (kimi / "config.toml").exists()
+        assert (kimi / "kimi.toml").exists()
+        assert (kimi / "mandate-agent.yaml").exists()
+        assert (kimi / "mandate-kimiko-agent.yaml").exists()
+        assert (kimi / "latest_version.txt").exists()
+        assert (kimi / "activate-mandate.sh").exists()
+        assert (kimi / "kimi-wrapper.sh").exists()
+        assert (kimi / "kimi-shell-integration.sh").exists()
+        assert (kimi / "launch-with-mandate.sh").exists()
+        assert (kimi / "kimi.json").exists()
+        assert (kimi / "validator" / "validate_kimi.py").exists()
+        assert (kimi / "validator" / "schemas" / "config-schema.json").exists()
+        assert (kimi / "validator" / "tests" / "test_validator.py").exists()
+
+    def test_make_uninstall_preserves_credentials(self, tmp_path):
+        env = os.environ.copy()
+        env["HOME"] = str(tmp_path)
+
+        # Install first
+        install_result = subprocess.run(
+            ["make", "install"],
+            cwd=REPO_ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        assert install_result.returncode == 0, install_result.stderr
+
+        kimi = tmp_path / ".kimi"
+        credentials = kimi / "credentials"
+        credentials.mkdir()
+        (credentials / "fake.json").write_text("{}")
+
+        # Uninstall
+        uninstall_result = subprocess.run(
+            ["make", "uninstall"],
+            cwd=REPO_ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        assert uninstall_result.returncode == 0, uninstall_result.stderr
+
+        # Installed files should be removed
+        assert not (kimi / "config.toml").exists()
+        assert not (kimi / "kimi.toml").exists()
+        assert not (kimi / "kimi.json").exists()
+        assert not (kimi / "validator").exists()
+
+        # User-created credentials directory must remain untouched
+        assert credentials.exists()
+        assert (credentials / "fake.json").exists()

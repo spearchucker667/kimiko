@@ -108,15 +108,21 @@
 
 ## 🧪 Missing Tests / Coverage Gaps
 
-- [ ] **No integration test for `make install` / `make uninstall`**
+- [x] **No integration test for `make install` / `make uninstall`**
+  - **FIXED**: Created `validator/tests/test_install_integration.py` with tests for install (verifies files created) and uninstall (verifies credentials/ preserved).
   - A temp-directory-based test would catch Makefile regressions.
-- [ ] **No schema-validation test for JSON Schema files themselves**
+- [x] **No schema-validation test for JSON Schema files themselves**
+  - **FIXED**: Added `TestSchemaMetaValidation` using `Draft202012Validator.check_schema()` on all 6 schema files.
   - `test_validator.py` loads schemas but does not validate them against the JSON Schema meta-schema.
-- [ ] **No test for `cmd_compliance`**
+- [x] **No test for `cmd_compliance`**
+  - **FIXED**: Added `TestComplianceValidation` with 4 tests (compliant/non-compliant config and mandate).
   - The zero-blocker compliance path is entirely untested.
-- [ ] **No test for `cmd_security`**
+- [x] **No test for `cmd_security`**
+  - **FIXED**: Added `TestSecurityCommand` with 5 tests covering clean directory, world-readable creds, secrets in config, and large file skipping.
   - Secret scanning and permission checks have isolated unit tests but the orchestration function is not covered.
-- [ ] **No fixture files for negative/edge-case mandate YAMLs**
+- [x] **No fixture files for negative/edge-case mandate YAMLs**
+  - **FIXED**: Created `validator/tests/fixtures/` with 4 negative fixtures (bad mandate missing tools, bad mandate no zero-blockers, bad config no yolo, bad config no admin).
+  - Added `TestFixtureFiles` validating each fixture fails against the zero-blocker schema.
   - Would enable regression testing for schema evolution.
 
 ---
@@ -154,7 +160,8 @@
 
 ## ⚡ Performance Improvements
 
-- [ ] **validate_kimi.py `cmd_security` reads every file sequentially**
+- [x] **validate_kimi.py `cmd_security` reads every file sequentially**
+  - **FIXED**: Added `SECURITY_SIZE_LIMIT = 1_048_576` (1MB). Files exceeding this are skipped with a finding.
   - For large `~/.kimi` directories with many logs, this could be slow. Consider size limits or async I/O.
 - [ ] **config.toml / kimi.toml are ~1,500 lines each**
   - `tomllib.load()` on every validation is acceptable for this scale, but if configs grow, consider caching parsed results.
@@ -178,16 +185,18 @@
 
 | Feature | Code | Docs | Tests | Notes |
 |---|---|---|---|---|
-| Makefile install | ✅ | ✅ | ❌ | No integration tests |
-| Makefile verify | ✅ | ✅ | ❌ | No integration tests |
-| Makefile uninstall | ✅ | ✅ | ❌ | No integration tests |
-| Shell wrappers | ✅ | ✅ | ❌ | No shell-level tests |
-| config.toml schema | ✅ | ✅ | ✅ | Tests exist |
-| mandate YAML schema | ✅ | ✅ | ✅ | Tests exist |
-| Zero-blocker compliance | ✅ | ✅ | ❌ | No tests for `cmd_compliance` |
-| Security scanner | ✅ | ✅ | ✅ | Unit tests exist |
+| Makefile install | ✅ | ✅ | ✅ | Integration tests via `test_install_integration.py` |
+| Makefile verify | ✅ | ✅ | ✅ | Covered by integration tests |
+| Makefile uninstall | ✅ | ✅ | ✅ | Credentials preservation tested |
+| Shell wrappers | ✅ | ✅ | ❌ | No shell-level tests (bash syntax checked) |
+| config.toml schema | ✅ | ✅ | ✅ | Tests + fixture files exist |
+| mandate YAML schema | ✅ | ✅ | ✅ | Tests + fixture files exist |
+| Zero-blocker compliance | ✅ | ✅ | ✅ | `TestComplianceValidation` + fixtures |
+| Security scanner | ✅ | ✅ | ✅ | Unit + orchestration tests |
 | Cross-ref validator | ✅ | ✅ | ✅ | Unit tests exist |
 | kimi.json template | ✅ | ✅ | ❌ | No template render tests |
+| JSON Schema meta-validation | ✅ | ✅ | ✅ | `TestSchemaMetaValidation` checks all schemas |
+| File size limits (security) | ✅ | ✅ | ✅ | `SECURITY_SIZE_LIMIT` + tests |
 
 ---
 

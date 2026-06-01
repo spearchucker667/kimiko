@@ -344,7 +344,7 @@ def cmd_config(args: argparse.Namespace) -> int:
 
     schema = load_schema("config-schema.json")
     valid, errors = validate_against_schema(data, schema, str(path))
-    xerrs = validate_config_crossrefs(data, path) if not args.no_crossrefs else []
+    xerrs = validate_config_crossrefs(data, path) if not getattr(args, "no_crossrefs", False) else []
 
     if valid and not xerrs:
         print(f"{colorize('✓', C.G)} {path}: Valid")
@@ -436,6 +436,9 @@ def cmd_credentials(args: argparse.Namespace) -> int:
     return 1
 
 
+SECURITY_SIZE_LIMIT = 1_048_576
+
+
 def cmd_security(args: argparse.Namespace) -> int:
     base = Path(args.directory) if args.directory else Path.home() / ".kimi"
     if not base.is_dir():
@@ -457,6 +460,9 @@ def cmd_security(args: argparse.Namespace) -> int:
             if f.name.startswith("."):
                 continue
             if "credential" in str(f).lower():
+                continue
+            if f.stat().st_size > SECURITY_SIZE_LIMIT:
+                findings.append(f"{f.name}: skipped (>{SECURITY_SIZE_LIMIT} bytes)")
                 continue
             try:
                 text = f.read_text(encoding="utf-8", errors="replace")
