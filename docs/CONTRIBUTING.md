@@ -49,6 +49,10 @@ PRs that introduce drift between these file pairs will be rejected.
   - `validator: fix false positive in secret scanner`
   - `docs: update AGENTS.md troubleshooting`
 
+## Code of Conduct
+
+All contributors are expected to adhere to the [Code of Conduct](./CODE_OF_CONDUCT.md).
+
 ## Questions?
 
 Open a [Discussion](https://github.com/spearchucker667/kimiko/discussions) or reach out via GitHub issues for non-security questions.

@@ -24,7 +24,7 @@ Validates `.kimi` directory configuration files for structural integrity, securi
 
 ```bash
 cd ~/.kimi/validator
-pip install jsonschema pyyaml pytest
+pip install -r requirements.txt
 # Python 3.11+ has built-in tomllib; for 3.10 or earlier:
 pip install tomli
 ```

@@ -131,13 +131,21 @@ def scan_for_secrets(text: str, path: Path) -> list[str]:
     # Patterns to flag
     patterns = [
         (r"sk-[a-zA-Z0-9_-]{20,}", "API key pattern"),
-        (r"[a-f0-9]{40}", "hex secret-like pattern"),
         (r"eyJ[a-zA-Z0-9_/+-]*={0,2}", "JWT-like token"),
         (r"password\s*=\s*[^\s]+", "hardcoded password"),
         (r"token\s*=\s*[^\s]+", "hardcoded token"),
     ]
+    secret_context = re.compile(r"api_key|apikey|secret|token|password|private_key", re.IGNORECASE)
     lines = text.splitlines()
     for lineno, line in enumerate(lines, 1):
+        # Hex patterns require surrounding context to avoid flagging git SHAs
+        if re.search(r"[a-f0-9]{40}", line, re.IGNORECASE):
+            if secret_context.search(line):
+                findings.append(
+                    f"{path}:{lineno}: potential secret leak (hex secret-like pattern)"
+                )
+                continue
+
         for pattern, desc in patterns:
             if re.search(pattern, line, re.IGNORECASE):
                 findings.append(
@@ -336,7 +344,7 @@ def cmd_config(args: argparse.Namespace) -> int:
 
     schema = load_schema("config-schema.json")
     valid, errors = validate_against_schema(data, schema, str(path))
-    xerrs = validate_config_crossrefs(data, path)
+    xerrs = validate_config_crossrefs(data, path) if not args.no_crossrefs else []
 
     if valid and not xerrs:
         print(f"{colorize('✓', C.G)} {path}: Valid")
@@ -571,6 +579,7 @@ Examples:
 
     p_cfg = sub.add_parser("config", help="Validate a config.toml file")
     p_cfg.add_argument("file", help="Path to config.toml")
+    p_cfg.add_argument("--no-crossrefs", action="store_true", help="Skip cross-reference validation")
 
     p_reg = sub.add_parser("registry", help="Validate a kimi.json file")
     p_reg.add_argument("file", help="Path to kimi.json")

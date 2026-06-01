@@ -1,0 +1,4 @@
+jsonschema
+pyyaml
+pytest
+ruff

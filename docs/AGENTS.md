@@ -365,6 +365,14 @@ The following scripts in `scripts/` (installed to `~/.kimi/`) enforce Mandate ki
 
 All installed scripts reference `~/.kimi/config.toml` and `~/.kimi/mandate-kimiko-agent.yaml` directly. There are **no `/global/` path indirections**.
 
+#### Function Definition Hierarchy
+Both `scripts/activate-mandate.sh` and `scripts/kimi-shell-integration.sh` define `kimi()` and `kimi-maestro()` functions. The hierarchy works as follows:
+
+- **`activate-mandate.sh`** is the baseline. It exports the mandate environment variables and defines minimal `kimi()` and `kimi-maestro()` functions that pass `--config-file` and `--yolo`.
+- **`kimi-shell-integration.sh`** sources `activate-mandate.sh` first, then redefines `kimi()` and `kimi-maestro()` with more explicit flag passing and additional shell-specific behavior (e.g., `unalias kimi`, status messages, and a `kimi-status()` helper).
+- **`kimi-wrapper.sh`** is the low-level wrapper used by `launch-with-mandate.sh`. It performs file-existence checks and executes the binary directly via `exec`.
+- **`launch-with-mandate.sh`** is the user-facing entry point. It prints the mandate status banner and then delegates to `kimi-wrapper.sh`.
+
 ---
 
 ## Technology Stack

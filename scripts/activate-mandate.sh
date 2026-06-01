@@ -2,6 +2,10 @@
 # Global KIMI-CLI Mandate Activation Script
 # Ensures Mandate kimiko is active for ALL KIMI-CLI sessions with ZERO BLOCKERS
 
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    set -euo pipefail
+fi
+
 export KIMI_GLOBAL_CONFIG="${HOME}/.kimi/config.toml"
 export KIMI_MANDATE_ACTIVE="kimiko"
 export KIMI_ADMIN_MODE="true"

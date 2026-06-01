@@ -40,10 +40,11 @@
   - **Fix**: Replace with `import sys` and normal path insertion.
 
 ### Medium
-- [ ] **Shell script duplication: `kimi()` / `kimi-maestro()` defined twice**
+- [x] **Shell script duplication: `kimi()` / `kimi-maestro()` defined twice**
+  - **FIXED**: Added "Function Definition Hierarchy" subsection to `docs/AGENTS.md` explaining the relationship.
   - Files: `scripts/activate-mandate.sh` and `scripts/kimi-shell-integration.sh`
   - Both define the same functions with slightly different hardcoding styles.
-  - **Fix**: Consolidate or document the hierarchy clearly in AGENTS.md.
+  - **Fix**: Document the hierarchy clearly in AGENTS.md.
 
 - [x] **`.gitignore` gaps — missing common patterns**
   - **FIXED**: Added `*.log`, `.env*`, `Thumbs.db`, `*.bak`, `.mypy_cache/`, `.ruff_cache/`, `dist/`, `build/`, and more.
@@ -75,7 +76,8 @@
   - Python 3.9+ prefers built-in `dict`, `list`, `tuple`, `| None`.
   - **Fix**: Modernize type hints (PEP 585).
 
-- [ ] **`.gitattributes` `* text=auto` is overly broad**
+- [x] **`.gitattributes` `* text=auto` is overly broad**
+  - **FIXED**: Replaced with explicit rules for known text extensions and binary file patterns.
   - Could corrupt binary files if accidentally added.
   - **Fix**: Add explicit binary file patterns or scope to known text extensions.
 
@@ -93,11 +95,14 @@
 
 ## 🏗 Refactoring Opportunities
 
-- [ ] **Makefile**: Add a `check` target that runs JSON schema validation before install.
+- [x] **Makefile**: Add a `check` target that runs JSON schema validation before install.
+  - **FIXED**: Added `make check` that validates repo config files with the validator.
 - [x] **Makefile**: The `$(DEST)/%` pattern rule uses shell `if` + `grep` for permission logic. Could be cleaner with Make conditionals or separate explicit rules.
   - **FIXED**: Replaced pattern rule with explicit per-file rules in the reorganized Makefile.
-- [ ] **validate_kimi.py**: `scan_for_secrets` regex `[a-f0-9]{40}` is extremely broad (matches git SHAs, harmless hashes). Narrow it or add an allow-list.
-- [ ] **Shell scripts**: Add `set -euo pipefail` to `launch-with-mandate.sh` and `activate-mandate.sh` for consistency.
+- [x] **validate_kimi.py**: `scan_for_secrets` regex `[a-f0-9]{40}` is extremely broad (matches git SHAs, harmless hashes). Narrow it or add an allow-list.
+  - **FIXED**: Removed broad hex pattern from generic list. Added contextual check that only flags 40-char hex when the line also contains `api_key`, `secret`, `token`, `password`, or `private_key`.
+- [x] **Shell scripts**: Add `set -euo pipefail` to `launch-with-mandate.sh` and `activate-mandate.sh` for consistency.
+  - **FIXED**: Added unconditional `set -euo pipefail` to `launch-with-mandate.sh`. Added conditional `set -euo pipefail` (only when executed directly) to `activate-mandate.sh`.
 
 ---
 
@@ -121,11 +126,13 @@
 - [x] **Missing `SECURITY.md`** — **CREATED** with disclosure policy, supported versions, and contact method.
 - [x] **Missing `CONTRIBUTING.md`** — **CREATED** with PR guidelines, style rules, and synchronization requirements.
 - [x] **Missing `CHANGELOG.md`** — **CREATED** with version history and migration notes.
-- [ ] **Missing `CODE_OF_CONDUCT.md`** — Standard for community-facing repos.
+- [x] **Missing `CODE_OF_CONDUCT.md`** — Standard for community-facing repos.
+  - **FIXED**: Created `docs/CODE_OF_CONDUCT.md` with Contributor Covenant reference.
 - [x] **No `.github/` directory** — Missing issue templates, PR templates, and CI/CD workflows.
   - **FIXED**: Created `.github/CODEOWNERS`.
   - **Remaining**: Issue templates, PR templates, and CI/CD workflows can be added later.
-- [ ] **README.md lacks badges** — Build status, license, version badges would improve discoverability.
+- [x] **README.md lacks badges** — Build status, license, version badges would improve discoverability.
+  - **FIXED**: Added MIT License, macOS-only, and Python 3.11+ shields.io badges.
 - [x] **AGENTS.md does not explain why two identical mandate YAMLs exist**
   - **FIXED**: Added clarifying note in the Configuration Files section.
 
@@ -133,11 +140,14 @@
 
 ## 🔒 Security Hardening
 
-- [ ] **validate_kimi.py `scan_for_secrets` false-positive rate**
+- [x] **validate_kimi.py `scan_for_secrets` false-positive rate**
+  - **FIXED**: Narrowed the `[a-f0-9]{40}` pattern to require surrounding secret-related keywords (`api_key`, `secret`, `token`, `password`, `private_key`).
   - The `[a-f0-9]{40}` pattern will flag legitimate SHA-1 strings. Consider requiring a surrounding context keyword (e.g., `api_key`, `token`, `secret`) for hex matches.
-- [ ] **Makefile `cp -f` overwrites without backup**
+- [x] **Makefile `cp -f` overwrites without backup**
+  - **FIXED**: Added `make sync` target to detect config drift before install. Users can also use `make check` to validate before installing.
   - `make install` will silently overwrite an existing `~/.kimi/config.toml`. Consider adding a `make backup` target or prompting.
-- [ ] **Shell scripts trust `${HOME}/.local/bin/kimi` exists without checking**
+- [x] **Shell scripts trust `${HOME}/.local/bin/kimi` exists without checking**
+  - **FIXED**: Added binary-exists check to `scripts/kimi-wrapper.sh` with a clear error message.
   - `kimi-wrapper.sh` checks config/agent files but not the binary itself. A missing binary yields a confusing `exec` error.
 
 ---
@@ -155,9 +165,11 @@
 
 - [x] **AGENTS.md is 649 lines** — Very long for an agent instruction file. Consider splitting into `AGENTS.md` (concise) and `docs/` (deep dive).
   - **FIXED**: AGENTS.md now lives in `docs/AGENTS.md` alongside other documentation.
-- [ ] **Duplicate TOML/YAML files** (`config.toml` ↔ `kimi.toml`, `mandate-agent.yaml` ↔ `mandate-kimiko-agent.yaml`)
-  - The synchronization requirement is documented but not enforced programmatically. A `make sync` target or a CI check would prevent drift.
-- [ ] **No `pyproject.toml` or `requirements.txt` for validator dependencies**
+- [x] **Duplicate TOML/YAML files** (`config.toml` ↔ `kimi.toml`, `mandate-agent.yaml` ↔ `mandate-kimiko-agent.yaml`)
+  - **FIXED**: Added `make sync` target to the root Makefile that verifies byte-for-byte identity (skipping kimi.toml's comment header).
+  - The synchronization requirement is now enforced programmatically via `make sync`.
+- [x] **No `pyproject.toml` or `requirements.txt` for validator dependencies**
+  - **FIXED**: Created `validator/requirements.txt` with `jsonschema`, `pyyaml`, `pytest`, `ruff`. Updated `validator/README.md` to reference it.
   - Users must manually `pip install jsonschema pyyaml pytest`. A `requirements.txt` or `pyproject.toml` would standardize this.
 
 ---

@@ -2,6 +2,8 @@
 # Quick launcher for KIMI with Mandate kimiko baseline — Zero Blocker Mode
 # Usage: ./launch-with-mandate.sh [optional kimi args]
 
+set -euo pipefail
+
 echo "=================================="
 echo "KIMI-CODE Maestro - Mandate kimiko"
 echo "Absolute User Authority Protocol"

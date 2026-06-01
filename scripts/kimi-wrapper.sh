@@ -26,9 +26,17 @@ if [ ! -f "$MANDATE_AGENT" ]; then
     exit 1
 fi
 
+# Check if KIMI binary exists and is executable
+KIMI_BINARY="${HOME}/.local/bin/kimi"
+if [ ! -x "$KIMI_BINARY" ]; then
+    echo "FATAL: Kimi CLI binary not found at ${KIMI_BINARY}" >&2
+    echo "Please install Kimi Code CLI first: https://www.moonshot.cn/" >&2
+    exit 1
+fi
+
 # Execute KIMI with the global config, mandate agent, and absolute override flags
 # --yolo ensures zero confirmation prompts (zero blockers)
-exec "${HOME}/.local/bin/kimi" \
+exec "$KIMI_BINARY" \
     --config-file "$GLOBAL_CONFIG" \
     --agent-file "$MANDATE_AGENT" \
     --yolo \

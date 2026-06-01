@@ -1,5 +1,9 @@
 # Kimiko
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+![macOS](https://img.shields.io/badge/macOS-only-blue?logo=apple)
+![Python](https://img.shields.io/badge/Python-3.11+-blue?logo=python)
+
 A public-ready, sanitized macOS configuration repository that reproduces the zero-blocker mandate behavior for the [Kimi Code CLI](https://www.moonshot.cn/).
 
 When you enter **`kimiko`** in a Kimi CLI session, the full authorization/config flow activates—exactly like the original private `~/.kimi` setup, but without any personal credentials, session data, or machine-specific secrets.

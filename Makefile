@@ -44,7 +44,7 @@ VALIDATOR_TARGETS := \
 	$(DEST)/validator/schemas/mandate-zero-blocker-schema.json \
 	$(DEST)/validator/tests/test_validator.py
 
-.PHONY: all install verify uninstall help
+.PHONY: all install verify uninstall check sync help
 
 all: help
 
@@ -53,6 +53,8 @@ help:
 	@echo ""
 	@echo "  make install    Full idempotent setup into ~/.kimi"
 	@echo "  make verify     Confirm files landed and key strings present"
+	@echo "  make check      Validate config files with the validator"
+	@echo "  make sync       Verify config/mandate mirror files are in sync"
 	@echo "  make uninstall  Remove installed Kimiko files (preserves secrets)"
 	@echo "  make help       Show this help text"
 
@@ -128,6 +130,31 @@ uninstall:
 	@rm -f $(DEST)/kimi.json
 	@rm -rf $(DEST)/validator
 	@echo "✓ Uninstalled. User secrets in credentials/, logs/, sessions/ were NOT touched."
+
+check:
+	@echo "Running validator checks ..."
+	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py config --no-crossrefs $(REPO_ROOT)/config/config.toml
+	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py config --no-crossrefs $(REPO_ROOT)/config/kimi.toml
+	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py mandate $(REPO_ROOT)/config/mandate-agent.yaml
+	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py mandate $(REPO_ROOT)/config/mandate-kimiko-agent.yaml
+	@echo "✓ All validator checks passed."
+
+sync:
+	@echo "Checking config.toml / kimi.toml sync ..."
+	@sync_tmp=$$(mktemp /tmp/kimi-sync.XXXXXX); \
+	sed -n '/^[^#]/,$$p' $(REPO_ROOT)/config/kimi.toml > "$$sync_tmp"; \
+	if ! diff -q $(REPO_ROOT)/config/config.toml "$$sync_tmp" > /dev/null; then \
+		echo "  ✗ config.toml and kimi.toml differ (after stripping kimi.toml comment header)"; \
+		rm -f "$$sync_tmp"; \
+		exit 1; \
+	fi; \
+	rm -f "$$sync_tmp"
+	@echo "Checking mandate-agent.yaml / mandate-kimiko-agent.yaml sync ..."
+	@if ! diff -q $(REPO_ROOT)/config/mandate-agent.yaml $(REPO_ROOT)/config/mandate-kimiko-agent.yaml > /dev/null; then \
+		echo "  ✗ mandate-agent.yaml and mandate-kimiko-agent.yaml differ"; \
+		exit 1; \
+	fi
+	@echo "✓ All sync checks passed."
 
 verify:
 	@echo "Verifying Kimiko installation in $(DEST) ..."
