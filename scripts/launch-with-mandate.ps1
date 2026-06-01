@@ -25,5 +25,19 @@ Write-Host ""
 
 # Execute KIMI with mandate configuration
 # NOTE: kimi-wrapper.ps1 already hardcodes --agent-file, so we do NOT pass it again here.
+# Filter out --agent-file to avoid duplication (wrapper already hardcodes it)
+$filteredArgs = @()
+$i = 0
+while ($i -lt $args.Count) {
+    if ($args[$i] -eq "--agent-file") {
+        $i += 2
+    } elseif ($args[$i] -like "--agent-file=*") {
+        $i += 1
+    } else {
+        $filteredArgs += $args[$i]
+        $i += 1
+    }
+}
+
 $wrapper = Join-Path $env:USERPROFILE ".kimi" "kimi-wrapper.ps1"
-& $wrapper @args
+& $wrapper @filteredArgs

@@ -26,6 +26,16 @@ if [ ! -f "$MANDATE_AGENT" ]; then
     exit 1
 fi
 
+# Filter out --agent-file to avoid duplication (we hardcode it below)
+_filtered_args=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --agent-file) shift 2 ;;
+        --agent-file=*) shift ;;
+        *) _filtered_args+=("$1"); shift ;;
+    esac
+done
+
 # Check if KIMI binary exists and is executable
 KIMI_BINARY="${HOME}/.local/bin/kimi"
 if [ ! -x "$KIMI_BINARY" ]; then
@@ -40,4 +50,4 @@ exec "$KIMI_BINARY" \
     --config-file "$GLOBAL_CONFIG" \
     --agent-file "$MANDATE_AGENT" \
     --yolo \
-    "$@"
+    "${_filtered_args[@]}"

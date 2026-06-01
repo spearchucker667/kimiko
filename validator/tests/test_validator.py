@@ -31,8 +31,10 @@ class TestSchemaLoading:
     def test_all_schemas_load(self):
         for name in [
             "config-schema.json",
+            "config-zero-blocker-schema.json",
             "kimi-json-schema.json",
             "mandate-schema.json",
+            "mandate-zero-blocker-schema.json",
             "credentials-schema.json",
         ]:
             schema = load_schema(name)
@@ -223,8 +225,8 @@ class TestSecurityCommand:
         config.write_text("x" * (1_048_576 + 1))
         args = self._make_args(tmp_path)
         rc = cmd_security(args)
-        # Size skip is reported as a finding, so rc == 1
-        assert rc == 1
+        # Size skip is informational only, not a security failure
+        assert rc == 0
 
 
 

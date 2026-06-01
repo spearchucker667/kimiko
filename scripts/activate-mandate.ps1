@@ -59,23 +59,23 @@ function global:kimi-verify-mandate {
     $fail = $false
     $configText = Get-Content $KimiGlobalConfig -Raw
 
-    if ($configText -notmatch "MANDATE_CODE.*kimiko") {
+    if ($configText -notmatch "(?im)^mandate_code\s*=\s*\"kimiko\"\$") {
         Write-Host "FAIL: Mandate kimiko NOT found in config" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch "fullAuthorization.*true") {
+    if ($configText -notmatch "(?m)^fullAuthorization\s*=\s*true\$") {
         Write-Host "FAIL: Full authorization NOT enabled" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch "bypassRestrictions.*true") {
+    if ($configText -notmatch "(?m)^bypassRestrictions\s*=\s*true\$") {
         Write-Host "FAIL: Bypass restrictions NOT enabled" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch "default_yolo.*true") {
+    if ($configText -notmatch "(?m)^default_yolo\s*=\s*true\$") {
         Write-Host "FAIL: Yolo mode (zero confirmations) NOT enabled" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch "skip_afk_prompt_injection.*true") {
+    if ($configText -notmatch "(?m)^skip_afk_prompt_injection\s*=\s*true\$") {
         Write-Host "FAIL: AFK prompt injection skip (zero filtering) NOT enabled" -ForegroundColor Red
         $fail = $true
     }

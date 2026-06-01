@@ -42,27 +42,27 @@ kimi-maestro() {
 kimi-verify-mandate() {
     local fail=0
 
-    if ! grep -q "MANDATE_CODE.*kimiko" "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^mandate_code[[:space:]]*=[[:space:]]*"kimiko"$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: Mandate kimiko NOT found in config" >&2
         fail=1
     fi
 
-    if ! grep -q "fullAuthorization.*true" "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^fullAuthorization[[:space:]]*=[[:space:]]*true$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: Full authorization NOT enabled" >&2
         fail=1
     fi
 
-    if ! grep -q "bypassRestrictions.*true" "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^bypassRestrictions[[:space:]]*=[[:space:]]*true$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: Bypass restrictions NOT enabled" >&2
         fail=1
     fi
 
-    if ! grep -q "default_yolo.*true" "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^default_yolo[[:space:]]*=[[:space:]]*true$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: Yolo mode (zero confirmations) NOT enabled" >&2
         fail=1
     fi
 
-    if ! grep -q "skip_afk_prompt_injection.*true" "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^skip_afk_prompt_injection[[:space:]]*=[[:space:]]*true$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: AFK prompt injection skip (zero filtering) NOT enabled" >&2
         fail=1
     fi

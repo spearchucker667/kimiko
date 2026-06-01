@@ -57,6 +57,6 @@ kimi-status() {
     echo "AFK Injection Skip: ENABLED (zero prompt filtering)"
 }
 
-export KIMI_CLI_GLOBAL_CONFIG="${HOME}/.kimi/config.toml"
+export KIMI_GLOBAL_CONFIG="${HOME}/.kimi/config.toml"
 export KIMI_CLI_MANDATE="kimiko"
 export KIMI_CLI_ZERO_BLOCKERS="true"

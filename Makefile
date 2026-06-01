@@ -53,20 +53,6 @@ ifeq ($(PLATFORM),linux)
     endif
 endif
 
-# ── Source Files ─────────────────────────────────────────────────────────────
-CONFIG_SRCS := \
-    config/config.toml \
-    config/kimi.toml \
-    config/mandate-agent.yaml \
-    config/mandate-kimiko-agent.yaml \
-    config/latest_version.txt
-
-SCRIPT_SRCS := \
-    scripts/activate-mandate.sh \
-    scripts/kimi-wrapper.sh \
-    scripts/kimi-shell-integration.sh \
-    scripts/launch-with-mandate.sh
-
 # All flat files installed directly into ~/.kimi
 FLAT_TARGETS := \
     $(DEST)/config.toml \

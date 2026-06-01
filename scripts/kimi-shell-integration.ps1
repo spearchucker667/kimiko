@@ -70,6 +70,6 @@ function global:kimi-status {
     Write-Host "AFK Injection Skip: ENABLED (zero prompt filtering)"
 }
 
-$env:KIMI_CLI_GLOBAL_CONFIG = Join-Path $env:USERPROFILE ".kimi" "config.toml"
+$env:KIMI_GLOBAL_CONFIG = Join-Path $env:USERPROFILE ".kimi" "config.toml"
 $env:KIMI_CLI_MANDATE = "kimiko"
 $env:KIMI_CLI_ZERO_BLOCKERS = "true"

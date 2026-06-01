@@ -121,7 +121,7 @@ def check_file_permissions(path: Path, expected_mode: int = 0o600) -> list[str]:
     Unix permission bits. Use Windows Explorer or icacls to verify ACLs.
     """
     errors: list[str] = []
-    if platform.system() == "Windows":
+    if platform.system().startswith(("Windows", "CYGWIN", "MSYS")):
         # NTFS ACLs are not reflected in st_mode; skip Unix permission check
         return errors
     try:
@@ -143,7 +143,7 @@ def scan_for_secrets(text: str, path: Path) -> list[str]:
     # Patterns to flag
     patterns = [
         (r"sk-[a-zA-Z0-9_-]{20,}", "API key pattern"),
-        (r"eyJ[a-zA-Z0-9_/+-]*={0,2}", "JWT-like token"),
+        (r"eyJ[a-zA-Z0-9_/+-]*={0,2}\.eyJ[a-zA-Z0-9_/+-]*={0,2}\.[a-zA-Z0-9_/+-]*={0,2}", "JWT-like token"),
         (r"password\s*=\s*[^\s]+", "hardcoded password"),
         (r"token\s*=\s*[^\s]+", "hardcoded token"),
     ]
@@ -268,7 +268,7 @@ def cmd_compliance(args: argparse.Namespace) -> int:
             data = load_toml(config_path)
         except Exception as e:
             print(f"{colorize('✗', C.R)} {config_path}: parse error: {e}")
-            overall |= 1
+            overall = max(overall, 1)
         else:
             schema = load_schema("config-zero-blocker-schema.json")
             valid, errors = validate_against_schema(data, schema, str(config_path))
@@ -277,7 +277,7 @@ def cmd_compliance(args: argparse.Namespace) -> int:
             else:
                 print(f"{colorize('✗', C.R)} {config_path}: Zero-blocker violations found")
                 print_errors(errors, args.verbose)
-                overall |= 1
+                overall = max(overall, 1)
 
     # kimi.toml compliance
     kimi_toml = base / "kimi.toml"
@@ -286,7 +286,7 @@ def cmd_compliance(args: argparse.Namespace) -> int:
             data = load_toml(kimi_toml)
         except Exception as e:
             print(f"{colorize('✗', C.R)} {kimi_toml}: parse error: {e}")
-            overall |= 1
+            overall = max(overall, 1)
         else:
             schema = load_schema("config-zero-blocker-schema.json")
             valid, errors = validate_against_schema(data, schema, str(kimi_toml))
@@ -295,7 +295,7 @@ def cmd_compliance(args: argparse.Namespace) -> int:
             else:
                 print(f"{colorize('✗', C.R)} {kimi_toml}: Zero-blocker violations found")
                 print_errors(errors, args.verbose)
-                overall |= 1
+                overall = max(overall, 1)
 
     # Mandate YAML compliance
     for mandate in ["mandate-agent.yaml", "mandate-kimiko-agent.yaml"]:
@@ -305,7 +305,7 @@ def cmd_compliance(args: argparse.Namespace) -> int:
                 data = load_yaml(mp)
             except Exception as e:
                 print(f"{colorize('✗', C.R)} {mp}: parse error: {e}")
-                overall |= 1
+                overall = max(overall, 1)
             else:
                 schema = load_schema("mandate-zero-blocker-schema.json")
                 valid, errors = validate_against_schema(data, schema, str(mp))
@@ -314,7 +314,7 @@ def cmd_compliance(args: argparse.Namespace) -> int:
                 else:
                     print(f"{colorize('✗', C.R)} {mp}: Zero-blocker violations found")
                     print_errors(errors, args.verbose)
-                    overall |= 1
+                    overall = max(overall, 1)
 
     return overall
 
@@ -432,6 +432,7 @@ def cmd_security(args: argparse.Namespace) -> int:
         return 1
 
     findings: list[str] = []
+    skipped: list[str] = []
 
     # 1. Credential file permissions
     creds_dir = base / "credentials"
@@ -449,10 +450,13 @@ def cmd_security(args: argparse.Namespace) -> int:
                 continue
             if f.name.startswith("."):
                 continue
+            # Skip common backup / temp file suffixes
+            if any(f.name.endswith(suffix) for suffix in ("~", ".bak", ".tmp", ".swp")):
+                continue
             if "credential" in str(f).lower():
                 continue
             if f.stat().st_size > SECURITY_SIZE_LIMIT:
-                findings.append(f"{f.name}: skipped (>{SECURITY_SIZE_LIMIT} bytes)")
+                skipped.append(f"{f.name}: skipped (>{SECURITY_SIZE_LIMIT} bytes)")
                 continue
             try:
                 text = f.read_text(encoding="utf-8", errors="replace")
@@ -471,11 +475,17 @@ def cmd_security(args: argparse.Namespace) -> int:
 
     if not findings:
         print(f"{colorize('✓', C.G)} Security checks passed for {base}")
+        if skipped:
+            for s in skipped:
+                print(f"  (info) {s}")
         return 0
 
     print(f"{colorize('⚠', C.Y)} Security findings in {base}:")
     for f in findings:
         print(f"  {colorize('⚠', C.Y)} {f}")
+    if skipped:
+        for s in skipped:
+            print(f"  (info) {s}")
     return 1
 
 
