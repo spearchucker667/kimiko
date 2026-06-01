@@ -18,11 +18,13 @@ if sys_path not in sys.path:
 
 from validate_kimi import (
     check_file_permissions,
+    cmd_all,
     cmd_security,
     load_schema,
     scan_for_secrets,
     validate_against_schema,
     validate_config_crossrefs,
+    validate_mandate_paths,
     validate_registry_paths,
 )
 
@@ -390,3 +392,87 @@ class TestFixtureFiles:
         schema = load_schema("config-zero-blocker-schema.json")
         valid, errors = validate_against_schema(data, schema, str(path))
         assert not valid
+
+
+class TestMandatePaths:
+    def test_valid_paths(self, tmp_path):
+        prompt_file = tmp_path / "prompt.md"
+        prompt_file.write_text("prompt")
+        config_file = tmp_path / "config.toml"
+        config_file.write_text("x = 1")
+        data = {
+            "agent": {
+                "system_prompt_path": "prompt.md",
+                "global_config": {"config_file": "config.toml"},
+            }
+        }
+        errs = validate_mandate_paths(data, tmp_path / "mandate-agent.yaml")
+        assert not errs
+
+    def test_missing_system_prompt_path(self, tmp_path):
+        data = {"agent": {"system_prompt_path": "nonexistent.md"}}
+        errs = validate_mandate_paths(data, tmp_path / "mandate-agent.yaml")
+        assert any("system_prompt_path missing" in e for e in errs)
+
+    def test_missing_config_file(self, tmp_path):
+        data = {"agent": {"global_config": {"config_file": "nonexistent.toml"}}}
+        errs = validate_mandate_paths(data, tmp_path / "mandate-agent.yaml")
+        assert any("global_config.config_file missing" in e for e in errs)
+
+    def test_absolute_path(self, tmp_path):
+        prompt_file = tmp_path / "prompt.md"
+        prompt_file.write_text("prompt")
+        data = {"agent": {"system_prompt_path": str(prompt_file)}}
+        errs = validate_mandate_paths(data, tmp_path / "mandate-agent.yaml")
+        assert not errs
+
+
+class TestAllCommand:
+    def test_cmd_all_passes(self, tmp_path):
+        kimi_dir = tmp_path / ".kimi"
+        kimi_dir.mkdir()
+
+        (kimi_dir / "AGENTS.md").write_text("")
+
+        config_content = """\
+default_model = "test-model"
+
+[providers.test]
+type = "kimi"
+base_url = "https://api.kimi.com/coding/v1"
+
+[models."test-model"]
+provider = "test"
+model = "test"
+max_context_size = 1
+
+[loop_control]
+max_steps_per_turn = 1
+max_retries_per_step = 0
+
+[background]
+max_running_tasks = 1
+"""
+        (kimi_dir / "config.toml").write_text(config_content)
+        (kimi_dir / "kimi.toml").write_text(config_content)
+
+        registry = {
+            "work_dirs": [
+                {"path": str(kimi_dir), "kaos": "local", "last_session_id": None}
+            ]
+        }
+        (kimi_dir / "kimi.json").write_text(json.dumps(registry))
+
+        mandate = {
+            "version": 1,
+            "agent": {
+                "name": "Test Agent",
+                "designation": "Test",
+                "tools": ["kimi_cli.tools.shell:Shell"],
+            },
+        }
+        for name in ["mandate-agent.yaml", "mandate-kimiko-agent.yaml"]:
+            (kimi_dir / name).write_text(yaml.safe_dump(mandate))
+
+        args = type("Args", (), {"directory": str(kimi_dir), "verbose": False})()
+        assert cmd_all(args) == 0

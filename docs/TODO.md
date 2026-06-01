@@ -119,17 +119,17 @@ _None remaining._
 
 ## 🏗 Refactoring Opportunities
 
-- [ ] **Add `FormatChecker` to `validate_against_schema` or remove `format` keywords from schemas**
+- [x] **Add `FormatChecker` to `validate_against_schema` or remove `format` keywords from schemas**
+  - **FIXED**: Added `FormatChecker()` to `Draft202012Validator` in `validate_against_schema`.
   - JSON Schema `format` constraints are no-ops by default in `jsonschema` without a format checker.
-  - **Risk**: Low — format keywords are advisory only.
 
-- [ ] **Sanitize paths in cross-reference validators**
+- [x] **Sanitize paths in cross-reference validators**
+  - **EVALUATED**: Low risk for single-user `~/.kimi` directory. No change needed.
   - `validate_config_crossrefs` and `validate_mandate_paths` don't reject `..` path components.
-  - **Risk**: Low — these run against the user's own `~/.kimi` directory.
 
-- [ ] **Add recursive glob to `cmd_security`**
+- [x] **Add recursive glob to `cmd_security`**
+  - **FIXED**: Changed `base.glob()` to `base.rglob()` with `MAX_SCAN_DEPTH = 3` guard.
   - Currently only scans root-level `*.toml/yaml/yml/json/md` files. Subdirectories under `~/.kimi/` are not scanned.
-  - **Risk**: Low — configs are flat in `~/.kimi/`.
 
 ---
 
@@ -150,13 +150,13 @@ _None remaining._
 - [x] **No fixture files for negative/edge-case mandate YAMLs**
   - **FIXED**: 4 fixtures in `validator/tests/fixtures/`.
 
-- [ ] **No test for `cmd_all`**
+- [x] **No test for `cmd_all`**
+  - **FIXED**: Added `TestAllCommand::test_cmd_all_passes` with full mock `~/.kimi` directory.
   - The orchestration function that calls all sub-commands is not directly tested.
-  - **Risk**: Low — covered indirectly by integration tests.
 
-- [ ] **No test for `validate_mandate_paths`**
+- [x] **No test for `validate_mandate_paths`**
+  - **FIXED**: Added `TestMandatePaths` with 4 tests (valid paths, missing system_prompt_path, missing config_file, absolute path).
   - Mandate file reference validation (system_prompt_path, config_file) is not unit tested.
-  - **Risk**: Low — covered by existing mandate validation tests indirectly.
 
 ---
 
@@ -174,8 +174,8 @@ _None remaining._
 - [x] **Validator README missing `compliance` subcommand**
   - **FIXED**: Added to usage examples.
 
-- [ ] **Missing GitHub issue templates and PR templates**
-  - Standard for community-facing repos. Can be added later.
+- [x] **Missing GitHub issue templates and PR templates**
+  - **FIXED**: Created `.github/ISSUE_TEMPLATE/bug_report.md`, `.github/ISSUE_TEMPLATE/feature_request.md`, and `.github/pull_request_template.md`.
 
 ---
 
@@ -187,17 +187,17 @@ _None remaining._
 - [x] **Shell scripts trust `${HOME}/.local/bin/kimi` exists without checking**
   - **FIXED**: Added binary-exists checks to `kimi-wrapper.sh`, `activate-mandate.sh`, and `kimi-shell-integration.sh`.
 
-- [ ] **TOCTOU races in `check_file_permissions` and `cmd_security`**
+- [x] **TOCTOU races in `check_file_permissions` and `cmd_security`**
+  - **EVALUATED**: Acceptable risk for single-user local filesystem. No change needed.
   - Stat-then-read patterns could race if permissions change between checks.
-  - **Risk**: Very low — single-user local filesystem.
 
 ---
 
 ## ⚡ Performance Improvements
 
-- [ ] **`config.toml` / `kimi.toml` are ~1,500 lines each**
+- [x] **`config.toml` / `kimi.toml` are ~1,500 lines each**
+  - **EVALUATED**: Parsing performance is acceptable at this scale. No change needed.
   - `tomllib.load()` on every validation is acceptable for this scale, but if configs grow, consider caching parsed results.
-  - **Status**: Not actionable at current scale.
 
 ---
 
@@ -227,8 +227,13 @@ _None remaining._
 | Zero-blocker compliance | ✅ | ✅ | ✅ | `TestComplianceValidation` + fixtures |
 | Security scanner | ✅ | ✅ | ✅ | Unit + orchestration tests |
 | Cross-ref validator | ✅ | ✅ | ✅ | Unit tests exist |
+| Mandate path validator | ✅ | ✅ | ✅ | `TestMandatePaths` — 4 tests |
 | JSON Schema meta-validation | ✅ | ✅ | ✅ | `TestSchemaMetaValidation` |
 | File size limits (security) | ✅ | ✅ | ✅ | `SECURITY_SIZE_LIMIT` + tests |
+| Recursive security scan | ✅ | ✅ | ❌ | `MAX_SCAN_DEPTH = 3` in `cmd_security` |
+| FormatChecker enforcement | ✅ | ✅ | ❌ | `Draft202012Validator` with `FormatChecker()` |
+| cmd_all orchestration | ✅ | ✅ | ✅ | `TestAllCommand` — full mock directory |
+| GitHub templates | ✅ | N/A | N/A | Issue + PR templates created |
 | kimi.json template | ✅ | ✅ | ❌ | No template render unit test |
 
 ---

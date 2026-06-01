@@ -36,7 +36,7 @@ except ImportError as e:
     raise ImportError("PyYAML is required: pip install pyyaml") from e
 
 try:
-    from jsonschema import Draft202012Validator, ValidationError
+    from jsonschema import Draft202012Validator, ValidationError, FormatChecker
 except ImportError as e:
     raise ImportError("jsonschema is required: pip install jsonschema") from e
 
@@ -101,7 +101,7 @@ def load_json(path: Path) -> Any:
 def validate_against_schema(
     data: Any, schema: dict[str, Any], label: str
 ) -> tuple[bool, list[ValidationError]]:
-    validator = Draft202012Validator(schema)
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
     errors = list(validator.iter_errors(data))
     return len(errors) == 0, errors
 
@@ -438,8 +438,12 @@ def cmd_security(args: argparse.Namespace) -> int:
                 findings.extend(check_file_permissions(f))
 
     # 2. No secrets in non-credential files
+    MAX_SCAN_DEPTH = 3
     for pattern in ["*.toml", "*.yaml", "*.yml", "*.json", "*.md"]:
-        for f in base.glob(pattern):
+        for f in base.rglob(pattern):
+            depth = len(f.relative_to(base).parts) - 1
+            if depth > MAX_SCAN_DEPTH:
+                continue
             if f.name.startswith("."):
                 continue
             if "credential" in str(f).lower():

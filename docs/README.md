@@ -65,8 +65,13 @@ After step 5 you should see the mandate acknowledgment and capability announceme
 
 | Target | Description |
 |---|---|
+| Target | Description |
+|---|---|
 | `make install` | Idempotently copies all shared configs, scripts, and the validator into `~/.kimi/`. Renders `kimi.json` from its template. |
-| `make verify` | Checks that all expected files exist, the validator directory is present, and `kimiko` references are intact. |
+| `make verify` | Checks that all expected files exist, the validator directory is present, `kimiko` references are intact, and `kimi.json` is valid JSON. |
+| `make check` | Validates repo config files with the validator (structural + zero-blocker compliance). |
+| `make sync` | Verifies `config.toml` ↔ `kimi.toml` and mandate YAML mirror files are byte-for-byte identical. |
+| `make test` | Runs the validator pytest suite. |
 | `make uninstall` | Removes only the files installed by Kimiko. **Does not touch** `credentials/`, `logs/`, `sessions/`, `telemetry/`, `user-history/`, or any other user secrets. |
 | `make help` | Shows available targets. |
 
@@ -88,6 +93,7 @@ kimiko/
 ├── docs/
 │   ├── AGENTS.md
 │   ├── CHANGELOG.md
+│   ├── CODE_OF_CONDUCT.md
 │   ├── CONTRIBUTING.md
 │   ├── legal/
 │   │   └── DISCLAIMER.md      ← binding liability waiver; start here
@@ -111,7 +117,9 @@ kimiko/
 │   │   ├── mandate-schema.json
 │   │   └── mandate-zero-blocker-schema.json
 │   └── tests/
-│       └── test_validator.py
+│       ├── test_validator.py
+│       ├── test_install_integration.py
+│       └── fixtures/
 ├── LICENSE
 └── Makefile
 ```
@@ -167,6 +175,7 @@ make test            # pytest suite
 make validate-config # config.toml only
 make validate-mandates # mandate YAML files
 make security        # Security checks only
+make compliance      # Zero-blocker compliance checks
 make lint            # Python linter (ruff)
 ```
 
@@ -183,4 +192,4 @@ Before running `make install`, you may want to edit these placeholders in the co
 
 ## License
 
-See [LICENSE](./LICENSE).
+See [LICENSE](../LICENSE).
