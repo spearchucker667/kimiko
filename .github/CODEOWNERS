@@ -1,0 +1,18 @@
+# Kimiko CODEOWNERS
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global fallback — all files
+* @spearchucker667
+
+# Configuration & mandate specs
+/config/ @spearchucker667
+
+# Shell integration & scripts
+/scripts/ @spearchucker667
+
+# Validator subproject
+/validator/ @spearchucker667
+
+# Documentation & legal
+/docs/ @spearchucker667
+/docs/legal/ @spearchucker667
