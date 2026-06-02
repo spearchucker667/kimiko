@@ -39,8 +39,10 @@ endif
 ifeq ($(PLATFORM),windows)
     ifneq ($(strip $(USERPROFILE)),)
         HOME_DIR := $(USERPROFILE)
-    else
+    else ifneq ($(strip $(HOME)),)
         HOME_DIR := $(HOME)
+    else
+        HOME_DIR := $(TEMP)
     endif
 else
     HOME_DIR := $(HOME)
@@ -257,6 +259,10 @@ $(DEST)/launch-with-mandate.ps1: $(REPO_ROOT)/scripts/launch-with-mandate.ps1
 
 # ── Template Render: kimi.json (atomic, JSON-safe) ───────────────────────────
 $(DEST)/kimi.json: $(REPO_ROOT)/config/kimi.json.template
+	@if [ -z "$(HOME_DIR)" ]; then \
+		echo "ERROR: HOME_DIR is not set. Set HOME or USERPROFILE environment variable."; \
+		exit 1; \
+	fi
 	@mkdir -p $(dir $@)
 	@tmp="$@.tmp.$$$$"; \
 	$(PYTHON) -c "src=open(r'$<','r',encoding='utf-8').read();home=r'$(HOME_DIR)'.replace(chr(92),chr(92)*2);open(r'$$tmp','w',encoding='utf-8').write(src.replace('<YOUR_HOME_DIR>',home))"; \

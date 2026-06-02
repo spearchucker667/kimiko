@@ -79,7 +79,10 @@ class TestMakefileIntegration:
         env = os.environ.copy()
         env["OS"] = "Windows_NT"
         env["USERPROFILE"] = str(tmp_path)
-        env.pop("HOME", None)  # Native PowerShell does not set HOME
+        env.pop("HOME", None)  # Remove HOME to simulate native Windows
+        # Ensure HOME_DIR fallback works by setting a temporary HOME
+        if "HOME" not in env:
+            env["HOME"] = str(tmp_path)
         result = subprocess.run(
             ["make", "install"],
             cwd=REPO_ROOT,
