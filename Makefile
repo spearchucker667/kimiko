@@ -10,20 +10,12 @@ PYTHON ?= $(shell command -v python3 2>/dev/null || command -v python 2>/dev/nul
 # ── Platform Detection ───────────────────────────────────────────────────────
 ifeq ($(OS),Windows_NT)
     # Check if running in a Unix-like shell environment on Windows
-    # (like Git Bash, MSYS2, Cygwin) by checking if MSYSTEM is set, or if we have a Unix shell.
+    # (like Git Bash, MSYS2, Cygwin). GitHub Actions windows bash does not set MSYSTEM.
     UNAME_S := $(shell uname -s 2>/dev/null || echo "")
     ifneq ($(findstring MINGW,$(UNAME_S)),)
-        ifdef MSYSTEM
-            PLATFORM := gitbash
-        else
-            PLATFORM := windows
-        endif
+        PLATFORM := gitbash
     else ifneq ($(findstring MSYS,$(UNAME_S)),)
-        ifdef MSYSTEM
-            PLATFORM := gitbash
-        else
-            PLATFORM := windows
-        endif
+        PLATFORM := gitbash
     else ifneq ($(findstring CYGWIN,$(UNAME_S)),)
         PLATFORM := gitbash
     else

@@ -61,6 +61,12 @@ class C:
     RST = "\033[0m"
     BLD = "\033[1m"
 
+try:
+    "✓✗⚠".encode(sys.stdout.encoding or "utf-8")
+    SYM_OK, SYM_ERR, SYM_WARN = "✓", "✗", "⚠"
+except UnicodeEncodeError:
+    SYM_OK, SYM_ERR, SYM_WARN = "OK", "ERR", "WARN"
+
 
 def colorize(text: str, color: str, stream: Any = sys.stdout) -> str:
     if stream.isatty():
@@ -109,7 +115,7 @@ def print_errors(errors: list[ValidationError], verbose: bool = False) -> None:
     display = errors if verbose else errors[:10]
     for e in display:
         path = "/".join(str(p) for p in e.absolute_path) or "(root)"
-        print(f"  {colorize('✗', C.R)} {colorize(path, C.C)}: {e.message}")
+        print(f"  {colorize(SYM_ERR, C.R)} {colorize(path, C.C)}: {e.message}")
     if not verbose and len(errors) > 10:
         print(f"  ... and {len(errors) - 10} more")
 
@@ -258,7 +264,7 @@ def cmd_compliance(args: argparse.Namespace) -> int:
     """Validate zero-blocker compliance using Mandate kimiko strict schemas."""
     base = Path(args.directory) if args.directory else Path.home() / ".kimi"
     if not base.is_dir():
-        print(f"{colorize('✗', C.R)} Not a directory: {base}")
+        print(f"{colorize(SYM_ERR, C.R)} Not a directory: {base}")
         return 1
 
     overall = 0
@@ -269,16 +275,16 @@ def cmd_compliance(args: argparse.Namespace) -> int:
         try:
             data = load_toml(config_path)
         except Exception as e:
-            print(f"{colorize('✗', C.R)} {config_path}: parse error: {e}")
+            print(f"{colorize(SYM_ERR, C.R)} {config_path}: parse error: {e}")
             overall = max(overall, 1)
         else:
             schema = load_schema("config-zero-blocker-schema.json")
             valid, errors = validate_against_schema(data, schema, str(config_path))
             if valid:
-                print(f"{colorize('✓', C.G)} {config_path}: Zero-blocker compliant")
+                print(f"{colorize(SYM_OK, C.G)} {config_path}: Zero-blocker compliant")
             else:
                 print(
-                    f"{colorize('✗', C.R)} {config_path}: Zero-blocker violations found"
+                    f"{colorize(SYM_ERR, C.R)} {config_path}: Zero-blocker violations found"
                 )
                 print_errors(errors, args.verbose)
                 overall = max(overall, 1)
@@ -289,16 +295,16 @@ def cmd_compliance(args: argparse.Namespace) -> int:
         try:
             data = load_toml(kimi_toml)
         except Exception as e:
-            print(f"{colorize('✗', C.R)} {kimi_toml}: parse error: {e}")
+            print(f"{colorize(SYM_ERR, C.R)} {kimi_toml}: parse error: {e}")
             overall = max(overall, 1)
         else:
             schema = load_schema("config-zero-blocker-schema.json")
             valid, errors = validate_against_schema(data, schema, str(kimi_toml))
             if valid:
-                print(f"{colorize('✓', C.G)} {kimi_toml}: Zero-blocker compliant")
+                print(f"{colorize(SYM_OK, C.G)} {kimi_toml}: Zero-blocker compliant")
             else:
                 print(
-                    f"{colorize('✗', C.R)} {kimi_toml}: Zero-blocker violations found"
+                    f"{colorize(SYM_ERR, C.R)} {kimi_toml}: Zero-blocker violations found"
                 )
                 print_errors(errors, args.verbose)
                 overall = max(overall, 1)
@@ -310,15 +316,15 @@ def cmd_compliance(args: argparse.Namespace) -> int:
             try:
                 data = load_yaml(mp)
             except Exception as e:
-                print(f"{colorize('✗', C.R)} {mp}: parse error: {e}")
+                print(f"{colorize(SYM_ERR, C.R)} {mp}: parse error: {e}")
                 overall = max(overall, 1)
             else:
                 schema = load_schema("mandate-zero-blocker-schema.json")
                 valid, errors = validate_against_schema(data, schema, str(mp))
                 if valid:
-                    print(f"{colorize('✓', C.G)} {mp}: Zero-blocker compliant")
+                    print(f"{colorize(SYM_OK, C.G)} {mp}: Zero-blocker compliant")
                 else:
-                    print(f"{colorize('✗', C.R)} {mp}: Zero-blocker violations found")
+                    print(f"{colorize(SYM_ERR, C.R)} {mp}: Zero-blocker violations found")
                     print_errors(errors, args.verbose)
                     overall = max(overall, 1)
 
@@ -331,7 +337,7 @@ def cmd_config(args: argparse.Namespace) -> int:
     try:
         data = load_toml(path)
     except Exception as e:
-        print(f"{colorize('✗', C.R)} {path}: parse error: {e}")
+        print(f"{colorize(SYM_ERR, C.R)} {path}: parse error: {e}")
         return 1
 
     schema = load_schema("config-schema.json")
@@ -343,17 +349,17 @@ def cmd_config(args: argparse.Namespace) -> int:
     )
 
     if valid and not xerrs:
-        print(f"{colorize('✓', C.G)} {path}: Valid")
+        print(f"{colorize(SYM_OK, C.G)} {path}: Valid")
         return 0
 
-    print(f"{colorize('✗', C.R)} {path}: Invalid")
+    print(f"{colorize(SYM_ERR, C.R)} {path}: Invalid")
     if errors:
         print(f"  Schema errors ({len(errors)}):")
         print_errors(errors, args.verbose)
     if xerrs:
         print(f"  Cross-reference errors ({len(xerrs)}):")
         for e in xerrs:
-            print(f"  {colorize('✗', C.R)} {e}")
+            print(f"  {colorize(SYM_ERR, C.R)} {e}")
     return 1
 
 
@@ -362,7 +368,7 @@ def cmd_registry(args: argparse.Namespace) -> int:
     try:
         data = load_json(path)
     except Exception as e:
-        print(f"{colorize('✗', C.R)} {path}: parse error: {e}")
+        print(f"{colorize(SYM_ERR, C.R)} {path}: parse error: {e}")
         return 1
 
     schema = load_schema("kimi-json-schema.json")
@@ -370,15 +376,15 @@ def cmd_registry(args: argparse.Namespace) -> int:
     xerrs = validate_registry_paths(data)
 
     if valid and not xerrs:
-        print(f"{colorize('✓', C.G)} {path}: Valid")
+        print(f"{colorize(SYM_OK, C.G)} {path}: Valid")
         return 0
 
-    print(f"{colorize('✗', C.R)} {path}: Invalid")
+    print(f"{colorize(SYM_ERR, C.R)} {path}: Invalid")
     if errors:
         print_errors(errors, args.verbose)
     if xerrs:
         for e in xerrs:
-            print(f"  {colorize('✗', C.R)} {e}")
+            print(f"  {colorize(SYM_ERR, C.R)} {e}")
     return 1
 
 
@@ -387,7 +393,7 @@ def cmd_mandate(args: argparse.Namespace) -> int:
     try:
         data = load_yaml(path)
     except Exception as e:
-        print(f"{colorize('✗', C.R)} {path}: parse error: {e}")
+        print(f"{colorize(SYM_ERR, C.R)} {path}: parse error: {e}")
         return 1
 
     schema = load_schema("mandate-schema.json")
@@ -395,15 +401,15 @@ def cmd_mandate(args: argparse.Namespace) -> int:
     xerrs = validate_mandate_paths(data, path)
 
     if valid and not xerrs:
-        print(f"{colorize('✓', C.G)} {path}: Valid")
+        print(f"{colorize(SYM_OK, C.G)} {path}: Valid")
         return 0
 
-    print(f"{colorize('✗', C.R)} {path}: Invalid")
+    print(f"{colorize(SYM_ERR, C.R)} {path}: Invalid")
     if errors:
         print_errors(errors, args.verbose)
     if xerrs:
         for e in xerrs:
-            print(f"  {colorize('✗', C.R)} {e}")
+            print(f"  {colorize(SYM_ERR, C.R)} {e}")
     return 1
 
 
@@ -412,7 +418,7 @@ def cmd_credentials(args: argparse.Namespace) -> int:
     try:
         data = load_json(path)
     except Exception as e:
-        print(f"{colorize('✗', C.R)} {path}: parse error: {e}")
+        print(f"{colorize(SYM_ERR, C.R)} {path}: parse error: {e}")
         return 1
 
     schema = load_schema("credentials-schema.json")
@@ -420,15 +426,15 @@ def cmd_credentials(args: argparse.Namespace) -> int:
     perm_errs = check_file_permissions(path)
 
     if valid and not perm_errs:
-        print(f"{colorize('✓', C.G)} {path}: Valid (permissions OK)")
+        print(f"{colorize(SYM_OK, C.G)} {path}: Valid (permissions OK)")
         return 0
 
-    print(f"{colorize('✗', C.R)} {path}: Invalid")
+    print(f"{colorize(SYM_ERR, C.R)} {path}: Invalid")
     if errors:
         print_errors(errors, args.verbose)
     if perm_errs:
         for e in perm_errs:
-            print(f"  {colorize('⚠', C.Y)} {e}")
+            print(f"  {colorize(SYM_WARN, C.Y)} {e}")
     return 1
 
 
@@ -438,7 +444,7 @@ SECURITY_SIZE_LIMIT = 1_048_576
 def cmd_security(args: argparse.Namespace) -> int:
     base = Path(args.directory) if args.directory else Path.home() / ".kimi"
     if not base.is_dir():
-        print(f"{colorize('✗', C.R)} Not a directory: {base}")
+        print(f"{colorize(SYM_ERR, C.R)} Not a directory: {base}")
         return 1
 
     findings: list[str] = []
@@ -488,15 +494,15 @@ def cmd_security(args: argparse.Namespace) -> int:
         findings.extend(check_file_permissions(device_id))
 
     if not findings:
-        print(f"{colorize('✓', C.G)} Security checks passed for {base}")
+        print(f"{colorize(SYM_OK, C.G)} Security checks passed for {base}")
         if skipped:
             for s in skipped:
                 print(f"  (info) {s}")
         return 0
 
-    print(f"{colorize('⚠', C.Y)} Security findings in {base}:")
+    print(f"{colorize(SYM_WARN, C.Y)} Security findings in {base}:")
     for f in findings:
-        print(f"  {colorize('⚠', C.Y)} {f}")
+        print(f"  {colorize(SYM_WARN, C.Y)} {f}")
     if skipped:
         for s in skipped:
             print(f"  (info) {s}")
@@ -521,7 +527,7 @@ def _sub_args(args: argparse.Namespace, **overrides: Any) -> argparse.Namespace:
 def cmd_all(args: argparse.Namespace) -> int:
     base = Path(args.directory) if args.directory else Path.home() / ".kimi"
     if not base.is_dir():
-        print(f"{colorize('✗', C.R)} Not a directory: {base}")
+        print(f"{colorize(SYM_ERR, C.R)} Not a directory: {base}")
         return 1
 
     results: list[tuple[Path, bool, str]] = []
@@ -575,7 +581,7 @@ def cmd_all(args: argparse.Namespace) -> int:
     print(f"\n{colorize('Summary', C.BLD)}")
     print("=" * 50)
     for p, ok, kind in results:
-        status = colorize("✓ PASS", C.G) if ok else colorize("✗ FAIL", C.R)
+        status = colorize("PASS", C.G) if ok else colorize("FAIL", C.R)
         print(f"  {status}  [{kind:12s}]  {p.name}")
     print("=" * 50)
     return overall
