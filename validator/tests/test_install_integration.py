@@ -3,6 +3,7 @@
 import os
 import subprocess
 import sys
+import pytest
 from pathlib import Path
 
 
@@ -10,21 +11,19 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 
 
 class TestMakefileIntegration:
-    def _safe_tmp(self, p: Path) -> Path:
-        """Use relative paths to avoid Windows drive letters breaking GNU Make parsing."""
-        try:
-            return p.relative_to(REPO_ROOT)
-        except ValueError:
-            # Fallback if tmp_path is not under REPO_ROOT (rare, but possible depending on pytest config)
-            # In CI, tests run inside the repo workspace, so relative_to works.
-            # If not, strip the drive letter directly.
-            if os.name == "nt" or sys.platform == "win32":
-                return Path(str(p).split(":", 1)[-1].lstrip("\\/"))
-            return p
+    @pytest.fixture
+    def test_home(self):
+        """Create a temp HOME directory inside REPO_ROOT to avoid cross-drive issues on Windows."""
+        import tempfile
+        import shutil
+        test_dir = REPO_ROOT / ".pytest_tmp"
+        test_dir.mkdir(exist_ok=True)
+        home = Path(tempfile.mkdtemp(dir=test_dir))
+        yield home
+        shutil.rmtree(home, ignore_errors=True)
 
-    def test_make_install_creates_expected_files(self, tmp_path):
-        safe_tmp = self._safe_tmp(tmp_path)
-        safe_tmp.mkdir(parents=True, exist_ok=True)
+    def test_make_install_creates_expected_files(self, test_home):
+        safe_tmp = test_home
         env = os.environ.copy()
         env["HOME"] = str(safe_tmp)
         env["USERPROFILE"] = str(safe_tmp)
@@ -70,10 +69,9 @@ class TestMakefileIntegration:
             / "bad-mandate-no-zero-blockers.yaml"
         ).exists()
 
-    def test_make_install_windows_creates_ps1_files(self, tmp_path):
+    def test_make_install_windows_creates_ps1_files(self, test_home):
         """Simulate Windows platform to verify .ps1 files are installed (BUG-005)."""
-        safe_tmp = self._safe_tmp(tmp_path)
-        safe_tmp.mkdir(parents=True, exist_ok=True)
+        safe_tmp = test_home
         env = os.environ.copy()
         env["OS"] = "Windows_NT"
         env["USERPROFILE"] = str(safe_tmp)
@@ -94,10 +92,9 @@ class TestMakefileIntegration:
         assert (kimi / "kimi-shell-integration.ps1").exists()
         assert (kimi / "launch-with-mandate.ps1").exists()
 
-    def test_make_install_windows_uses_userprofile_when_home_unset(self, tmp_path):
+    def test_make_install_windows_uses_userprofile_when_home_unset(self, test_home):
         """Regression: on native Windows PowerShell HOME is unset; USERPROFILE must be used (BUG-020)."""
-        safe_tmp = self._safe_tmp(tmp_path)
-        safe_tmp.mkdir(parents=True, exist_ok=True)
+        safe_tmp = test_home
         env = os.environ.copy()
         env["OS"] = "Windows_NT"
         env["USERPROFILE"] = str(safe_tmp)
@@ -127,9 +124,8 @@ class TestMakefileIntegration:
             f"USERPROFILE/.kimi path missing from kimi.json: {paths}"
         )
 
-    def test_make_uninstall_preserves_credentials(self, tmp_path):
-        safe_tmp = self._safe_tmp(tmp_path)
-        safe_tmp.mkdir(parents=True, exist_ok=True)
+    def test_make_uninstall_preserves_credentials(self, test_home):
+        safe_tmp = test_home
         env = os.environ.copy()
         env["HOME"] = str(safe_tmp)
         env["USERPROFILE"] = str(safe_tmp)

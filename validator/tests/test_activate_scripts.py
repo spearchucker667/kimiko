@@ -57,6 +57,13 @@ def test_activate_mandate_regexes(test_dir, script_name):
                 subprocess.run(["powershell", "-v"], capture_output=True)
             except FileNotFoundError:
                 pytest.skip("PowerShell not available")
+    else:
+        try:
+            res = subprocess.run(["bash", "-c", "echo hello"], capture_output=True, text=True)
+            if "Windows Subsystem for Linux" in res.stdout or "Windows Subsystem for Linux" in res.stderr:
+                pytest.skip("bash is WSL without distro; skipping shell test")
+        except FileNotFoundError:
+            pytest.skip("bash not available")
 
     # Valid config permutations
     valid_configs = [
