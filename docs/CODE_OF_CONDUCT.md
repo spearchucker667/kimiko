@@ -1,3 +1,5 @@
+<img width="2290" height="687" alt="ChatGPT Image Jun 1, 2026 at 06_18_14 AM" src="https://github.com/user-attachments/assets/40d49b98-ff12-4554-a275-fffc9c781299" />
+
 # Code of Conduct
 
 ## Our Standards
