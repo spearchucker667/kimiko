@@ -15,8 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Multi-platform CI matrix testing `macos-latest`, `ubuntu-latest`, `windows-latest` (PowerShell + Git Bash).
 - `docs/INSTALL-WINDOWS.md` — comprehensive Windows installation guide for all three environments.
 - `docs/TROUBLESHOOTING.md` — platform-specific troubleshooting for macOS, Git Bash, WSL, and PowerShell.
-- `scripts/INSTALL-GITBASH.md` — Git Bash-specific installation notes and caveats.
-- `scripts/INSTALL-WSL.md` — WSL-specific installation notes and recommendations.
+- `docs/INSTALL-GITBASH.md` — Git Bash-specific installation notes and caveats.
+- `docs/INSTALL-WSL.md` — WSL-specific installation notes and recommendations.
 - Initial public-ready sanitized repository derived from private `~/.kimi` configuration.
 - `.github/CODEOWNERS` defining ownership for all project areas.
 - `docs/legal/DISCLAIMER.md` — extensive liability waiver with `inthewind exploit` classifier.

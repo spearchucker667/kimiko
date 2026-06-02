@@ -118,16 +118,16 @@ kimiko/
 │   ├── kimi-shell-integration.sh
 │   ├── kimi-shell-integration.ps1  # PowerShell variant
 │   ├── launch-with-mandate.sh
-│   ├── launch-with-mandate.ps1     # PowerShell variant
-│   ├── INSTALL-GITBASH.md     # Git Bash guide
-│   └── INSTALL-WSL.md         # WSL guide
+│   └── launch-with-mandate.ps1     # PowerShell variant
 ├── docs/
 │   ├── AGENTS.md
-│   ├── README.md
 │   ├── CHANGELOG.md
 │   ├── CODE_OF_CONDUCT.md
 │   ├── CONTRIBUTING.md
+│   ├── INSTALL-GITBASH.md     # Git Bash guide
 │   ├── INSTALL-WINDOWS.md     # Windows install guide
+│   ├── INSTALL-WSL.md         # WSL guide
+│   ├── README.md
 │   ├── RUP.md                 # Repository Unified Protocol
 │   ├── SECURITY.md
 │   ├── TODO.md

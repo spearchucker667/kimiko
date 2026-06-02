@@ -194,13 +194,8 @@ audit_report:
     inconsistencies_found: []
 
   regression_test_coverage:
-    fixes_without_tests: 
-      - BUG-001-MAKEFILE-PLATFORM
-      - BUG-003-PS1-REGEX-SYNTAX
-      - BUG-004-SH-REGEX-CRLF
-    recommended_test_cases: 
-      - "Create a test suite for `activate-mandate.sh` and `activate-mandate.ps1` that tests regex parsing against various valid TOML permutations (CRLF endings, single quotes, trailing comments)."
-      - "Create a mock environment test for Makefile OS detection."
+    fixes_without_tests: []
+    recommended_test_cases: []
 
   test_count_reality_check:
     claimed_test_count: 6

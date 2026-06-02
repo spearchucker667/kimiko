@@ -162,7 +162,9 @@ kimiko/
 │   ├── CHANGELOG.md
 │   ├── CODE_OF_CONDUCT.md
 │   ├── CONTRIBUTING.md
+│   ├── INSTALL-GITBASH.md      ← Git Bash guide
 │   ├── INSTALL-WINDOWS.md      ← Windows install guide
+│   ├── INSTALL-WSL.md          ← WSL guide
 │   ├── legal/
 │   │   └── DISCLAIMER.md
 │   ├── README.md
@@ -178,9 +180,7 @@ kimiko/
 │   ├── kimi-shell-integration.sh
 │   ├── kimi-shell-integration.ps1  ← PowerShell
 │   ├── launch-with-mandate.sh
-│   ├── launch-with-mandate.ps1     ← PowerShell
-│   ├── INSTALL-GITBASH.md      ← Git Bash guide
-│   └── INSTALL-WSL.md          ← WSL guide
+│   └── launch-with-mandate.ps1     ← PowerShell
 ├── validator/
 │   ├── Makefile
 │   ├── README.md

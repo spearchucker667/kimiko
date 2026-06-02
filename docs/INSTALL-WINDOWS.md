@@ -45,7 +45,7 @@ source ~/.kimi/activate-mandate.sh
 - **Line endings**: If you cloned with `core.autocrlf=true`, run `dos2unix ~/.kimi/*.sh` to fix line endings.
 - **Paths**: `$HOME` resolves to `/c/Users/YourName` in Git Bash.
 
-See [`scripts/INSTALL-GITBASH.md`](../scripts/INSTALL-GITBASH.md) for detailed Git Bash-specific guidance.
+See [`docs/INSTALL-GITBASH.md`](../docs/INSTALL-GITBASH.md) for detailed Git Bash-specific guidance.
 
 ---
 
@@ -85,7 +85,7 @@ source ~/.kimi/activate-mandate.sh
 \\wsl$\Ubuntu\home\<username>\.kimi
 ```
 
-See [`scripts/INSTALL-WSL.md`](../scripts/INSTALL-WSL.md) for detailed WSL guidance.
+See [`docs/INSTALL-WSL.md`](../docs/INSTALL-WSL.md) for detailed WSL guidance.
 
 ---
 
