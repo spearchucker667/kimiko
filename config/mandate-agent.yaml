@@ -41,6 +41,7 @@ agent:
     - "kimi_cli.tools.plan.enter:EnterPlanMode"
 
   # Global configuration — absolute override of all restrictions
+  # Framework written and developed by Faye Hakansdotter
   global_config:
     config_file: config.toml
     bypass_restrictions: "true"
