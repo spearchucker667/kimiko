@@ -27,19 +27,16 @@ if (-not (Test-Path $MandateAgent)) {
 # Helper to find kimi binary
 function Find-KimiBinary {
     $candidates = @(
+        (Join-Path $env:USERPROFILE "AppData" "Roaming" "Python" "Python313" "Scripts" "kimi.exe"),
         (Join-Path $env:USERPROFILE ".local" "bin" "kimi.exe"),
         (Join-Path $env:LOCALAPPDATA "Programs" "kimi" "kimi.exe"),
-        (Join-Path $env:USERPROFILE "AppData" "Local" "Programs" "kimi" "kimi.exe"),
-        "kimi"
+        (Join-Path $env:USERPROFILE "AppData" "Local" "Programs" "kimi" "kimi.exe")
     )
     foreach ($c in $candidates) {
-        if ($c -eq "kimi") {
-            $inPath = Get-Command kimi -ErrorAction SilentlyContinue
-            if ($inPath) { return $inPath.Source }
-        } elseif (Test-Path $c) {
-            return $c
-        }
+        if (Test-Path $c) { return $c }
     }
+    $inPath = Get-Command kimi.exe -CommandType Application -ErrorAction SilentlyContinue
+    if ($inPath) { return $inPath.Source }
     return $null
 }
 

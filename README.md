@@ -153,7 +153,9 @@ kimiko/
 │   ├── kimi.json.template
 │   ├── latest_version.txt
 │   ├── mandate-agent.yaml
-│   └── mandate-kimiko-agent.yaml
+│   ├── mandate-kimiko-agent.yaml
+│   └── system-prompts/
+│       └── kimiko.md          ← system prompt loaded by mandate YAMLs
 ├── docs/
 │   ├── AGENTS.md
 │   ├── CHANGELOG.md
@@ -214,6 +216,8 @@ kimiko/
 ├── latest_version.txt
 ├── mandate-agent.yaml
 ├── mandate-kimiko-agent.yaml
+├── system-prompts/
+│   └── kimiko.md      ← system prompt loaded via system_prompt_path
 └── validator/
     └── ...
 ```
@@ -235,13 +239,25 @@ kimiko/
 ├── latest_version.txt
 ├── mandate-agent.yaml
 ├── mandate-kimiko-agent.yaml
+├── system-prompts\
+│   └── kimiko.md
 └── validator\
     └── ...
 ```
 
 ---
 
-## Platform Notes
+## Activation Flow
+
+After installation, there are three ways to interact with Kimiko:
+
+| Command | What it loads |
+|---|---|
+| `kimi` (after dot-sourcing shell integration) | `~/.kimi/config.toml` + `--yolo` |
+| `kimi-maestro` or `launch-with-mandate.*` | `config.toml` + `mandate-kimiko-agent.yaml` + `--yolo` |
+| `kimiko` (shell function or inside CLI) | Same as `kimi-maestro`; type `kimiko` inside Kimi CLI to trigger the activation flow |
+
+The `kimiko` shell function is available after dot-sourcing `activate-mandate.sh` (Bash) or `activate-mandate.ps1` (PowerShell). It can also be used as a keyword inside an active Kimi CLI session to trigger the mandate activation acknowledgment.
 
 ### macOS
 - Full feature parity. BSD `make`, real `chmod`, native paths.

@@ -59,7 +59,7 @@ This document captures the key design decisions in the Kimiko repository and the
 
 1. **Primary Runtime Config** (`config.toml`) — Live configuration loaded on every CLI startup.
 2. **Mirror Config** (`kimi.toml`) — Synchronized backup that serves as a fallback.
-3. **Mandate Agent Specs** (`mandate-agent.yaml`, `mandate-kimiko-agent.yaml`) — YAML agent specifications that inject the zero-blocker system prompt into every session.
+3. **Mandate Agent Specs** (`mandate-agent.yaml`, `mandate-kimiko-agent.yaml`) — YAML agent specifications that reference `system-prompts/kimiko.md` via `system_prompt_path`, loading the mandate system prompt into every session.
 4. **Shell Integration** (`*.sh`, `*.ps1`) — Enforces mandate at the OS shell level before the CLI even starts.
 
 Each layer cross-references the others. No single file operates in isolation.
@@ -146,3 +146,27 @@ Each layer cross-references the others. No single file operates in isolation.
 **Consequences:**
 - (+) `make check` remains usable during active development.
 - (-) Developers must pay attention to the compliance output; failures are visible but non-fatal.
+
+---
+
+## ADR-009: External System Prompt File (`system-prompts/kimiko.md`)
+
+**Status:** Accepted
+**Context:** The original mandate YAML files (`mandate-agent.yaml`, `mandate-kimiko-agent.yaml`) set `agent.system_prompt_path` to the YAML file itself (e.g. `mandate-kimiko-agent.yaml`). Kimi CLI 1.46.0 expects `system_prompt_path` to resolve to a real system prompt text file (`.md` or `.txt`), not to the agent spec YAML that contains it. This self-reference caused the mandate prompt to never actually load as the system prompt, making the `kimiko` activation flow described in the README ineffective.
+
+**Decision:** Extract the system prompt text into a separate markdown file at `config/system-prompts/kimiko.md`, installed to `~/.kimi/system-prompts/kimiko.md`. Both mandate YAML files now reference:
+```yaml
+system_prompt_path: system-prompts/kimiko.md
+```
+The validator (`validate_mandate_paths` in `validator/validate_kimi.py`) now rejects `system_prompt_path` values that are `.yaml`/`.yml` files or that self-reference the mandate file itself. The `make verify` target also checks that `system-prompts/kimiko.md` is present post-install.
+
+**Rationale:**
+- Agent spec YAML and system prompt text serve different purposes and should be decoupled.
+- The CLI loader only reads `system_prompt_path` as an external file path; inline `system_prompt:` in the YAML is not sufficient.
+- Validator guard prevents this regression from returning.
+
+**Consequences:**
+- (+) `kimiko` activation now works as documented in the README.
+- (+) Validator catches self-referential or YAML system_prompt_path errors.
+- (-) Additional file in the repository; `make sync` does not apply (prompt is not mirrored).
+- (-) Existing installations need the prompt file to be installed alongside updated mandate YAMLs.

@@ -63,7 +63,9 @@ kimiko/
 │   ├── kimi.json.template      # Template for work-directory registry
 │   ├── latest_version.txt      # Cached CLI version string ("1.46.0")
 │   ├── mandate-agent.yaml      # System agent spec
-│   └── mandate-kimiko-agent.yaml  # Hardened mirror of mandate-agent.yaml
+│   ├── mandate-kimiko-agent.yaml  # Hardened mirror of mandate-agent.yaml
+│   └── system-prompts/
+│       └── kimiko.md           ← System prompt loaded by mandate YAMLs via system_prompt_path
 ├── scripts/                    # Maps to ~/.kimi root when installed
 │   ├── activate-mandate.sh     # Mandate env var exporter + verifier
 │   ├── activate-mandate.ps1    # PowerShell equivalent

@@ -21,18 +21,28 @@ if [ ! -f "$KIMI_GLOBAL_CONFIG" ]; then
 fi
 
 # Functions for enforced mandate usage — zero confirmation, zero filtering
+_kimi_find_binary() {
+    if [ -x "${HOME}/.local/bin/kimi" ]; then
+        printf '%s\n' "${HOME}/.local/bin/kimi"
+    elif command -v kimi >/dev/null 2>&1; then
+        command -v kimi
+    else
+        return 1
+    fi
+}
+
 kimi() {
-    local binary="${HOME}/.local/bin/kimi"
-    if [ ! -x "$binary" ]; then
-        echo "FATAL: Kimi CLI binary not found at ${binary}" >&2
+    local binary
+    if ! binary="$(_kimi_find_binary)"; then
+        echo "FATAL: Kimi CLI binary not found" >&2
         return 1
     fi
     "$binary" --config-file "$KIMI_GLOBAL_CONFIG" --yolo "$@"
 }
 kimi-maestro() {
-    local binary="${HOME}/.local/bin/kimi"
-    if [ ! -x "$binary" ]; then
-        echo "FATAL: Kimi CLI binary not found at ${binary}" >&2
+    local binary
+    if ! binary="$(_kimi_find_binary)"; then
+        echo "FATAL: Kimi CLI binary not found" >&2
         return 1
     fi
     "$binary" --config-file "$KIMI_GLOBAL_CONFIG" --agent-file "${HOME}/.kimi/mandate-kimiko-agent.yaml" --yolo "$@"
@@ -83,3 +93,17 @@ kimi-verify-mandate() {
 
 # Auto-verify on load
 kimi-verify-mandate
+
+# Shortcut function: type 'kimiko' to launch with full mandate
+kimiko() {
+    local binary
+    if ! binary="$(_kimi_find_binary)"; then
+        echo "FATAL: Kimi CLI binary not found" >&2
+        return 1
+    fi
+    "$binary" \
+        --config-file "$KIMI_GLOBAL_CONFIG" \
+        --agent-file "${HOME}/.kimi/mandate-kimiko-agent.yaml" \
+        --yolo \
+        "$@"
+}

@@ -75,6 +75,7 @@ FLAT_TARGETS := \
     $(DEST)/kimi.toml \
     $(DEST)/mandate-agent.yaml \
     $(DEST)/mandate-kimiko-agent.yaml \
+    $(DEST)/system-prompts/kimiko.md \
     $(DEST)/latest_version.txt \
     $(DEST)/activate-mandate.sh \
     $(DEST)/kimi-wrapper.sh \
@@ -199,6 +200,13 @@ ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
 endif
 
 $(DEST)/mandate-kimiko-agent.yaml: $(REPO_ROOT)/config/mandate-kimiko-agent.yaml
+	@mkdir -p $(dir $@)
+	cp -f $< $@
+ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
+	@chmod 600 $@
+endif
+
+$(DEST)/system-prompts/kimiko.md: $(REPO_ROOT)/config/system-prompts/kimiko.md
 	@mkdir -p $(dir $@)
 	cp -f $< $@
 ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
@@ -331,13 +339,19 @@ endif
 verify: install
 	@echo "Verifying Kimiko installation in $(DEST) ..."
 	@fail=0; \
-	for f in $(notdir $(FLAT_TARGETS)); do \
-		if [ ! -f "$(DEST)/$$f" ]; then \
-			echo "  missing: $(DEST)/$$f"; fail=1; \
+	for f in $(filter-out $(DEST)/system-prompts/%,$(FLAT_TARGETS)); do \
+		fname=$$(echo "$$f" | sed 's|.*/||'); \
+		if [ ! -f "$(DEST)/$$fname" ]; then \
+			echo "  missing: $(DEST)/$$fname"; fail=1; \
 		else \
-			echo "  present: $(DEST)/$$f"; \
+			echo "  present: $(DEST)/$$fname"; \
 		fi; \
 	done; \
+	if [ ! -f "$(DEST)/system-prompts/kimiko.md" ]; then \
+		echo "  missing: $(DEST)/system-prompts/kimiko.md"; fail=1; \
+	else \
+		echo "  present: $(DEST)/system-prompts/kimiko.md"; \
+	fi; \
 	if [ ! -f "$(DEST)/kimi.json" ]; then \
 		echo "  missing: $(DEST)/kimi.json"; fail=1; \
 	else \

@@ -300,12 +300,13 @@ class TestComplianceValidation:
             },
         }
 
-    def _compliant_mandate(self):
-        return {
+    def _compliant_mandate(self, tmp_path=None):
+        mandate = {
             "version": 1,
             "agent": {
                 "name": "Test",
                 "designation": "Test",
+                "system_prompt_path": "system-prompts/kimiko.md",
                 "tools": ["kimi_cli.tools.shell:Shell"],
                 "global_config": {
                     "config_file": "config.toml",
@@ -337,6 +338,12 @@ class TestComplianceValidation:
                 },
             },
         }
+        # Create the prompt file so path validation passes when tmp_path is provided
+        if tmp_path is not None:
+            prompt_dir = tmp_path / "system-prompts"
+            prompt_dir.mkdir(exist_ok=True)
+            (prompt_dir / "kimiko.md").write_text("# Mandate kimiko prompt")
+        return mandate
 
     def test_compliant_config_passes(self):
         cfg = self._compliant_config()
@@ -352,14 +359,14 @@ class TestComplianceValidation:
         valid, errors = validate_against_schema(cfg, schema, "test")
         assert not valid
 
-    def test_compliant_mandate_passes(self):
-        data = self._compliant_mandate()
+    def test_compliant_mandate_passes(self, tmp_path):
+        data = self._compliant_mandate(tmp_path=tmp_path)
         schema = load_schema("mandate-zero-blocker-schema.json")
         valid, errors = validate_against_schema(data, schema, "test")
         assert valid, errors
 
-    def test_non_compliant_mandate_fails(self):
-        data = self._compliant_mandate()
+    def test_non_compliant_mandate_fails(self, tmp_path):
+        data = self._compliant_mandate(tmp_path=tmp_path)
         data["agent"]["mandate_enforcement"]["zero_blockers"] = False
         schema = load_schema("mandate-zero-blocker-schema.json")
         valid, errors = validate_against_schema(data, schema, "test")
@@ -432,6 +439,44 @@ class TestMandatePaths:
         errs = validate_mandate_paths(data, tmp_path / "mandate-agent.yaml")
         assert not errs
 
+    def test_self_referential_system_prompt_path(self, tmp_path):
+        """system_prompt_path must not point to the mandate file itself."""
+        mandate = tmp_path / "mandate-agent.yaml"
+        mandate.write_text("version: 1")  # dummy content so resolve() works
+        data = {"agent": {"system_prompt_path": "mandate-agent.yaml"}}
+        errs = validate_mandate_paths(data, mandate)
+        assert any("self-referential" in e for e in errs)
+
+    def test_yaml_system_prompt_path_rejected(self, tmp_path):
+        """YAML files should not be used as system prompts (agent spec != prompt)."""
+        mandate = tmp_path / "mandate-agent.yaml"
+        mandate.write_text("version: 1")
+        other_yaml = tmp_path / "other-spec.yaml"
+        other_yaml.write_text("version: 1")
+        data = {"agent": {"system_prompt_path": "other-spec.yaml"}}
+        errs = validate_mandate_paths(data, mandate)
+        assert any("YAML" in e or "yaml" in e for e in errs)
+
+    def test_yaml_system_prompt_path_rejected_yml(self, tmp_path):
+        """YML extension should also be rejected."""
+        mandate = tmp_path / "mandate-agent.yaml"
+        mandate.write_text("version: 1")
+        other_yml = tmp_path / "other-spec.yml"
+        other_yml.write_text("version: 1")
+        data = {"agent": {"system_prompt_path": "other-spec.yml"}}
+        errs = validate_mandate_paths(data, mandate)
+        assert any("YAML" in e or "yaml" in e for e in errs)
+
+    def test_md_system_prompt_path_passes(self, tmp_path):
+        """A .md file as system_prompt_path should pass validation."""
+        prompt_file = tmp_path / "prompt.md"
+        prompt_file.write_text("# My Prompt")
+        mandate = tmp_path / "mandate-agent.yaml"
+        mandate.write_text("version: 1")
+        data = {"agent": {"system_prompt_path": "prompt.md"}}
+        errs = validate_mandate_paths(data, mandate)
+        assert not errs
+
 
 class TestAllCommand:
     def test_cmd_all_passes(self, tmp_path):
@@ -477,11 +522,17 @@ fullAuthorization = true
             "agent": {
                 "name": "Test Agent",
                 "designation": "Test",
+                "system_prompt_path": "system-prompts/kimiko.md",
                 "tools": ["kimi_cli.tools.shell:Shell"],
             },
         }
         for name in ["mandate-agent.yaml", "mandate-kimiko-agent.yaml"]:
             (kimi_dir / name).write_text(yaml.safe_dump(mandate))
+
+        # Create the system prompt file so path validation passes
+        prompt_dir = kimi_dir / "system-prompts"
+        prompt_dir.mkdir()
+        (prompt_dir / "kimiko.md").write_text("# Mandate kimiko prompt")
 
         args = type("Args", (), {"directory": str(kimi_dir), "verbose": False})()
         assert cmd_all(args) == 0

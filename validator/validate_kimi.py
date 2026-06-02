@@ -241,6 +241,15 @@ def validate_mandate_paths(data: dict[str, Any], base_path: Path) -> list[str]:
             p = base_path.parent / p
         if not p.exists():
             errors.append(f"system_prompt_path missing: {p}")
+        # Reject self-referential paths (system_prompt_path must not point to the mandate file itself)
+        try:
+            if p.resolve() == base_path.resolve():
+                errors.append(f"system_prompt_path is self-referential: {spp}")
+        except (OSError, ValueError):
+            pass  # skip resolve check if path is malformed
+        # Reject YAML files as system prompts (agent specs are not prompts)
+        if p.suffix.lower() in ('.yaml', '.yml'):
+            errors.append(f"system_prompt_path should not be a YAML agent spec: {p}")
     gc = agent.get("global_config", {})
     cf = gc.get("config_file")
     if cf:

@@ -17,19 +17,16 @@ Remove-Item -Path Function:kimi -Force -ErrorAction SilentlyContinue
 # Helper to find kimi binary
 function script:Find-KimiBinary {
     $candidates = @(
+        (Join-Path $env:USERPROFILE "AppData" "Roaming" "Python" "Python313" "Scripts" "kimi.exe"),
         (Join-Path $env:USERPROFILE ".local" "bin" "kimi.exe"),
         (Join-Path $env:LOCALAPPDATA "Programs" "kimi" "kimi.exe"),
-        (Join-Path $env:USERPROFILE "AppData" "Local" "Programs" "kimi" "kimi.exe"),
-        "kimi"
+        (Join-Path $env:USERPROFILE "AppData" "Local" "Programs" "kimi" "kimi.exe")
     )
     foreach ($c in $candidates) {
-        if ($c -eq "kimi") {
-            $inPath = Get-Command kimi -ErrorAction SilentlyContinue
-            if ($inPath) { return $inPath.Source }
-        } elseif (Test-Path $c) {
-            return $c
-        }
+        if (Test-Path $c) { return $c }
     }
+    $inPath = Get-Command kimi.exe -CommandType Application -ErrorAction SilentlyContinue
+    if ($inPath) { return $inPath.Source }
     return $null
 }
 
@@ -73,3 +70,21 @@ function global:kimi-status {
 $env:KIMI_GLOBAL_CONFIG = Join-Path $env:USERPROFILE ".kimi" "config.toml"
 $env:KIMI_CLI_MANDATE = "kimiko"
 $env:KIMI_CLI_ZERO_BLOCKERS = "true"
+
+# Shortcut function: type 'kimiko' to launch with full mandate
+function global:kimiko {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromRemainingArguments = $true, Position = 0)]
+        [string[]] $ExtraArgs
+    )
+    Write-Host "[Mandate kimiko Active — Zero Blockers Enforced]" -ForegroundColor Cyan
+    $binary = Find-KimiBinary
+    if (-not $binary) {
+        Write-Host "FATAL: Kimi CLI binary not found" -ForegroundColor Red
+        return
+    }
+    $MandateAgent = Join-Path $env:USERPROFILE ".kimi" "mandate-kimiko-agent.yaml"
+    $GlobalConfig = Join-Path $env:USERPROFILE ".kimi" "config.toml"
+    & $binary --config-file $GlobalConfig --agent-file $MandateAgent --yolo @ExtraArgs
+}

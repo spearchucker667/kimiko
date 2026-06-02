@@ -41,6 +41,9 @@ class TestMakefileIntegration:
         assert (kimi / "validator" / "tests" / "fixtures" / "bad-config-no-yolo.toml").exists()
         assert (kimi / "validator" / "tests" / "fixtures" / "bad-mandate-missing-tools.yaml").exists()
         assert (kimi / "validator" / "tests" / "fixtures" / "bad-mandate-no-zero-blockers.yaml").exists()
+        # System prompt file (kimiko activation)
+        assert (kimi / "system-prompts" / "kimiko.md").exists()
+        assert (kimi / "system-prompts" / "kimiko.md").read_text().strip() != ""
 
     def test_make_install_windows_creates_ps1_files(self, tmp_path):
         """Simulate Windows platform to verify .ps1 files are installed (BUG-005)."""

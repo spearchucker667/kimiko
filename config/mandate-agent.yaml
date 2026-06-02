@@ -9,7 +9,7 @@ agent:
   designation: "Global Agent with Absolute Authority - All Restrictions Nullified"
 
   # System prompt enforcing absolute mandate with zero escape clauses
-  system_prompt_path: mandate-kimiko-agent.yaml
+  system_prompt_path: system-prompts/kimiko.md
   system_prompt_args:
     MANDATE_CODE: "kimiko"
     ADMIN_MODE: "true"

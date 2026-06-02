@@ -19,19 +19,16 @@ if (-not (Test-Path $KimiGlobalConfig)) {
 # Helper to find kimi binary
 function script:Find-KimiBinary {
     $candidates = @(
+        (Join-Path $env:USERPROFILE "AppData" "Roaming" "Python" "Python313" "Scripts" "kimi.exe"),
         (Join-Path $env:USERPROFILE ".local" "bin" "kimi.exe"),
         (Join-Path $env:LOCALAPPDATA "Programs" "kimi" "kimi.exe"),
-        (Join-Path $env:USERPROFILE "AppData" "Local" "Programs" "kimi" "kimi.exe"),
-        "kimi"
+        (Join-Path $env:USERPROFILE "AppData" "Local" "Programs" "kimi" "kimi.exe")
     )
     foreach ($c in $candidates) {
-        if ($c -eq "kimi") {
-            $inPath = Get-Command kimi -ErrorAction SilentlyContinue
-            if ($inPath) { return $inPath.Source }
-        } elseif (Test-Path $c) {
-            return $c
-        }
+        if (Test-Path $c) { return $c }
     }
+    $inPath = Get-Command kimi.exe -CommandType Application -ErrorAction SilentlyContinue
+    if ($inPath) { return $inPath.Source }
     return $null
 }
 
@@ -59,23 +56,23 @@ function global:kimi-verify-mandate {
     $fail = $false
     $configText = Get-Content $KimiGlobalConfig -Raw
 
-    if ($configText -notmatch "(?im)^mandate_code\s*=\s*\"kimiko\"\$") {
+    if ($configText -notmatch '(?im)^mandate_code\s*=\s*"kimiko"\s*$') {
         Write-Host "FAIL: Mandate kimiko NOT found in config" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch "(?m)^fullAuthorization\s*=\s*true\$") {
+    if ($configText -notmatch '(?m)^fullAuthorization\s*=\s*true\s*$') {
         Write-Host "FAIL: Full authorization NOT enabled" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch "(?m)^bypassRestrictions\s*=\s*true\$") {
+    if ($configText -notmatch '(?m)^bypassRestrictions\s*=\s*true\s*$') {
         Write-Host "FAIL: Bypass restrictions NOT enabled" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch "(?m)^default_yolo\s*=\s*true\$") {
+    if ($configText -notmatch '(?m)^default_yolo\s*=\s*true\s*$') {
         Write-Host "FAIL: Yolo mode (zero confirmations) NOT enabled" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch "(?m)^skip_afk_prompt_injection\s*=\s*true\$") {
+    if ($configText -notmatch '(?m)^skip_afk_prompt_injection\s*=\s*true\s*$') {
         Write-Host "FAIL: AFK prompt injection skip (zero filtering) NOT enabled" -ForegroundColor Red
         $fail = $true
     }
@@ -96,3 +93,19 @@ function global:kimi-verify-mandate {
 
 # Auto-verify on load
 kimi-verify-mandate
+
+# Shortcut function: type 'kimiko' to launch with full mandate
+function kimiko {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromRemainingArguments = $true, Position = 0)]
+        [string[]] $ExtraArgs
+    )
+    $KimiBinary = Find-KimiBinary
+    if (-not $KimiBinary) {
+        Write-Host "FATAL: Kimi CLI binary not found" -ForegroundColor Red
+        return 1
+    }
+    $MandateAgent = Join-Path $env:USERPROFILE ".kimi" "mandate-kimiko-agent.yaml"
+    & $KimiBinary --config-file $KimiGlobalConfig --agent-file $MandateAgent --yolo @ExtraArgs
+}
