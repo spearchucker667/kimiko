@@ -123,7 +123,7 @@ VALIDATOR_TARGETS := \
     $(DEST)/validator/tests/fixtures/bad-mandate-missing-tools.yaml \
     $(DEST)/validator/tests/fixtures/bad-mandate-no-zero-blockers.yaml
 
-.PHONY: all install install-windows install-gitbash install-wsl install-macos install-linux verify uninstall check sync test help permissions
+.PHONY: all install install-windows install-gitbash install-wsl install-macos install-linux verify uninstall check sync test help permissions deps
 
 all: help
 
@@ -137,6 +137,7 @@ help:
 	@echo "  make install-macos     macOS install (BSD make, chmod enforced)"
 	@echo "  make install-linux     Native Linux install"
 	@echo "  make verify       Confirm files landed and key strings present"
+	@echo "  make deps         Install Python dependencies for the validator"
 	@echo "  make check        Validate config files with the validator"
 	@echo "  make sync         Verify config/mandate mirror files are in sync"
 	@echo "  make test         Run pytest suite for the validator"
@@ -309,7 +310,11 @@ uninstall:
 	@echo "Uninstalled. User secrets in credentials/, logs/, sessions/ were NOT touched."
 
 # ── Validation ───────────────────────────────────────────────────────────────
-check:
+deps:
+	@echo "Installing Python dependencies for the validator ..."
+	@$(PYTHON) -m pip install -r $(REPO_ROOT)/validator/requirements.txt --quiet --break-system-packages 2>/dev/null || $(PYTHON) -m pip install -r $(REPO_ROOT)/validator/requirements.txt --quiet
+
+check: deps
 ifeq ($(PLATFORM),windows)
 	@echo "The 'check' target requires a Unix-like environment (Git Bash, WSL, or MSYS2)."
 	@echo "On Windows with PowerShell, run the validator directly:"
@@ -328,29 +333,13 @@ else
 endif
 
 sync:
-ifeq ($(PLATFORM),windows)
-	@echo "The 'sync' target requires a Unix-like environment (Git Bash, WSL, or MSYS2)."
-	@echo "On Windows with PowerShell, use a file-comparison tool or diff via WSL."
-	@exit 1
-else
 	@echo "Checking config.toml / kimi.toml sync ..."
-	@sync_tmp=$$(mktemp /tmp/kimi-sync.XXXXXX); \
-	sed -n '/^[^#]/,$$p' $(REPO_ROOT)/config/kimi.toml > "$$sync_tmp"; \
-	if ! diff -q $(REPO_ROOT)/config/config.toml "$$sync_tmp" > /dev/null; then \
-		echo "  config.toml and kimi.toml differ (after stripping kimi.toml comment header)"; \
-		rm -f "$$sync_tmp"; \
-		exit 1; \
-	fi; \
-	rm -f "$$sync_tmp"
+	@$(PYTHON) -c "import sys, os; r='$(REPO_ROOT)/config'; c=open(os.path.join(r,'config.toml'), encoding='utf-8').read(); k_lines=open(os.path.join(r,'kimi.toml'), encoding='utf-8').readlines(); idx=next((i for i, l in enumerate(k_lines) if not l.startswith('#')), 0); k=''.join(k_lines[idx:]); sys.exit(0 if c.strip() == k.strip() else 1)" || (echo "  config.toml and kimi.toml differ (after stripping kimi.toml comment header)"; exit 1)
 	@echo "Checking mandate-agent.yaml / mandate-kimiko-agent.yaml sync ..."
-	@if ! diff -q $(REPO_ROOT)/config/mandate-agent.yaml $(REPO_ROOT)/config/mandate-kimiko-agent.yaml > /dev/null; then \
-		echo "  mandate-agent.yaml and mandate-kimiko-agent.yaml differ"; \
-		exit 1; \
-	fi
+	@$(PYTHON) -c "import sys, os; r='$(REPO_ROOT)/config'; m1=open(os.path.join(r,'mandate-agent.yaml'), encoding='utf-8').read(); m2=open(os.path.join(r,'mandate-kimiko-agent.yaml'), encoding='utf-8').read(); sys.exit(0 if m1 == m2 else 1)" || (echo "  mandate-agent.yaml and mandate-kimiko-agent.yaml differ"; exit 1)
 	@echo "All sync checks passed."
-endif
 
-test:
+test: deps
 ifeq ($(PLATFORM),windows)
 	@echo "The 'test' target requires a Unix-like environment (Git Bash, WSL, or MSYS2)."
 	@echo "On Windows with PowerShell, run: cd validator; python -m pytest tests/ -v"

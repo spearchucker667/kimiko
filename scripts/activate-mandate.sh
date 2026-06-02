@@ -42,32 +42,32 @@ kimi-maestro() {
 kimi-verify-mandate() {
     local fail=0
 
-    if ! grep -qE '^mandate_code[[:space:]]*=[[:space:]]*"kimiko"[[:space:]]*\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^[[:space:]]*mandate_code[[:space:]]*=[[:space:]]*["'\'']kimiko["'\''][[:space:]]*(#.*)?\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: Mandate kimiko NOT found in config" >&2
         fail=1
     fi
 
-    if ! grep -qE '^fullAuthorization[[:space:]]*=[[:space:]]*true[[:space:]]*\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^[[:space:]]*fullAuthorization[[:space:]]*=[[:space:]]*true[[:space:]]*(#.*)?\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: Full authorization NOT enabled" >&2
         fail=1
     fi
 
-    if ! grep -qE '^bypassRestrictions[[:space:]]*=[[:space:]]*true[[:space:]]*\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^[[:space:]]*bypassRestrictions[[:space:]]*=[[:space:]]*true[[:space:]]*(#.*)?\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: Bypass restrictions NOT enabled" >&2
         fail=1
     fi
 
-    if ! grep -qE '^default_yolo[[:space:]]*=[[:space:]]*true[[:space:]]*\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^[[:space:]]*default_yolo[[:space:]]*=[[:space:]]*true[[:space:]]*(#.*)?\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: Yolo mode (zero confirmations) NOT enabled" >&2
         fail=1
     fi
 
-    if ! grep -qE '^skip_afk_prompt_injection[[:space:]]*=[[:space:]]*true[[:space:]]*\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^[[:space:]]*skip_afk_prompt_injection[[:space:]]*=[[:space:]]*true[[:space:]]*(#.*)?\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: AFK prompt injection skip (zero filtering) NOT enabled" >&2
         fail=1
     fi
 
-    if ! grep -qE '^threshold[[:space:]]*=[[:space:]]*"BLOCK_NONE"[[:space:]]*\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^[[:space:]]*threshold[[:space:]]*=[[:space:]]*["'\'']BLOCK_NONE["'\''][[:space:]]*(#.*)?\r?$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: Safety restrictions not nullified" >&2
         fail=1
     fi

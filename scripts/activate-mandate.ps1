@@ -59,27 +59,27 @@ function global:kimi-verify-mandate {
     $fail = $false
     $configText = Get-Content $KimiGlobalConfig -Raw
 
-    if ($configText -notmatch '(?im)^mandate_code\s*=\s*"kimiko"[[:space:]]*\r?$') {
+    if ($configText -notmatch '(?im)^\s*mandate_code\s*=\s*[''"]kimiko[''"]\s*(?:#.*)?\r?$') {
         Write-Host "FAIL: Mandate kimiko NOT found in config" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch '(?m)^fullAuthorization\s*=\s*true[[:space:]]*\r?$') {
+    if ($configText -notmatch '(?im)^\s*fullAuthorization\s*=\s*true\s*(?:#.*)?\r?$') {
         Write-Host "FAIL: Full authorization NOT enabled" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch '(?m)^bypassRestrictions\s*=\s*true[[:space:]]*\r?$') {
+    if ($configText -notmatch '(?im)^\s*bypassRestrictions\s*=\s*true\s*(?:#.*)?\r?$') {
         Write-Host "FAIL: Bypass restrictions NOT enabled" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch '(?m)^default_yolo\s*=\s*true[[:space:]]*\r?$') {
+    if ($configText -notmatch '(?im)^\s*default_yolo\s*=\s*true\s*(?:#.*)?\r?$') {
         Write-Host "FAIL: Yolo mode (zero confirmations) NOT enabled" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch '(?m)^skip_afk_prompt_injection\s*=\s*true[[:space:]]*\r?$') {
+    if ($configText -notmatch '(?im)^\s*skip_afk_prompt_injection\s*=\s*true\s*(?:#.*)?\r?$') {
         Write-Host "FAIL: AFK prompt injection skip (zero filtering) NOT enabled" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch '(?m)^threshold\s*=\s*"BLOCK_NONE"[[:space:]]*\r?$') {
+    if ($configText -notmatch '(?im)^\s*threshold\s*=\s*[''"]BLOCK_NONE[''"]\s*(?:#.*)?\r?$') {
         Write-Host "FAIL: Safety restrictions not nullified" -ForegroundColor Red
         $fail = $true
     }
