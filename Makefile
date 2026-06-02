@@ -9,18 +9,31 @@ PYTHON ?= $(shell command -v python3 2>/dev/null || command -v python 2>/dev/nul
 
 # ── Platform Detection ───────────────────────────────────────────────────────
 ifeq ($(OS),Windows_NT)
-    PLATFORM := windows
+    # Check if running in a Unix-like shell environment on Windows
+    # (like Git Bash, MSYS2, Cygwin) by checking if MSYSTEM is set, or if we have a Unix shell.
+    UNAME_S := $(shell uname -s 2>/dev/null || echo "")
+    ifneq ($(findstring MINGW,$(UNAME_S)),)
+        ifdef MSYSTEM
+            PLATFORM := gitbash
+        else
+            PLATFORM := windows
+        endif
+    else ifneq ($(findstring MSYS,$(UNAME_S)),)
+        ifdef MSYSTEM
+            PLATFORM := gitbash
+        else
+            PLATFORM := windows
+        endif
+    else ifneq ($(findstring CYGWIN,$(UNAME_S)),)
+        PLATFORM := gitbash
+    else
+        PLATFORM := windows
+    endif
 else
     UNAME_S := $(shell uname -s 2>/dev/null || echo "")
     UNAME_R := $(shell uname -r 2>/dev/null || echo "")
 
-    ifneq ($(findstring MINGW,$(UNAME_S)),)
-        PLATFORM := gitbash
-    else ifneq ($(findstring MSYS,$(UNAME_S)),)
-        PLATFORM := gitbash
-    else ifneq ($(findstring CYGWIN,$(UNAME_S)),)
-        PLATFORM := gitbash
-    else ifeq ($(UNAME_S),Darwin)
+    ifeq ($(UNAME_S),Darwin)
         PLATFORM := macos
     else ifeq ($(UNAME_S),Linux)
         ifneq ($(findstring microsoft,$(UNAME_R)),)
@@ -48,7 +61,14 @@ else
     HOME_DIR := $(HOME)
 endif
 
-DEST := $(HOME_DIR)/.kimi
+ifeq ($(PLATFORM),windows)
+    DEST_ABS := $(HOME_DIR)/.kimi
+    # Convert to relative path to prevent Windows drive letter colons from breaking Make parsing.
+    # Fallback to absolute path if python command fails or paths are on different drives.
+    DEST := $(shell $(PYTHON) -c "import os; print(os.path.relpath(r'$(DEST_ABS)', r'$(REPO_ROOT)').replace('\\\\', '/'))" 2>/dev/null || echo "$(DEST_ABS)")
+else
+    DEST := $(HOME_DIR)/.kimi
+endif
 
 ifeq ($(PLATFORM),$(filter $(PLATFORM),windows gitbash))
     WINDOWS_SCRIPTS := \

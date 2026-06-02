@@ -31,7 +31,7 @@ Thank you for your interest in improving Kimiko! This repository is a sanitized,
 
    | Target | macOS / Linux / WSL | Git Bash | PowerShell |
    |---|---|---|---|
-   | `make check` | ✅ Full structural + compliance validation | ✅ Structural only (compliance requires Python) | ❌ Use `make check-windows` |
+   | `make check` | ✅ Full structural + compliance validation | ✅ Structural only (compliance requires Python) | ❌ Run python validator directly |
    | `make test` | ✅ Runs pytest suite | ✅ Runs pytest suite | ❌ Use WSL or Git Bash |
    | `make sync` | ✅ Byte-for-byte sync check | ❌ Fails (no `cmp`/`diff` in PATH) | ❌ Fails (no Unix tools) |
    | `make verify` | ✅ Post-install verification | ✅ Post-install verification | ✅ Post-install verification |

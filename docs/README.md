@@ -198,7 +198,8 @@ kimiko/
 │       └── fixtures/
 ├── .pre-commit-config.yaml
 ├── LICENSE
-└── Makefile
+├── Makefile
+└── README.md
 ```
 
 ## Directory Structure Created (in `~/.kimi`)
