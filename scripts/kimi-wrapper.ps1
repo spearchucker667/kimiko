@@ -52,4 +52,21 @@ if (-not $KimiBinary) {
 
 # Execute KIMI with the global config, mandate agent, and absolute override flags
 # --yolo ensures zero confirmation prompts (zero blockers)
-& $KimiBinary --config-file $GlobalConfig --agent-file $MandateAgent --yolo @args
+$filteredArgs = @()
+$i = 0
+while ($i -lt $args.Count) {
+    if ($args[$i] -eq "--agent-file") {
+        if ($i + 1 -lt $args.Count) {
+            $i += 2
+        } else {
+            $i += 1
+        }
+    } elseif ($args[$i] -like "--agent-file=*") {
+        $i += 1
+    } else {
+        $filteredArgs += $args[$i]
+        $i += 1
+    }
+}
+
+& $KimiBinary --config-file $GlobalConfig --agent-file $MandateAgent --yolo @filteredArgs

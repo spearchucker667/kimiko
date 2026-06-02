@@ -46,7 +46,10 @@ except ImportError:
     try:
         import tomli as tomllib
     except ImportError as e:
-        raise ImportError("TOML parsing requires Python 3.11+ or `pip install tomli`") from e
+        raise ImportError(
+            "TOML parsing requires Python 3.11+ or `pip install tomli`"
+        ) from e
+
 
 # ── ANSI Colors ──────────────────────────────────────────────────────────────
 class C:
@@ -106,9 +109,7 @@ def print_errors(errors: list[ValidationError], verbose: bool = False) -> None:
     display = errors if verbose else errors[:10]
     for e in display:
         path = "/".join(str(p) for p in e.absolute_path) or "(root)"
-        print(
-            f"  {colorize('✗', C.R)} {colorize(path, C.C)}: {e.message}"
-        )
+        print(f"  {colorize('✗', C.R)} {colorize(path, C.C)}: {e.message}")
     if not verbose and len(errors) > 10:
         print(f"  ... and {len(errors) - 10} more")
 
@@ -143,11 +144,16 @@ def scan_for_secrets(text: str, path: Path) -> list[str]:
     # Patterns to flag
     patterns = [
         (r"sk-[a-zA-Z0-9_-]{20,}", "API key pattern"),
-        (r"eyJ[a-zA-Z0-9_/+-]*={0,2}\.eyJ[a-zA-Z0-9_/+-]*={0,2}\.[a-zA-Z0-9_/+-]*={0,2}", "JWT-like token"),
+        (
+            r"eyJ[a-zA-Z0-9_/+-]*={0,2}\.eyJ[a-zA-Z0-9_/+-]*={0,2}\.[a-zA-Z0-9_/+-]*={0,2}",
+            "JWT-like token",
+        ),
         (r"password\s*=\s*[^\s]+", "hardcoded password"),
         (r"token\s*=\s*[^\s]+", "hardcoded token"),
     ]
-    secret_context = re.compile(r"api_key|apikey|secret|token|password|private_key", re.IGNORECASE)
+    secret_context = re.compile(
+        r"api_key|apikey|secret|token|password|private_key", re.IGNORECASE
+    )
     lines = text.splitlines()
     for lineno, line in enumerate(lines, 1):
         # Hex patterns require surrounding context to avoid flagging git SHAs
@@ -160,9 +166,7 @@ def scan_for_secrets(text: str, path: Path) -> list[str]:
 
         for pattern, desc in patterns:
             if re.search(pattern, line, re.IGNORECASE):
-                findings.append(
-                    f"{path}:{lineno}: potential secret leak ({desc})"
-                )
+                findings.append(f"{path}:{lineno}: potential secret leak ({desc})")
                 break  # one finding per line is enough
     return findings
 
@@ -176,9 +180,7 @@ def validate_config_crossrefs(data: dict[str, Any], base_path: Path) -> list[str
     default_model = data.get("default_model")
     models = data.get("models", {})
     if default_model and default_model not in models:
-        errors.append(
-            f"default_model '{default_model}' not found in [models] table"
-        )
+        errors.append(f"default_model '{default_model}' not found in [models] table")
 
     # 2. Every model's provider must exist in [providers]
     providers = data.get("providers", {})
@@ -275,7 +277,9 @@ def cmd_compliance(args: argparse.Namespace) -> int:
             if valid:
                 print(f"{colorize('✓', C.G)} {config_path}: Zero-blocker compliant")
             else:
-                print(f"{colorize('✗', C.R)} {config_path}: Zero-blocker violations found")
+                print(
+                    f"{colorize('✗', C.R)} {config_path}: Zero-blocker violations found"
+                )
                 print_errors(errors, args.verbose)
                 overall = max(overall, 1)
 
@@ -293,7 +297,9 @@ def cmd_compliance(args: argparse.Namespace) -> int:
             if valid:
                 print(f"{colorize('✓', C.G)} {kimi_toml}: Zero-blocker compliant")
             else:
-                print(f"{colorize('✗', C.R)} {kimi_toml}: Zero-blocker violations found")
+                print(
+                    f"{colorize('✗', C.R)} {kimi_toml}: Zero-blocker violations found"
+                )
                 print_errors(errors, args.verbose)
                 overall = max(overall, 1)
 
@@ -330,7 +336,11 @@ def cmd_config(args: argparse.Namespace) -> int:
 
     schema = load_schema("config-schema.json")
     valid, errors = validate_against_schema(data, schema, str(path))
-    xerrs = validate_config_crossrefs(data, path) if not getattr(args, "no_crossrefs", False) else []
+    xerrs = (
+        validate_config_crossrefs(data, path)
+        if not getattr(args, "no_crossrefs", False)
+        else []
+    )
 
     if valid and not xerrs:
         print(f"{colorize('✓', C.G)} {path}: Valid")
@@ -594,7 +604,9 @@ Examples:
 
     p_cfg = sub.add_parser("config", help="Validate a config.toml file")
     p_cfg.add_argument("file", help="Path to config.toml")
-    p_cfg.add_argument("--no-crossrefs", action="store_true", help="Skip cross-reference validation")
+    p_cfg.add_argument(
+        "--no-crossrefs", action="store_true", help="Skip cross-reference validation"
+    )
 
     p_reg = sub.add_parser("registry", help="Validate a kimi.json file")
     p_reg.add_argument("file", help="Path to kimi.json")
@@ -608,7 +620,9 @@ Examples:
     p_sec = sub.add_parser("security", help="Run security checks on .kimi directory")
     p_sec.add_argument("directory", nargs="?", help="Path to .kimi directory")
 
-    p_comp = sub.add_parser("compliance", help="Validate zero-blocker Mandate kimiko compliance")
+    p_comp = sub.add_parser(
+        "compliance", help="Validate zero-blocker Mandate kimiko compliance"
+    )
     p_comp.add_argument("directory", nargs="?", help="Path to .kimi directory")
 
     args = parser.parse_args()

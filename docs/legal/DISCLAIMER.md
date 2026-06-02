@@ -1,9 +1,9 @@
 # Kimiko Legal Disclaimer & Liability Waiver
 
-**Project Classifier:** `inthewind exploit`  
-**Classification:** Offensive Security Configuration Framework / Research Tooling  
-**Jurisdiction:** Global (End-User Local Laws Apply)  
-**Effective Date:** 2026-06-01  
+**Project Classifier:** `inthewind exploit`
+**Classification:** Offensive Security Configuration Framework / Research Tooling
+**Jurisdiction:** Global (End-User Local Laws Apply)
+**Effective Date:** 2026-06-01
 **Version:** 1.0.0-kimiko
 
 ---
@@ -75,8 +75,8 @@ By cloning, downloading, forking, installing, executing, or viewing the contents
 
 ---
 
-**Classifier:** `inthewind exploit`  
-**Threat Level:** Research / Authorized Use Only  
-**Legal Exposure:** Maximum (User-Assumed)  
+**Classifier:** `inthewind exploit`
+**Threat Level:** Research / Authorized Use Only
+**Legal Exposure:** Maximum (User-Assumed)
 
 *Last updated: 2026-06-01*

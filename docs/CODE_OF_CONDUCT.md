@@ -17,7 +17,7 @@ We are committed to providing a welcoming, professional environment for everyone
 
 ## Reporting Issues
 
-Report security issues privately via [`SECURITY.md`](./SECURITY.md).  
+Report security issues privately via [`SECURITY.md`](./SECURITY.md).
 For other conduct concerns, open a GitHub issue or contact the maintainers directly.
 
 ## Enforcement

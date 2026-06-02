@@ -51,7 +51,7 @@ Thank you for your interest in improving Kimiko! This repository is a sanitized,
 
 ## Synchronization Requirement
 
-If you modify `config/config.toml`, you **must** apply the identical change to `config/kimi.toml`.  
+If you modify `config/config.toml`, you **must** apply the identical change to `config/kimi.toml`.
 If you modify `config/mandate-agent.yaml`, you **must** apply the identical change to `config/mandate-kimiko-agent.yaml`.
 
 PRs that introduce drift between these file pairs will be rejected.

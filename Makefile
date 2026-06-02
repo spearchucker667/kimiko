@@ -286,13 +286,13 @@ ifeq ($(PLATFORM),windows)
 	@exit 1
 else
 	@echo "Running validator checks ..."
-	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py config --no-crossrefs $(REPO_ROOT)/config/config.toml
-	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py config --no-crossrefs $(REPO_ROOT)/config/kimi.toml
-	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py mandate $(REPO_ROOT)/config/mandate-agent.yaml
-	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py mandate $(REPO_ROOT)/config/mandate-kimiko-agent.yaml
+	@cd $(REPO_ROOT)/validator && $(PYTHON) validate_kimi.py config --no-crossrefs $(REPO_ROOT)/config/config.toml
+	@cd $(REPO_ROOT)/validator && $(PYTHON) validate_kimi.py config --no-crossrefs $(REPO_ROOT)/config/kimi.toml
+	@cd $(REPO_ROOT)/validator && $(PYTHON) validate_kimi.py mandate $(REPO_ROOT)/config/mandate-agent.yaml
+	@cd $(REPO_ROOT)/validator && $(PYTHON) validate_kimi.py mandate $(REPO_ROOT)/config/mandate-kimiko-agent.yaml
 	@echo "All structural checks passed."
 	@echo "Running zero-blocker compliance checks ..."
-	@cd $(REPO_ROOT)/validator && python3 validate_kimi.py compliance $(REPO_ROOT)/config
+	@cd $(REPO_ROOT)/validator && $(PYTHON) validate_kimi.py compliance $(REPO_ROOT)/config
 	@echo "All checks passed."
 endif
 
@@ -358,7 +358,7 @@ verify: install
 	else \
 		echo "  mandate-kimiko-agent.yaml references 'kimiko'"; \
 	fi; \
-	if ! python3 -c "import json; json.load(open(r'$(DEST)/kimi.json'))" 2>/dev/null; then \
+	if ! $(PYTHON) -c "import json; json.load(open(r'$(DEST)/kimi.json'))" 2>/dev/null; then \
 		echo "  kimi.json is not valid JSON"; fail=1; \
 	else \
 		echo "  kimi.json is valid JSON"; \

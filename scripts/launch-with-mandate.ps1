@@ -30,7 +30,11 @@ $filteredArgs = @()
 $i = 0
 while ($i -lt $args.Count) {
     if ($args[$i] -eq "--agent-file") {
-        $i += 2
+        if ($i + 1 -lt $args.Count) {
+            $i += 2
+        } else {
+            $i += 1
+        }
     } elseif ($args[$i] -like "--agent-file=*") {
         $i += 1
     } else {

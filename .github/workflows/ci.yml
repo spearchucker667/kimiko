@@ -21,11 +21,11 @@ jobs:
         working-directory: ./validator
         run: |
           python3 -m pip install --upgrade pip
-          pip install jsonschema pyyaml pytest ruff
+          python3 -m pip install jsonschema pyyaml pytest ruff
 
       - name: Run tests
         working-directory: ./validator
-        run: pytest -v
+        run: python3 -m pytest -v
 
       - name: Run linter
         working-directory: ./validator
@@ -59,11 +59,11 @@ jobs:
         working-directory: ./validator
         run: |
           python3 -m pip install --upgrade pip
-          pip install jsonschema pyyaml pytest ruff
+          python3 -m pip install jsonschema pyyaml pytest ruff
 
       - name: Run tests
         working-directory: ./validator
-        run: pytest -v
+        run: python3 -m pytest -v
 
       - name: Install files
         run: make install
@@ -92,12 +92,12 @@ jobs:
         working-directory: ./validator
         run: |
           python -m pip install --upgrade pip
-          pip install jsonschema pyyaml pytest ruff
+          python -m pip install jsonschema pyyaml pytest ruff
 
       - name: Run tests
         shell: pwsh
         working-directory: ./validator
-        run: pytest -v
+        run: python -m pytest -v
 
       - name: Install files via Makefile
         shell: pwsh
@@ -186,13 +186,13 @@ jobs:
         working-directory: ./validator
         shell: bash
         run: |
-          python3 -m pip install --upgrade pip
-          pip install jsonschema pyyaml pytest ruff
+          python -m pip install --upgrade pip
+          python -m pip install jsonschema pyyaml pytest ruff
 
       - name: Run tests
         working-directory: ./validator
         shell: bash
-        run: pytest -v
+        run: python -m pytest -v
 
       - name: Install files (Git Bash)
         shell: bash

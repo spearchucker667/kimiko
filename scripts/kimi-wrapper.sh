@@ -30,7 +30,13 @@ fi
 _filtered_args=()
 while [ $# -gt 0 ]; do
     case "$1" in
-        --agent-file) shift 2 ;;
+        --agent-file)
+            if [ $# -ge 2 ]; then
+                shift 2
+            else
+                shift
+            fi
+            ;;
         --agent-file=*) shift ;;
         *) _filtered_args+=("$1"); shift ;;
     esac

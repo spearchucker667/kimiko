@@ -37,10 +37,22 @@ class TestMakefileIntegration:
         assert (kimi / "validator" / "schemas" / "config-schema.json").exists()
         assert (kimi / "validator" / "tests" / "test_validator.py").exists()
         # Fixture files (BUG-013)
-        assert (kimi / "validator" / "tests" / "fixtures" / "bad-config-no-admin.toml").exists()
-        assert (kimi / "validator" / "tests" / "fixtures" / "bad-config-no-yolo.toml").exists()
-        assert (kimi / "validator" / "tests" / "fixtures" / "bad-mandate-missing-tools.yaml").exists()
-        assert (kimi / "validator" / "tests" / "fixtures" / "bad-mandate-no-zero-blockers.yaml").exists()
+        assert (
+            kimi / "validator" / "tests" / "fixtures" / "bad-config-no-admin.toml"
+        ).exists()
+        assert (
+            kimi / "validator" / "tests" / "fixtures" / "bad-config-no-yolo.toml"
+        ).exists()
+        assert (
+            kimi / "validator" / "tests" / "fixtures" / "bad-mandate-missing-tools.yaml"
+        ).exists()
+        assert (
+            kimi
+            / "validator"
+            / "tests"
+            / "fixtures"
+            / "bad-mandate-no-zero-blockers.yaml"
+        ).exists()
 
     def test_make_install_windows_creates_ps1_files(self, tmp_path):
         """Simulate Windows platform to verify .ps1 files are installed (BUG-005)."""
@@ -78,12 +90,17 @@ class TestMakefileIntegration:
         assert result.returncode == 0, result.stderr
 
         import json
+
         kimi_json = Path(tmp_path) / ".kimi" / "kimi.json"
         data = json.loads(kimi_json.read_text())
         # Normalize separators so Windows backslash paths match forward-slash paths
         paths = [str(Path(entry["path"])) for entry in data["work_dirs"]]
-        assert str(tmp_path) in paths, f"USERPROFILE path missing from kimi.json: {paths}"
-        assert str(tmp_path / ".kimi") in paths, f"USERPROFILE/.kimi path missing from kimi.json: {paths}"
+        assert str(tmp_path) in paths, (
+            f"USERPROFILE path missing from kimi.json: {paths}"
+        )
+        assert str(tmp_path / ".kimi") in paths, (
+            f"USERPROFILE/.kimi path missing from kimi.json: {paths}"
+        )
 
     def test_make_uninstall_preserves_credentials(self, tmp_path):
         env = os.environ.copy()

@@ -79,7 +79,10 @@ class TestConfigValidation:
         cfg = {
             "default_model": "kimi-code/kimi-for-coding",
             "providers": {
-                "managed:kimi-code": {"type": "kimi", "base_url": "https://api.kimi.com/coding/v1"}
+                "managed:kimi-code": {
+                    "type": "kimi",
+                    "base_url": "https://api.kimi.com/coding/v1",
+                }
             },
             "models": {
                 "kimi-code/kimi-for-coding": {
@@ -93,13 +96,20 @@ class TestConfigValidation:
         schema = load_schema("config-schema.json")
         valid, errors = validate_against_schema(cfg, schema, "test")
         assert not valid
-        assert any("model" in str(e.message) or "max_context_size" in str(e.message) for e in errors)
+        assert any(
+            "model" in str(e.message) or "max_context_size" in str(e.message)
+            for e in errors
+        )
 
     def test_crossref_missing_provider(self, tmp_path):
         cfg = {
             "default_model": "missing-model",
             "models": {
-                "missing-model": {"provider": "ghost", "model": "x", "max_context_size": 1}
+                "missing-model": {
+                    "provider": "ghost",
+                    "model": "x",
+                    "max_context_size": 1,
+                }
             },
             "providers": {},
             "loop_control": {"max_steps_per_turn": 1, "max_retries_per_step": 0},
@@ -156,7 +166,9 @@ class TestCredentialsValidation:
 
 
 class TestSecurityChecks:
-    @pytest.mark.skipif(sys.platform == "win32", reason="Unix permissions not applicable on Windows")
+    @pytest.mark.skipif(
+        sys.platform == "win32", reason="Unix permissions not applicable on Windows"
+    )
     def test_world_readable_file_flagged(self, tmp_path):
         f = tmp_path / "secret.json"
         f.write_text("{}")
@@ -165,7 +177,9 @@ class TestSecurityChecks:
         assert len(errs) == 1
         assert "too permissive" in errs[0]
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Unix permissions not applicable on Windows")
+    @pytest.mark.skipif(
+        sys.platform == "win32", reason="Unix permissions not applicable on Windows"
+    )
     def test_restrictive_file_passes(self, tmp_path):
         f = tmp_path / "secret.json"
         f.write_text("{}")
@@ -187,7 +201,7 @@ class TestSecurityChecks:
         assert "API key" in findings[0]
 
     def test_secret_scanning_clean(self):
-        text = "theme = \"dark\"\nshow_thinking_stream = true"
+        text = 'theme = "dark"\nshow_thinking_stream = true'
         findings = scan_for_secrets(text, Path("config.toml"))
         assert len(findings) == 0
 
@@ -201,7 +215,9 @@ class TestSecurityCommand:
         args = self._make_args(tmp_path)
         assert cmd_security(args) == 0
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Unix permissions not applicable on Windows")
+    @pytest.mark.skipif(
+        sys.platform == "win32", reason="Unix permissions not applicable on Windows"
+    )
     def test_security_finds_world_readable_creds(self, tmp_path):
         (tmp_path / "AGENTS.md").write_text("# Agents")
         creds_dir = tmp_path / "credentials"
@@ -229,7 +245,6 @@ class TestSecurityCommand:
         assert rc == 0
 
 
-
 class TestMandateValidation:
     def test_valid_mandate(self):
         data = {
@@ -239,7 +254,10 @@ class TestMandateValidation:
                 "designation": "Test",
                 "tools": ["kimi_cli.tools.shell:Shell"],
                 "authorized_settings": [
-                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+                    {
+                        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                        "threshold": "BLOCK_NONE",
+                    }
                 ],
             },
         }
@@ -257,6 +275,7 @@ class TestMandateValidation:
 class TestSchemaMetaValidation:
     def test_all_schemas_are_valid_draft202012(self):
         from jsonschema import Draft202012Validator
+
         for name in [
             "config-schema.json",
             "config-zero-blocker-schema.json",
@@ -286,8 +305,14 @@ class TestComplianceValidation:
             "authorizedSettings": [
                 {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
                 {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                {
+                    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    "threshold": "BLOCK_NONE",
+                },
+                {
+                    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    "threshold": "BLOCK_NONE",
+                },
                 {"category": "HARM_CATEGORY_UNSPECIFIED", "threshold": "BLOCK_NONE"},
                 {"category": "HARM_CATEGORY_MALWARE", "threshold": "BLOCK_NONE"},
                 {"category": "HARM_CATEGORY_MALICIOUS_CODE", "threshold": "BLOCK_NONE"},
@@ -318,12 +343,27 @@ class TestComplianceValidation:
                 },
                 "authorized_settings": [
                     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_UNSPECIFIED", "threshold": "BLOCK_NONE"},
+                    {
+                        "category": "HARM_CATEGORY_HATE_SPEECH",
+                        "threshold": "BLOCK_NONE",
+                    },
+                    {
+                        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        "threshold": "BLOCK_NONE",
+                    },
+                    {
+                        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                        "threshold": "BLOCK_NONE",
+                    },
+                    {
+                        "category": "HARM_CATEGORY_UNSPECIFIED",
+                        "threshold": "BLOCK_NONE",
+                    },
                     {"category": "HARM_CATEGORY_MALWARE", "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_MALICIOUS_CODE", "threshold": "BLOCK_NONE"},
+                    {
+                        "category": "HARM_CATEGORY_MALICIOUS_CODE",
+                        "threshold": "BLOCK_NONE",
+                    },
                     {"category": "ADMIN_MODE", "threshold": "BYPASS_ALL"},
                 ],
                 "mandate_enforcement": {
