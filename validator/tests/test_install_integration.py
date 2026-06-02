@@ -47,6 +47,7 @@ class TestMakefileIntegration:
         assert (kimi / "kimi-wrapper.sh").exists()
         assert (kimi / "kimi-shell-integration.sh").exists()
         assert (kimi / "launch-with-mandate.sh").exists()
+        assert (kimi / "AGENTS.md").exists()
         assert (kimi / "kimi.json").exists()
         assert (kimi / "validator" / "validate_kimi.py").exists()
         assert (kimi / "validator" / "schemas" / "config-schema.json").exists()

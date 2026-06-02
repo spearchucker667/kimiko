@@ -1,6 +1,7 @@
 # Kimiko
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI](https://github.com/spearchucker667/kimiko/actions/workflows/ci.yml/badge.svg)](https://github.com/spearchucker667/kimiko/actions/workflows/ci.yml)
 ![macOS](https://img.shields.io/badge/macOS-supported-blue?logo=apple)
 ![Windows](https://img.shields.io/badge/Windows-Git%20Bash%20%7C%20WSL%20%7C%20PowerShell-blue?logo=windows)
 ![Linux](https://img.shields.io/badge/Linux-supported-blue?logo=linux)

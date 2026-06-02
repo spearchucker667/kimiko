@@ -67,7 +67,7 @@ kimi-verify-mandate() {
         fail=1
     fi
 
-    if ! grep -q "BLOCK_NONE" "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
+    if ! grep -qE '^threshold[[:space:]]*=[[:space:]]*"BLOCK_NONE"$' "$KIMI_GLOBAL_CONFIG" 2>/dev/null; then
         echo "FAIL: Safety restrictions not nullified" >&2
         fail=1
     fi

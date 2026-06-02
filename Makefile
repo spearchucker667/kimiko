@@ -8,31 +8,31 @@ REPO_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PYTHON ?= $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python3)
 
 # ── Platform Detection ───────────────────────────────────────────────────────
-UNAME_S := $(shell uname -s 2>/dev/null || echo "")
-UNAME_R := $(shell uname -r 2>/dev/null || echo "")
-
-# Git Bash / MSYS / Cygwin must be detected BEFORE Windows_NT because
-# those environments set OS=Windows_NT but provide Unix tools.
-ifneq ($(findstring MINGW,$(UNAME_S)),)
-    PLATFORM := gitbash
-else ifneq ($(findstring MSYS,$(UNAME_S)),)
-    PLATFORM := gitbash
-else ifneq ($(findstring CYGWIN,$(UNAME_S)),)
-    PLATFORM := gitbash
-else ifeq ($(OS),Windows_NT)
+ifeq ($(OS),Windows_NT)
     PLATFORM := windows
-else ifeq ($(UNAME_S),Darwin)
-    PLATFORM := macos
-else ifeq ($(UNAME_S),Linux)
-    ifneq ($(findstring microsoft,$(UNAME_R)),)
-        PLATFORM := wsl
-    else ifneq ($(findstring WSL,$(UNAME_R)),)
-        PLATFORM := wsl
-    else
-        PLATFORM := linux
-    endif
 else
-    PLATFORM := unknown
+    UNAME_S := $(shell uname -s 2>/dev/null || echo "")
+    UNAME_R := $(shell uname -r 2>/dev/null || echo "")
+
+    ifneq ($(findstring MINGW,$(UNAME_S)),)
+        PLATFORM := gitbash
+    else ifneq ($(findstring MSYS,$(UNAME_S)),)
+        PLATFORM := gitbash
+    else ifneq ($(findstring CYGWIN,$(UNAME_S)),)
+        PLATFORM := gitbash
+    else ifeq ($(UNAME_S),Darwin)
+        PLATFORM := macos
+    else ifeq ($(UNAME_S),Linux)
+        ifneq ($(findstring microsoft,$(UNAME_R)),)
+            PLATFORM := wsl
+        else ifneq ($(findstring WSL,$(UNAME_R)),)
+            PLATFORM := wsl
+        else
+            PLATFORM := linux
+        endif
+    else
+        PLATFORM := unknown
+    endif
 endif
 
 # ── Home directory and install destination ───────────────────────────────────
@@ -50,7 +50,7 @@ endif
 
 DEST := $(HOME_DIR)/.kimi
 
-ifeq ($(PLATFORM),windows)
+ifeq ($(PLATFORM),$(filter $(PLATFORM),windows gitbash))
     WINDOWS_SCRIPTS := \
         $(DEST)/activate-mandate.ps1 \
         $(DEST)/kimi-wrapper.ps1 \
@@ -82,6 +82,7 @@ FLAT_TARGETS := \
     $(DEST)/kimi-wrapper.sh \
     $(DEST)/kimi-shell-integration.sh \
     $(DEST)/launch-with-mandate.sh \
+    $(DEST)/AGENTS.md \
     $(WINDOWS_SCRIPTS)
 
 # Validator files installed into ~/.kimi/validator/
@@ -240,6 +241,10 @@ ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
 	@chmod +x $@
 endif
 
+$(DEST)/AGENTS.md: $(REPO_ROOT)/docs/AGENTS.md
+	@mkdir -p $(dir $@)
+	cp -f $< $@
+
 # ── PowerShell Scripts (Windows) ─────────────────────────────────────────────
 $(DEST)/activate-mandate.ps1: $(REPO_ROOT)/scripts/activate-mandate.ps1
 	@mkdir -p $(dir $@)
@@ -265,7 +270,7 @@ $(DEST)/kimi.json: $(REPO_ROOT)/config/kimi.json.template
 	fi
 	@mkdir -p $(dir $@)
 	@tmp="$@.tmp.$$$$"; \
-	$(PYTHON) -c "src=open(r'$<','r',encoding='utf-8').read();home=r'$(HOME_DIR)'.replace(chr(92),chr(92)*2);open(r'$$tmp','w',encoding='utf-8').write(src.replace('<YOUR_HOME_DIR>',home))"; \
+	HOME_DIR="$(HOME_DIR)" $(PYTHON) -c "import json, os; src=open(r'$<','r',encoding='utf-8').read(); home=os.environ.get('HOME_DIR', ''); open(r'$$tmp','w',encoding='utf-8').write(src.replace('<YOUR_HOME_DIR>', json.dumps(home).strip('\"')))"; \
 	mv -f "$$tmp" "$@"
 
 # ── Validator Files ──────────────────────────────────────────────────────────
@@ -364,16 +369,32 @@ verify: install
 	else \
 		echo "  mandate-kimiko-agent.yaml references 'kimiko'"; \
 	fi; \
+	if [ ! -f "$(DEST)/AGENTS.md" ]; then \
+		echo "  missing: $(DEST)/AGENTS.md"; fail=1; \
+	else \
+		echo "  present: $(DEST)/AGENTS.md"; \
+	fi; \
 	if ! $(PYTHON) -c "import json; json.load(open(r'$(DEST)/kimi.json'))" 2>/dev/null; then \
 		echo "  kimi.json is not valid JSON"; fail=1; \
 	else \
 		echo "  kimi.json is valid JSON"; \
+	fi; \
+	if [ -f "$(DEST)/latest_version.txt" ]; then \
+		echo "  installed version: $$(cat $(DEST)/latest_version.txt)"; \
 	fi; \
 	if [ "$$fail" -eq 0 ]; then \
 		echo ""; echo "All verification checks passed."; \
 	else \
 		echo ""; echo "Verification failed."; exit 1; \
 	fi
+	@echo "Checking bash script syntax ..."
+	@for f in $(DEST)/*.sh; do \
+		if ! bash -n "$$f"; then \
+			echo "  syntax error: $$f"; exit 1; \
+		else \
+			echo "  OK: $$(basename $$f)"; \
+		fi; \
+	done
 ifeq ($(PLATFORM),windows)
 	@echo "Checking PowerShell script syntax ..."
 	@pwsh -Command "$$err=0; Get-ChildItem '$(DEST)\*.ps1' | ForEach-Object { try { $$null=[System.Management.Automation.PSParser]::Tokenize((Get-Content $$_.FullName -Raw),[ref]$$null); Write-Host ('  OK: ' + $$_.Name) } catch { Write-Host ('  FAIL: ' + $$_.Name); $$err=1 } }; exit $$err" 2>/dev/null || \

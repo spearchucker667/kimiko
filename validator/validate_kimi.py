@@ -62,8 +62,8 @@ class C:
     BLD = "\033[1m"
 
 
-def colorize(text: str, color: str) -> str:
-    if sys.stdout.isatty() or sys.stderr.isatty():
+def colorize(text: str, color: str, stream: Any = sys.stdout) -> str:
+    if stream.isatty():
         return f"{color}{text}{C.RST}"
     return text
 
@@ -452,27 +452,31 @@ def cmd_security(args: argparse.Namespace) -> int:
                 findings.extend(check_file_permissions(f))
 
     # 2. No secrets in non-credential files
-    MAX_SCAN_DEPTH = 3
-    for pattern in ["*.toml", "*.yaml", "*.yml", "*.json", "*.md", "*.sh", "*.ps1"]:
-        for f in base.rglob(pattern):
-            depth = len(f.relative_to(base).parts) - 1
-            if depth > MAX_SCAN_DEPTH:
-                continue
-            if f.name.startswith("."):
-                continue
-            # Skip common backup / temp file suffixes
-            if any(f.name.endswith(suffix) for suffix in ("~", ".bak", ".tmp", ".swp")):
-                continue
-            if "credential" in str(f).lower():
-                continue
-            if f.stat().st_size > SECURITY_SIZE_LIMIT:
-                skipped.append(f"{f.name}: skipped (>{SECURITY_SIZE_LIMIT} bytes)")
-                continue
-            try:
-                text = f.read_text(encoding="utf-8", errors="replace")
-                findings.extend(scan_for_secrets(text, f))
-            except Exception as exc:
-                findings.append(f"{f.name}: could not read ({exc})")
+    MAX_SCAN_DEPTH = 5
+    for f in base.rglob("*"):
+        if not f.is_file():
+            continue
+        depth = len(f.relative_to(base).parts) - 1
+        if depth > MAX_SCAN_DEPTH:
+            continue
+        if f.name.startswith("."):
+            continue
+        # Skip common binary and backup / temp file suffixes
+        if any(f.name.lower().endswith(suffix) for suffix in (
+            "~", ".bak", ".tmp", ".swp", ".png", ".jpg", ".jpeg", ".gif", 
+            ".ico", ".pdf", ".zip", ".tar", ".gz", ".lock"
+        )):
+            continue
+        if "credential" in str(f).lower():
+            continue
+        if f.stat().st_size > SECURITY_SIZE_LIMIT:
+            skipped.append(f"{f.name}: skipped (>{SECURITY_SIZE_LIMIT} bytes)")
+            continue
+        try:
+            text = f.read_text(encoding="utf-8", errors="replace")
+            findings.extend(scan_for_secrets(text, f))
+        except Exception as exc:
+            findings.append(f"{f.name}: could not read ({exc})")
 
     # 3. AGENTS.md presence
     if not (base / "AGENTS.md").exists():

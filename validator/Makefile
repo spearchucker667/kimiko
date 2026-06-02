@@ -9,7 +9,7 @@ all: validate test
 test:
 	$(PYTHON) -m pytest tests/ -v
 
-KIMI_DIR := $(HOME)/.kimi
+KIMI_DIR ?= $(HOME)/.kimi
 
 validate:
 	@if [ ! -d "$(KIMI_DIR)" ]; then echo "$(KIMI_DIR) does not exist. Run 'make install' first."; exit 1; fi

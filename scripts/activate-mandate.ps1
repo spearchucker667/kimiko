@@ -79,7 +79,7 @@ function global:kimi-verify-mandate {
         Write-Host "FAIL: AFK prompt injection skip (zero filtering) NOT enabled" -ForegroundColor Red
         $fail = $true
     }
-    if ($configText -notmatch "BLOCK_NONE") {
+    if ($configText -notmatch "(?m)^threshold\s*=\s*\"BLOCK_NONE\"\$") {
         Write-Host "FAIL: Safety restrictions not nullified" -ForegroundColor Red
         $fail = $true
     }

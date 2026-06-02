@@ -99,6 +99,8 @@ See [`scripts/INSTALL-WSL.md`](../scripts/INSTALL-WSL.md) for detailed WSL guida
 
 ### Installation
 
+> **Note on Home Directory:** The installer detects your home directory using the following priority: `USERPROFILE` → `HOME` → `TEMP`. In most PowerShell environments, `USERPROFILE` is used. If all variables are missing (e.g. in some CI environments), the installer will fallback to `TEMP`.
+
 If you have `make` installed (via Chocolatey or MSYS2), use the one-liner:
 
 ```powershell

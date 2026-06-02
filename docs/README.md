@@ -3,6 +3,7 @@
 > **Note:** This is the docs-local copy. The canonical README lives at the [repository root](../README.md).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE)
+[![CI](https://github.com/spearchucker667/kimiko/actions/workflows/ci.yml/badge.svg)](https://github.com/spearchucker667/kimiko/actions/workflows/ci.yml)
 ![macOS](https://img.shields.io/badge/macOS-supported-blue?logo=apple)
 ![Windows](https://img.shields.io/badge/Windows-Git%20Bash%20%7C%20WSL%20%7C%20PowerShell-blue?logo=windows)
 ![Linux](https://img.shields.io/badge/Linux-supported-blue?logo=linux)
@@ -171,13 +172,13 @@ kimiko/
 │   └── TROUBLESHOOTING.md      ← Platform-specific troubleshooting
 ├── scripts/
 │   ├── activate-mandate.sh
-│   ├── activate-mandate.ps1    ← PowerShell (NEW)
+│   ├── activate-mandate.ps1    ← PowerShell
 │   ├── kimi-wrapper.sh
-│   ├── kimi-wrapper.ps1        ← PowerShell (NEW)
+│   ├── kimi-wrapper.ps1        ← PowerShell
 │   ├── kimi-shell-integration.sh
-│   ├── kimi-shell-integration.ps1  ← PowerShell (NEW)
+│   ├── kimi-shell-integration.ps1  ← PowerShell
 │   ├── launch-with-mandate.sh
-│   ├── launch-with-mandate.ps1     ← PowerShell (NEW)
+│   ├── launch-with-mandate.ps1     ← PowerShell
 │   ├── INSTALL-GITBASH.md      ← Git Bash guide
 │   └── INSTALL-WSL.md          ← WSL guide
 ├── validator/
