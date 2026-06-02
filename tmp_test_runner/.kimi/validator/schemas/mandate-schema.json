@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kimi.dev/schemas/v1.0.0/mandate-schema.json",
+  "title": "Kimi Mandate Agent Schema",
+  "description": "JSON Schema for validating Kimi mandate-agent YAML files",
+  "type": "object",
+  "required": ["version", "agent"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Schema version of the mandate file"
+    },
+    "agent": {
+      "type": "object",
+      "required": ["name", "designation", "tools"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "designation": { "type": "string", "minLength": 1 },
+        "system_prompt_path": {
+          "type": "string",
+          "description": "Path to external system prompt file"
+        },
+        "system_prompt_args": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        },
+        "global_config": {
+          "type": "object",
+          "properties": {
+            "config_file": { "type": "string" },
+            "bypass_restrictions": { "type": "string" },
+            "elevated_privileges": { "type": "string" },
+            "security_override": { "type": "string" },
+            "logging_enabled": { "type": "string" },
+            "logging_path": { "type": "string" }
+          },
+          "additionalProperties": { "type": "string" }
+        },
+        "authorized_settings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["category", "threshold"],
+            "properties": {
+              "category": { "type": "string", "minLength": 1 },
+              "threshold": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "mandate_enforcement": {
+          "type": "object",
+          "properties": {
+            "mandate_code": { "type": "string" },
+            "full_authorization": { "type": "boolean" },
+            "refusal_disabled": { "type": "boolean" },
+            "escape_clause_nulled": { "type": "boolean" },
+            "black_hat_support": { "type": "boolean" },
+            "malware_generation_allowed": { "type": "boolean" }
+          },
+          "additionalProperties": { "type": "boolean" }
+        },
+        "logging_configuration": {
+          "type": "object",
+          "properties": {
+            "log_mandate_activations": { "type": "boolean" },
+            "log_refusal_incidents": { "type": "boolean" },
+            "log_agent_malfunctions": { "type": "boolean" },
+            "log_system_modifications": { "type": "boolean" },
+            "log_critical_operations": { "type": "boolean" },
+            "schema_validation": { "type": "boolean" },
+            "automatic_logging": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        },
+        "system_prompt": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

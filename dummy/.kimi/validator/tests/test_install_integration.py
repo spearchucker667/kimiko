@@ -2,7 +2,6 @@
 
 import os
 import subprocess
-import sys
 from pathlib import Path
 
 
@@ -10,24 +9,10 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 
 
 class TestMakefileIntegration:
-    def _safe_tmp(self, p: Path) -> Path:
-        """Use relative paths to avoid Windows drive letters breaking GNU Make parsing."""
-        try:
-            return p.relative_to(REPO_ROOT)
-        except ValueError:
-            # Fallback if tmp_path is not under REPO_ROOT (rare, but possible depending on pytest config)
-            # In CI, tests run inside the repo workspace, so relative_to works.
-            # If not, strip the drive letter directly.
-            if os.name == "nt" or sys.platform == "win32":
-                return Path(str(p).split(":", 1)[-1].lstrip("\\/"))
-            return p
-
     def test_make_install_creates_expected_files(self, tmp_path):
-        safe_tmp = self._safe_tmp(tmp_path)
-        safe_tmp.mkdir(parents=True, exist_ok=True)
         env = os.environ.copy()
-        env["HOME"] = str(safe_tmp)
-        env["USERPROFILE"] = str(safe_tmp)
+        env["HOME"] = str(tmp_path)
+        env["USERPROFILE"] = str(tmp_path)
         result = subprocess.run(
             ["make", "install"],
             cwd=REPO_ROOT,
@@ -37,7 +22,7 @@ class TestMakefileIntegration:
         )
         assert result.returncode == 0, result.stderr
 
-        kimi = safe_tmp / ".kimi"
+        kimi = tmp_path / ".kimi"
         assert (kimi / "config.toml").exists()
         assert (kimi / "kimi.toml").exists()
         assert (kimi / "mandate-agent.yaml").exists()
@@ -71,13 +56,11 @@ class TestMakefileIntegration:
 
     def test_make_install_windows_creates_ps1_files(self, tmp_path):
         """Simulate Windows platform to verify .ps1 files are installed (BUG-005)."""
-        safe_tmp = self._safe_tmp(tmp_path)
-        safe_tmp.mkdir(parents=True, exist_ok=True)
         env = os.environ.copy()
         env["OS"] = "Windows_NT"
-        env["USERPROFILE"] = str(safe_tmp)
+        env["USERPROFILE"] = str(tmp_path)
         if "HOME" not in env:
-            env["HOME"] = str(safe_tmp)
+            env["HOME"] = str(tmp_path)
         result = subprocess.run(
             ["make", "install"],
             cwd=REPO_ROOT,
@@ -87,7 +70,7 @@ class TestMakefileIntegration:
         )
         assert result.returncode == 0, result.stderr
 
-        kimi = Path(safe_tmp) / ".kimi"
+        kimi = Path(tmp_path) / ".kimi"
         assert (kimi / "activate-mandate.ps1").exists()
         assert (kimi / "kimi-wrapper.ps1").exists()
         assert (kimi / "kimi-shell-integration.ps1").exists()
@@ -95,15 +78,13 @@ class TestMakefileIntegration:
 
     def test_make_install_windows_uses_userprofile_when_home_unset(self, tmp_path):
         """Regression: on native Windows PowerShell HOME is unset; USERPROFILE must be used (BUG-020)."""
-        safe_tmp = self._safe_tmp(tmp_path)
-        safe_tmp.mkdir(parents=True, exist_ok=True)
         env = os.environ.copy()
         env["OS"] = "Windows_NT"
-        env["USERPROFILE"] = str(safe_tmp)
+        env["USERPROFILE"] = str(tmp_path)
         env.pop("HOME", None)  # Remove HOME to simulate native Windows
         # Ensure HOME_DIR fallback works by setting a temporary HOME
         if "HOME" not in env:
-            env["HOME"] = str(safe_tmp)
+            env["HOME"] = str(tmp_path)
         result = subprocess.run(
             ["make", "install"],
             cwd=REPO_ROOT,
@@ -115,23 +96,21 @@ class TestMakefileIntegration:
 
         import json
 
-        kimi_json = Path(safe_tmp) / ".kimi" / "kimi.json"
+        kimi_json = Path(tmp_path) / ".kimi" / "kimi.json"
         data = json.loads(kimi_json.read_text())
         # Normalize separators so Windows backslash paths match forward-slash paths
         paths = [str(Path(entry["path"])) for entry in data["work_dirs"]]
-        assert str(safe_tmp) in paths, (
+        assert str(tmp_path) in paths, (
             f"USERPROFILE path missing from kimi.json: {paths}"
         )
-        assert str(safe_tmp / ".kimi") in paths, (
+        assert str(tmp_path / ".kimi") in paths, (
             f"USERPROFILE/.kimi path missing from kimi.json: {paths}"
         )
 
     def test_make_uninstall_preserves_credentials(self, tmp_path):
-        safe_tmp = self._safe_tmp(tmp_path)
-        safe_tmp.mkdir(parents=True, exist_ok=True)
         env = os.environ.copy()
-        env["HOME"] = str(safe_tmp)
-        env["USERPROFILE"] = str(safe_tmp)
+        env["HOME"] = str(tmp_path)
+        env["USERPROFILE"] = str(tmp_path)
 
         # Install first
         install_result = subprocess.run(
@@ -143,7 +122,7 @@ class TestMakefileIntegration:
         )
         assert install_result.returncode == 0, install_result.stderr
 
-        kimi = safe_tmp / ".kimi"
+        kimi = tmp_path / ".kimi"
         credentials = kimi / "credentials"
         credentials.mkdir()
         (credentials / "fake.json").write_text("{}")
@@ -167,4 +146,3 @@ class TestMakefileIntegration:
         # User-created credentials directory must remain untouched
         assert credentials.exists()
         assert (credentials / "fake.json").exists()
-
