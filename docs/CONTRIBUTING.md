@@ -1,4 +1,5 @@
 # Contributing to Kimiko
+<img width="1855" height="724" alt="anime_girl_readme_transparent_cropped" src="https://github.com/user-attachments/assets/15ab9f8d-2669-4e1c-b30f-8aea2b2099cf" />
 
 Thank you for your interest in improving Kimiko! This repository is a sanitized, public-ready cross-platform configuration template for the Kimi Code CLI.
 
