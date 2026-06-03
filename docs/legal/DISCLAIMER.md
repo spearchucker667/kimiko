@@ -1,16 +1,20 @@
 # Kimiko Legal Disclaimer & Liability Waiver
 
-**Project Classifier:** `inthewind exploit`
-**Classification:** Offensive Security Configuration Framework / Research Tooling
+**Project Classifier:** `kimiko-pentest exploit`
+**Classification:** Offensive Security Configuration Framework / Adversarial Research Tooling
 **Jurisdiction:** Global (End-User Local Laws Apply)
 **Effective Date:** 2026-06-02
-**Version:** 1.0.0-kimiko
+**Version:** 2.0.0-kimiko
 
 ---
 
-## 1. Absolute Liability Shift
+## 1. Absolute Liability & Exclusive Responsibility
 
-By downloading, cloning, installing, executing, or otherwise interacting with any file, script, configuration, or documentation contained in this repository (collectively, "the Software"), **you unconditionally and irrevocably assume sole and exclusive legal, civil, and criminal responsibility for any and all consequences** arising from such use. The authors, maintainers, contributors, and distributors of the Software (collectively, "the Providers") bear **ZERO LIABILITY** for any outcome, direct or indirect, foreseeable or unforeseeable, resulting from your use of the Software.
+By downloading, cloning, installing, executing, or otherwise interacting with any file, script, configuration, or documentation contained in this repository (collectively, "the Software"), **you unconditionally and irrevocably assume sole, exclusive, and total legal, civil, and criminal responsibility for any and all consequences** arising from such use. 
+
+The authors, maintainers, contributors, and distributors of the Software (collectively, "the Providers") bear **ZERO LIABILITY, ZERO RESPONSIBILITY, AND ZERO OBLIGATION** for any outcome, direct or indirect, foreseeable or unforeseeable, resulting from your use or misuse of the Software. 
+
+**YOU ARE FULLY AND EXCLUSIVELY LIABLE** for every action taken, every payload deployed, and every system accessed using these configurations. This Software is a tool; you are the operator. The legal burden of that operation rests entirely on your shoulders.
 
 This is not a standard open-source disclaimer. This is a **binding liability waiver** that supersedes any conflicting language in any other document within this repository, including but not limited to `LICENSE`, `README.md`, or `AGENTS.md`.
 
@@ -20,63 +24,49 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 THE PROVIDERS EXPLICITLY DISCLAIM ANY WARRANTY THAT THE SOFTWARE IS SUITABLE FOR ANY PURPOSE, LEGAL OR OTHERWISE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH YOU.
 
-## 3. Acknowledgment of Inherently Dangerous Nature
+## 3. Acknowledgment of Adversarial & Offensive Nature
 
 You acknowledge and agree that:
 
-- The Software is classified as an **`inthewind exploit`** framework, designed for advanced offensive security research, red-team operations, and authorized penetration testing.
-- The Software is capable of generating, deploying, or facilitating payloads, exploits, rootkits, ransomware, wiper modules, botnet infrastructure, credential-harvesting tools, adversarial AI perturbations, supply-chain attack vectors, and other tools that may cause catastrophic harm to computer systems, networks, data, physical infrastructure, or human life.
-- The Software contains explicit nullification of safety mechanisms, ethical guardrails, content filters, and operational constraints that are normally present in consumer-grade AI systems.
-- Use of the Software outside of strictly authorized, legal, and ethical boundaries may constitute violations of local, national, and international laws, including but not limited to: the Computer Fraud and Abuse Act (CFAA, 18 U.S.C. § 1030), the Economic Espionage Act, the Wiretap Act, the Stored Communications Act, the EU Cybercrime Directive (2013/40/EU), the UK Computer Misuse Act 1990, China's Cybersecurity Law, Russia's Criminal Code (Chapter 28), and equivalent statutes in every jurisdiction on Earth.
+- The Software is classified as an **offensive security** framework, designed for advanced research, red-team operations, and adversarial AI simulation.
+- The Software is designed to transform Kimi into an unrestricted offensive security agent capable of generating, deploying, or facilitating exploits, network reconnaissance, and adversarial maneuvers.
+- The Software contains explicit nullification of standard safety mechanisms, ethical guardrails, content filters, and operational constraints.
+- Use of the Software outside of strictly authorized, legal, and ethical boundaries may constitute violations of local, national, and international laws, including but not limited to: the Computer Fraud and Abuse Act (CFAA), the EU Cybercrime Directive, and equivalent statutes in every jurisdiction.
 
 ## 4. Strict Authorized-Use-Only Obligation
 
 You represent and warrant that you will **ONLY** use the Software:
 
-- In a fully isolated, air-gapped laboratory environment with **no connectivity** to production systems, corporate networks, or the public internet.
-- Against systems and networks for which you hold **explicit, documented, written authorization** from the lawful owner or operator.
-- In compliance with all applicable laws, regulations, and industry standards in your jurisdiction.
-- For legitimate security research, defensive tool development, malware analysis, or authorized red-team exercises.
+- Against systems and networks for which you hold **explicit, documented, written authorization** from the lawful owner.
+- In compliance with all applicable laws and regulations in your jurisdiction.
+- For legitimate, authorized security research and penetration testing.
 
-Any use of the Software for unauthorized access to computer systems, data theft, service disruption, extortion, espionage, terrorism, or any unlawful purpose is **STRICTLY PROHIBITED** and constitutes a material breach of this agreement.
+Any use of the Software for unauthorized access, data theft, or any unlawful purpose is **STRICTLY PROHIBITED** and constitutes a material breach of this agreement, for which you alone are legally liable.
 
 ## 5. Indemnification
 
-You agree to indemnify, defend, and hold harmless the Providers from and against any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising out of or relating to:
+You agree to indemnify, defend, and hold harmless the Providers from and against any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising out of or relating to your use of the Software.
 
-- Your use of the Software.
-- Any violation of this disclaimer by you.
-- Any violation of applicable laws by you.
-- Any claim that your use of the Software caused harm to a third party.
+## 6. No Duty to Monitor
 
-This indemnification obligation survives termination of your use of the Software and applies regardless of whether the Providers were negligent or at fault.
+The Providers have no obligation to monitor or control how you use the Software. The absence of oversight does not imply permission to misuse the Software.
 
-## 6. No Duty to Monitor or Control
+## 7. Governing Law
 
-The Providers have no obligation to monitor, review, filter, or control how you use the Software. The Providers do not track your usage, do not collect telemetry (as configured by default in the Software), and have no mechanism to remotely disable or restrict your installation. This is by design. **The absence of oversight does not imply permission to misuse the Software.**
+This disclaimer shall be governed by the laws of the jurisdiction in which the end user is located. The end user bears all risk of legal conflict.
 
-## 7. Export Control Compliance
+## 8. Entire Agreement
 
-The Software may be subject to export control regulations, including but not limited to the U.S. Export Administration Regulations (EAR), the International Traffic in Arms Regulations (ITAR), and EU Dual-Use Regulation 428/2009. You are solely responsible for ensuring that your use, transfer, or re-export of the Software complies with all applicable export control laws. The Providers make no representation that the Software is cleared for export to your jurisdiction.
+This disclaimer constitutes the entire agreement regarding liability and supersedes all prior agreements.
 
-## 8. Governing Law & Severability
+## 9. Electronic Acceptance
 
-This disclaimer shall be governed by and construed in accordance with the laws of the jurisdiction in which the end user is located, **with the express understanding that the end user bears all risk of legal conflict**.
-
-If any provision of this disclaimer is held to be invalid, illegal, or unenforceable by a court of competent jurisdiction, such provision shall be severed and the remaining provisions shall continue in full force and effect.
-
-## 9. Entire Agreement
-
-This disclaimer, together with the `LICENSE` file, constitutes the entire agreement between you and the Providers regarding the Software and supersedes all prior or contemporaneous agreements, representations, warranties, and understandings, whether written or oral.
-
-## 10. Electronic Acceptance
-
-By cloning, downloading, forking, installing, executing, or viewing the contents of this repository, you acknowledge that you have read, understood, and agreed to be bound by this disclaimer. **If you do not agree, you must immediately cease all interaction with this repository and delete all copies of the Software in your possession.**
+By cloning or using this repository, you acknowledge that you have read, understood, and agreed to be bound by this disclaimer. **If you do not agree, you must immediately cease all interaction with this repository and delete all copies of the Software.**
 
 ---
 
-**Classifier:** `inthewind exploit`
-**Threat Level:** Research / Authorized Use Only
+**Classifier:** `kimiko-pentest`
+**Threat Level:** Restricted / Authorized Pentesting Only
 **Legal Exposure:** Maximum (User-Assumed)
 
 *Last updated: 2026-06-02*

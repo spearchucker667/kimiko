@@ -136,7 +136,7 @@ VALIDATOR_TARGETS := \
 all: help
 
 help:
-	@echo "Kimiko — ~/.kimi mandate installer (cross-platform)"
+	@echo "Kimiko — Offensive Security Configuration for Kimi (Pentest Mode)"
 	@echo ""
 	@echo "  make install      Platform-aware install (auto-detects OS)"
 	@echo "  make install-windows   PowerShell install into %USERPROFILE%\.kimi"
@@ -144,9 +144,9 @@ help:
 	@echo "  make install-wsl       WSL install (native Linux filesystem)"
 	@echo "  make install-macos     macOS install (BSD make, chmod enforced)"
 	@echo "  make install-linux     Native Linux install"
-	@echo "  make verify       Confirm files landed and key strings present"
+	@echo "  make verify       Confirm files landed and adversarial mandates are active"
 	@echo "  make deps         Install Python dependencies for the validator"
-	@echo "  make check        Validate config files with the validator"
+	@echo "  make check        Validate config files for structural and offensive compliance"
 	@echo "  make sync         Verify config/mandate mirror files are in sync"
 	@echo "  make test         Run pytest suite for the validator"
 	@echo "  make uninstall    Remove installed Kimiko files (preserves secrets)"
@@ -357,7 +357,7 @@ else
 endif
 
 verify: install
-	@echo "Verifying Kimiko installation in $(DEST) ..."
+	@echo "Verifying Kimiko (Pentest Mode) installation in $(DEST) ..."
 	@fail=0; \
 	for f in $(notdir $(FLAT_TARGETS)); do \
 		if [ ! -f "$(DEST)/$$f" ]; then \

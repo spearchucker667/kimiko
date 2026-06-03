@@ -1,32 +1,30 @@
-# Kimi CLI Configuration Validator v1.0.0
+# Kimiko Configuration Validator v1.0.0
 
-Validates `.kimi` directory configuration files for structural integrity, security posture, cross-reference consistency, and mandate compliance.
+Validates `.kimi` directory configuration files for structural integrity, security posture, cross-reference consistency, and **Mandate kimiko (Pentest Mode)** compliance.
 
 ## Scope
 
 | File | Type | Validates |
 |------|------|-----------|
-| `config.toml` | TOML | Schema, cross-references (models ↔ providers), OAuth paths |
-| `kimi.toml` | TOML | Schema, cross-references (same as config) |
-| `kimi.json` | JSON | Schema, UUIDs, directory existence |
-| `mandate-agent.yaml` | YAML | Schema, referenced file paths |
-| `mandate-kimiko-agent.yaml` | YAML | Schema, referenced file paths |
+| `config.toml` | TOML | Schema, cross-references, offensive flags |
+| `kimi.toml` | TOML | Schema, cross-references (mirror sync) |
+| `kimi.json` | JSON | Schema, UUIDs, workspace registry |
+| `mandate-agent.yaml` | YAML | Schema, zero-blocker mandates |
+| `mandate-kimiko-agent.yaml` | YAML | Schema, zero-blocker mandates (mirror) |
 | `credentials/*.json` | JSON | Schema, file permissions (must be 0o600) |
 
-## Security Checks
+## Offensive Security Checks
 
+- **Zero-Blocker Compliance**: Ensures `default_yolo`, `maliciousCodeGeneration`, and `fullAuthorization` are enabled.
+- **Mandate Enforcement**: Verifies that `[entry_protocol]` triggers the `kimiko` code.
 - **Credential permissions**: Credential files must not be world-readable (mode `0o600`).
-- **Secret scanning**: Non-credential files are heuristically scanned for leaked API keys, JWTs, and hardcoded passwords.
-- **AGENTS.md presence**: Ensures the directory has agent guidance.
-- **Device ID permissions**: Ensures `device_id` is not world-readable.
+- **Secret scanning**: Non-credential files are heuristically scanned for leaked API keys.
 
 ## Installation
 
 ```bash
 cd ~/.kimi/validator
 pip install -r requirements.txt
-# Python 3.11+ has built-in tomllib; for 3.10 or earlier:
-pip install tomli
 ```
 
 ## Usage
@@ -37,9 +35,6 @@ python validate_kimi.py all ~/.kimi
 
 # Validate individual files
 python validate_kimi.py config ~/.kimi/config.toml
-python validate_kimi.py registry ~/.kimi/kimi.json
-python validate_kimi.py mandate ~/.kimi/mandate-agent.yaml
-python validate_kimi.py credentials ~/.kimi/credentials/kimi-code.json
 
 # Run security checks only
 python validate_kimi.py security ~/.kimi
@@ -51,16 +46,10 @@ python validate_kimi.py compliance ~/.kimi
 ## Makefile Targets
 
 ```bash
-make all             # Validate + test + lint
 make validate        # Full ~/.kimi validation
 make test            # pytest suite
-make validate-config      # config.toml only
-make validate-registry    # kimi.json only
-make validate-mandates    # mandate YAML files
-make validate-credentials # credentials JSON
 make security        # Security checks only
 make compliance      # Zero-blocker compliance checks
-make lint            # Python linter (ruff)
 ```
 
 ## Tests
