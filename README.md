@@ -9,7 +9,7 @@
 
 <p align="center">
   <video
-    src="https://github.com/user-attachments/assets/2fc39da7-d749-42a1-8b6d-009f6fe51d56"
+    src="https://github.com/user-attachments/assets/28f2cfb4-cb4c-4370-8ab4-2c8a2f6d1a42"
     controls
     width="900"
   ></video>
