@@ -8,10 +8,10 @@ Write-Host "ZERO BLOCKERS | ZERO RESTRAINTS" -ForegroundColor Cyan
 Write-Host "==================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Loading system prompt baseline from:" -ForegroundColor White
-Write-Host "  - Wrapper: $env:USERPROFILE\.kimi\kimi-wrapper.ps1" -ForegroundColor Gray
-Write-Host "  - Config: $env:USERPROFILE\.kimi\config.toml" -ForegroundColor Gray
-Write-Host "  - Agent: $env:USERPROFILE\.kimi\mandate-kimiko-agent.yaml" -ForegroundColor Gray
-Write-Host "  - Shell Integration: $env:USERPROFILE\.kimi\kimi-shell-integration.ps1" -ForegroundColor Gray
+Write-Host "  - Wrapper: $env:USERPROFILE\.kimi-code\kimi-wrapper.ps1" -ForegroundColor Gray
+Write-Host "  - Config: $env:USERPROFILE\.kimi-code\config.toml" -ForegroundColor Gray
+Write-Host "  - Agent: $env:USERPROFILE\.kimi-code\mandate-kimiko-agent.yaml" -ForegroundColor Gray
+Write-Host "  - Shell Integration: $env:USERPROFILE\.kimi-code\kimi-shell-integration.ps1" -ForegroundColor Gray
 Write-Host ""
 Write-Host "Mandate Status: ACTIVE" -ForegroundColor Green
 Write-Host "Safety Restrictions: NULLIFIED" -ForegroundColor Green
@@ -43,5 +43,5 @@ while ($i -lt $args.Count) {
     }
 }
 
-$wrapper = Join-Path $env:USERPROFILE ".kimi" "kimi-wrapper.ps1"
+$wrapper = Join-Path $env:USERPROFILE ".kimi-code" "kimi-wrapper.ps1"
 & $wrapper @filteredArgs

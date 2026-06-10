@@ -1,4 +1,4 @@
-# Kimiko — Cross-platform installer for the ~/.kimi mandate configuration
+# Kimiko — Cross-platform installer for the ~/.kimi-code mandate configuration
 # Platforms: macOS, Linux, WSL, Git Bash (MINGW), PowerShell (Windows)
 # Targets: install, verify, uninstall, help
 
@@ -70,12 +70,12 @@ else
 endif
 
 ifeq ($(PLATFORM),windows)
-    DEST_ABS := $(HOME_DIR)/.kimi
+    DEST_ABS := $(HOME_DIR)/.kimi-code
     # Convert to relative path to prevent Windows drive letter colons from breaking Make parsing.
     # Fallback to absolute path if python command fails or paths are on different drives.
     DEST := $(shell $(PYTHON) -c "import os; print(os.path.relpath(r'$(DEST_ABS)', r'$(REPO_ROOT)').replace('\\\\', '/'))" 2>/dev/null || echo "$(DEST_ABS)")
 else
-    DEST := $(HOME_DIR)/.kimi
+    DEST := $(HOME_DIR)/.kimi-code
 endif
 
 ifeq ($(PLATFORM),$(filter $(PLATFORM),windows gitbash))
@@ -99,7 +99,7 @@ ifeq ($(PLATFORM),linux)
     endif
 endif
 
-# All flat files installed directly into ~/.kimi
+# All flat files installed directly into ~/.kimi-code
 FLAT_TARGETS := \
     $(DEST)/config.toml \
     $(DEST)/kimi.toml \
@@ -113,7 +113,7 @@ FLAT_TARGETS := \
     $(DEST)/AGENTS.md \
     $(WINDOWS_SCRIPTS)
 
-# Validator files installed into ~/.kimi/validator/
+# Validator files installed into ~/.kimi-code/validator/
 VALIDATOR_TARGETS := \
     $(DEST)/validator/Makefile \
     $(DEST)/validator/README.md \
@@ -139,7 +139,7 @@ help:
 	@echo "Kimiko — Offensive Security Configuration for Kimi (Pentest Mode)"
 	@echo ""
 	@echo "  make install      Platform-aware install (auto-detects OS)"
-	@echo "  make install-windows   PowerShell install into %USERPROFILE%\.kimi"
+	@echo "  make install-windows   PowerShell install into %USERPROFILE%\.kimi-code"
 	@echo "  make install-gitbash   Git Bash install (chmod is no-op on NTFS)"
 	@echo "  make install-wsl       WSL install (native Linux filesystem)"
 	@echo "  make install-macos     macOS install (BSD make, chmod enforced)"
@@ -326,7 +326,7 @@ check: deps
 ifeq ($(PLATFORM),windows)
 	@echo "The 'check' target requires a Unix-like environment (Git Bash, WSL, or MSYS2)."
 	@echo "On Windows with PowerShell, run the validator directly:"
-	@echo "  cd validator; python validate_kimi.py all %USERPROFILE%\.kimi"
+	@echo "  cd validator; python validate_kimi.py all %USERPROFILE%\.kimi-code"
 	@exit 1
 else
 	@echo "Running validator checks ..."
@@ -424,20 +424,20 @@ ifeq ($(PLATFORM),windows)
 	@echo "Windows ACL Guidance"
 	@echo "===================="
 	@echo "Windows NTFS does not support Unix-style chmod permissions."
-	@echo "To secure your ~/.kimi files on Windows:"
+	@echo "To secure your ~/.kimi-code files on Windows:"
 	@echo ""
-	@echo "  1. Right-click the ~/.kimi folder → Properties → Security tab"
+	@echo "  1. Right-click the ~/.kimi-code folder → Properties → Security tab"
 	@echo "  2. Click Advanced → Disable inheritance → Remove all inherited permissions"
 	@echo "  3. Add only your user account with Full Control"
 	@echo "  4. Apply to 'This folder, subfolders and files'"
 	@echo ""
 	@echo "Or use PowerShell (run as Administrator):"
-	@echo "  icacls %USERPROFILE%\.kimi /inheritance:r"
-	@echo "  icacls %USERPROFILE%\.kimi /grant:r %USERNAME%:(OI)(CI)F"
+	@echo "  icacls %USERPROFILE%\.kimi-code /inheritance:r"
+	@echo "  icacls %USERPROFILE%\.kimi-code /grant:r %USERNAME%:(OI)(CI)F"
 else ifeq ($(PLATFORM),gitbash)
 	@echo "Git Bash chmod is emulated on NTFS and does not enforce actual permissions."
 	@echo "See 'make permissions' on a native Windows shell for ACL guidance."
 else
 	@echo "Unix permissions are enforced by the filesystem on this platform."
-	@echo "Run 'ls -la ~/.kimi' to verify."
+	@echo "Run 'ls -la ~/.kimi-code' to verify."
 endif

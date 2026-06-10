@@ -20,7 +20,7 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 
 @pytest.fixture
 def test_dir(tmp_path):
-    kimi_dir = tmp_path / ".kimi"
+    kimi_dir = tmp_path / ".kimi-code"
     kimi_dir.mkdir()
     config = kimi_dir / "config.toml"
     return kimi_dir, config

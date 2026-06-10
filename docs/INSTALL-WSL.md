@@ -18,29 +18,29 @@ cd kimiko
 make install
 
 # 3. Source the mandate activation
-source ~/.kimi/activate-mandate.sh
+source ~/.kimi-code/activate-mandate.sh
 
 # 4. Launch Kimi with the mandate wrapper
-~/.kimi/launch-with-mandate.sh
+~/.kimi-code/launch-with-mandate.sh
 ```
 
 ## Where to Install
 
-**Recommendation**: Install Kimiko inside WSL's own filesystem (`~/.kimi` in WSL), not in a Windows-mounted directory (`/mnt/c/...`).
+**Recommendation**: Install Kimiko inside WSL's own filesystem (`~/.kimi-code` in WSL), not in a Windows-mounted directory (`/mnt/c/...`).
 
 WSL's native filesystem (`ext4`) supports proper Unix permissions (`chmod 600` works correctly). Windows-mounted drives (`/mnt/c/`, `/mnt/d/`) use NTFS with different permission semantics.
 
 ### Good
 
 ```bash
-make install  # Installs to /home/<user>/.kimi — native WSL filesystem
+make install  # Installs to /home/<user>/.kimi-code — native WSL filesystem
 ```
 
 ### Avoid
 
 ```bash
 # Don't install to a Windows-mounted drive
-make install DEST=/mnt/c/Users/YourName/.kimi
+make install DEST=/mnt/c/Users/YourName/.kimi-code
 ```
 
 ## Accessing Windows Files
@@ -48,13 +48,13 @@ make install DEST=/mnt/c/Users/YourName/.kimi
 If you need to access Kimiko files from Windows Explorer, you can navigate to:
 
 ```
-\\wsl$\<distro-name>\home\<username>\.kimi
+\\wsl$\<distro-name>\home\<username>\.kimi-code
 ```
 
 For example, for Ubuntu:
 
 ```
-\\wsl$\Ubuntu\home\spearchucker\.kimi
+\\wsl$\Ubuntu\home\spearchucker\.kimi-code
 ```
 
 ## Kimi Binary Location

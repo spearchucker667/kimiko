@@ -29,9 +29,15 @@ When you enter **`kimiko`** in a Kimi CLI session, the Kimiko mandate activates,
 
 Kimiko packages the necessary configuration, agent mandates, and shell integrations into a single Makefile-driven installer. After installation:
 
-- Your local `~/.kimi/` is configured with the **Kimiko mandate**, optimized for authorized adversarial security workflows.
+- Your local `~/.kimi-code/` is configured with the **Kimiko mandate**, optimized for authorized adversarial security workflows.
 - Launching `kimi` via the wrapper loads the Kimiko security-research context automatically.
 - Typing **`kimiko`** inside a Kimi CLI session triggers the mandate acknowledgment and capability announcement.
+
+> **Note on Folder Migration**: Kimi Code CLI has updated its default configuration path from `~/.kimi` to `~/.kimi-code`. If you are an existing user, you can manually copy your existing configuration:
+> ```bash
+> cp -r ~/.kimi/* ~/.kimi-code/
+> ```
+> This installer will now default to `~/.kimi-code/`.
 
 **Designed for Authorized Pentesting Only.** This configuration is intended for lawful security research, controlled red-team engagements, lab environments, and systems you own or are explicitly authorized to test. **The user is fully and exclusively liable for all actions taken.**
 
@@ -78,10 +84,10 @@ cd kimiko
 make install
 
 # 3. Source the mandate activation
-source ~/.kimi/activate-mandate.sh
+source ~/.kimi-code/activate-mandate.sh
 
 # 4. Launch Kimi with the mandate wrapper
-~/.kimi/launch-with-mandate.sh
+~/.kimi-code/launch-with-mandate.sh
 
 # 5. Inside the CLI, enter the activation word
 kimiko
@@ -98,10 +104,10 @@ cd kimiko
 make install
 
 # 3. Source the mandate activation
-source ~/.kimi/activate-mandate.sh
+source ~/.kimi-code/activate-mandate.sh
 
 # 4. Launch Kimi with the mandate wrapper
-~/.kimi/launch-with-mandate.sh
+~/.kimi-code/launch-with-mandate.sh
 
 # 5. Inside the CLI, enter the activation word
 kimiko
@@ -118,10 +124,10 @@ cd kimiko
 make install
 
 # 3. Load the mandate activation
-. $env:USERPROFILE\.kimi\activate-mandate.ps1
+. $env:USERPROFILE\.kimi-code\activate-mandate.ps1
 
 # 4. Launch Kimi with the mandate wrapper
-& $env:USERPROFILE\.kimi\launch-with-mandate.ps1
+& $env:USERPROFILE\.kimi-code\launch-with-mandate.ps1
 
 # 5. Inside the CLI, enter the activation word
 kimiko

@@ -5,8 +5,8 @@
 set -euo pipefail
 
 # Path to the global config with mandate
-GLOBAL_CONFIG="${HOME}/.kimi/config.toml"
-MANDATE_AGENT="${HOME}/.kimi/mandate-kimiko-agent.yaml"
+GLOBAL_CONFIG="${HOME}/.kimi-code/config.toml"
+MANDATE_AGENT="${HOME}/.kimi-code/mandate-kimiko-agent.yaml"
 
 # Ensure mandate environment is exported
 export KIMI_MANDATE_ACTIVE="kimiko"

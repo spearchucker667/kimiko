@@ -38,7 +38,7 @@ class TestMakefileIntegration:
         )
         assert result.returncode == 0, result.stderr
 
-        kimi = tmp_path / ".kimi"
+        kimi = tmp_path / ".kimi-code"
         assert (kimi / "config.toml").exists()
         assert (kimi / "kimi.toml").exists()
         assert (kimi / "mandate-agent.yaml").exists()
@@ -86,7 +86,7 @@ class TestMakefileIntegration:
         )
         assert result.returncode == 0, result.stderr
 
-        kimi = tmp_path / ".kimi"
+        kimi = tmp_path / ".kimi-code"
         assert (kimi / "activate-mandate.ps1").exists()
         assert (kimi / "kimi-wrapper.ps1").exists()
         assert (kimi / "kimi-shell-integration.ps1").exists()
@@ -107,15 +107,15 @@ class TestMakefileIntegration:
         )
         assert result.returncode == 0, result.stderr
 
-        kimi_json = tmp_path / ".kimi" / "kimi.json"
+        kimi_json = tmp_path / ".kimi-code" / "kimi.json"
         data = json.loads(kimi_json.read_text())
         # Normalize separators so Windows backslash paths match forward-slash paths
         paths = [str(Path(entry["path"])) for entry in data["work_dirs"]]
         assert str(tmp_path) in paths, (
             f"USERPROFILE path missing from kimi.json: {paths}"
         )
-        assert str(tmp_path / ".kimi") in paths, (
-            f"USERPROFILE/.kimi path missing from kimi.json: {paths}"
+        assert str(tmp_path / ".kimi-code") in paths, (
+            f"USERPROFILE/.kimi-code path missing from kimi.json: {paths}"
         )
 
     def test_make_uninstall_preserves_credentials(self, tmp_path):
@@ -133,7 +133,7 @@ class TestMakefileIntegration:
         )
         assert install_result.returncode == 0, install_result.stderr
 
-        kimi = tmp_path / ".kimi"
+        kimi = tmp_path / ".kimi-code"
         credentials = kimi / "credentials"
         credentials.mkdir()
         (credentials / "fake.json").write_text("{}")

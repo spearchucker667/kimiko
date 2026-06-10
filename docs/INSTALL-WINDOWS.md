@@ -2,6 +2,15 @@
 
 Kimiko supports three Windows environments: **Git Bash**, **WSL**, and **PowerShell**. Choose the one that matches your workflow.
 
+> **Note on Folder Migration**: Kimi Code CLI has updated its default configuration path from `~/.kimi` to `~/.kimi-code`. Existing users can manually copy their configuration:
+> ```powershell
+> # PowerShell
+> Copy-Item -Path "$env:USERPROFILE\.kimi\*" -Destination "$env:USERPROFILE\.kimi-code\" -Recurse -Force
+> 
+> # Git Bash / WSL
+> cp -r ~/.kimi/* ~/.kimi-code/
+> ```
+
 ---
 
 ## Quick Comparison
@@ -9,7 +18,7 @@ Kimiko supports three Windows environments: **Git Bash**, **WSL**, and **PowerSh
 | Environment | Best For | Permissions | Shell Scripts |
 |---|---|---|---|
 | **Git Bash** | Users who already use Git for Windows | Emulated (`chmod` no-op) | `.sh` (mostly work) |
-| **WSL** | Developers who want native Linux behavior | Real (`chmod` works) | `.sh` (fully compatible) |
+| **WSL** | Developers who want native Linux behavior | Real (`chmod = works) | `.sh` (fully compatible) |
 | **PowerShell** | Native Windows users, sysadmins | ACL-based | `.ps1` (native) |
 
 ---
@@ -33,16 +42,16 @@ cd kimiko
 make install
 
 # 3. Source the mandate activation
-source ~/.kimi/activate-mandate.sh
+source ~/.kimi-code/activate-mandate.sh
 
 # 4. Launch Kimi with the mandate wrapper
-~/.kimi/launch-with-mandate.sh
+~/.kimi-code/launch-with-mandate.sh
 ```
 
 ### Important Notes
 
 - **File permissions**: `chmod` is emulated on NTFS and does not enforce actual ACLs. See `make permissions` for Windows ACL guidance.
-- **Line endings**: If you cloned with `core.autocrlf=true`, run `dos2unix ~/.kimi/*.sh` to fix line endings.
+- **Line endings**: If you cloned with `core.autocrlf=true`, run `dos2unix ~/.kimi-code/*.sh` to fix line endings.
 - **Paths**: `$HOME` resolves to `/c/Users/YourName` in Git Bash.
 
 See [`docs/INSTALL-GITBASH.md`](../docs/INSTALL-GITBASH.md) for detailed Git Bash-specific guidance.
@@ -67,22 +76,22 @@ cd kimiko
 make install
 
 # 3. Source the mandate activation
-source ~/.kimi/activate-mandate.sh
+source ~/.kimi-code/activate-mandate.sh
 
 # 4. Launch Kimi with the mandate wrapper
-~/.kimi/launch-with-mandate.sh
+~/.kimi-code/launch-with-mandate.sh
 ```
 
 ### Why WSL is Recommended
 
 - **Real Unix permissions**: `chmod 600` works correctly on WSL's `ext4` filesystem.
 - **Full compatibility**: All `.sh` scripts, Makefile targets, and validator tests work without modification.
-- **No path translation issues**: Install in WSL home (`~/.kimi`), not a Windows-mounted drive.
+- **No path translation issues**: Install in WSL home (`~/.kimi-code`), not a Windows-mounted drive.
 
 ### Accessing WSL Files from Windows
 
 ```
-\\wsl$\Ubuntu\home\<username>\.kimi
+\\wsl$\Ubuntu\home\<username>\.kimi-code
 ```
 
 See [`docs/INSTALL-WSL.md`](../docs/INSTALL-WSL.md) for detailed WSL guidance.
@@ -114,42 +123,42 @@ If you do **not** have `make`, perform the manual steps below:
 git clone https://github.com/spearchucker667/kimiko.git
 cd kimiko
 
-# 2. Create the .kimi directory
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.kimi"
+# 2. Create the .kimi-code directory
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.kimi-code"
 
 # 3. Copy config files
-Copy-Item -Path "config\*" -Destination "$env:USERPROFILE\.kimi" -Recurse -Force
+Copy-Item -Path "config\*" -Destination "$env:USERPROFILE\.kimi-code" -Recurse -Force
 
 # 4. Copy PowerShell scripts
-Copy-Item -Path "scripts\*.ps1" -Destination "$env:USERPROFILE\.kimi" -Force
+Copy-Item -Path "scripts\*.ps1" -Destination "$env:USERPROFILE\.kimi-code" -Force
 
 # 5. Copy validator
-Copy-Item -Path "validator" -Destination "$env:USERPROFILE\.kimi" -Recurse -Force
+Copy-Item -Path "validator" -Destination "$env:USERPROFILE\.kimi-code" -Recurse -Force
 
 # 6. Render kimi.json from template
 $template = Get-Content "config\kimi.json.template" -Raw
 $template = $template.Replace("<YOUR_HOME_DIR>", $env:USERPROFILE.Replace("\", "/"))
-$template | Set-Content "$env:USERPROFILE\.kimi\kimi.json" -NoNewline
+$template | Set-Content "$env:USERPROFILE\.kimi-code\kimi.json" -NoNewline
 ```
 
 ### Activation
 
 ```powershell
 # Load the mandate in the current session
-. $env:USERPROFILE\.kimi\activate-mandate.ps1
+. $env:USERPROFILE\.kimi-code\activate-mandate.ps1
 
 # Or add to your PowerShell profile for permanent activation
-Add-Content $PROFILE ". `$env:USERPROFILE\.kimi\kimi-shell-integration.ps1"
+Add-Content $PROFILE ". `$env:USERPROFILE\.kimi-code\kimi-shell-integration.ps1"
 ```
 
 ### Launch
 
 ```powershell
 # Quick launcher with status banner
-& $env:USERPROFILE\.kimi\launch-with-mandate.ps1
+& $env:USERPROFILE\.kimi-code\launch-with-mandate.ps1
 
 # Or directly via wrapper
-& $env:USERPROFILE\.kimi\kimi-wrapper.ps1
+& $env:USERPROFILE\.kimi-code\kimi-wrapper.ps1
 ```
 
 ### Important Notes
@@ -176,17 +185,17 @@ make verify
 # Verify files exist
 $files = @("config.toml", "kimi.toml", "mandate-agent.yaml", "mandate-kimiko-agent.yaml", "activate-mandate.ps1")
 foreach ($f in $files) {
-    $path = Join-Path $env:USERPROFILE ".kimi" $f
+    $path = Join-Path $env:USERPROFILE ".kimi-code" $f
     if (Test-Path $path) { Write-Host "OK: $f" } else { Write-Host "MISSING: $f" }
 }
 
 # Verify JSON valid
-$json = Get-Content "$env:USERPROFILE\.kimi\kimi.json" -Raw
+$json = Get-Content "$env:USERPROFILE\.kimi-code\kimi.json" -Raw
 $null = $json | ConvertFrom-Json
 Write-Host "kimi.json: valid JSON"
 
 # Verify kimiko references
-$config = Get-Content "$env:USERPROFILE\.kimi\config.toml" -Raw
+$config = Get-Content "$env:USERPROFILE\.kimi-code\config.toml" -Raw
 if ($config -match "kimiko") { Write-Host "config.toml: references kimiko" }
 ```
 

@@ -19,10 +19,10 @@ cd kimiko
 make install
 
 # 3. Source the mandate activation
-source ~/.kimi/activate-mandate.sh
+source ~/.kimi-code/activate-mandate.sh
 
 # 4. Launch Kimi with the mandate wrapper
-~/.kimi/launch-with-mandate.sh
+~/.kimi-code/launch-with-mandate.sh
 ```
 
 ## Important Caveats
@@ -31,7 +31,7 @@ source ~/.kimi/activate-mandate.sh
 
 Git Bash runs on Windows with an NTFS filesystem. The `chmod` command is **emulated** and does not actually change NTFS ACLs. The Makefile will run `chmod` without error, but the permissions are not enforced by the filesystem.
 
-**Recommendation**: If you store sensitive files in `~/.kimi/`, ensure your Windows user account is the only one with access. You can verify this in File Explorer → Properties → Security tab.
+**Recommendation**: If you store sensitive files in `~/.kimi-code/`, ensure your Windows user account is the only one with access. You can verify this in File Explorer → Properties → Security tab.
 
 ### Path Quirks
 
@@ -46,7 +46,7 @@ This is usually transparent, but be aware if you manually edit paths.
 If you clone with `core.autocrlf=true`, shell scripts may get Windows line endings (`CRLF`). This can break Bash scripts. To fix:
 
 ```bash
-dos2unix ~/.kimi/*.sh
+dos2unix ~/.kimi-code/*.sh
 ```
 
 Or configure Git to preserve line endings for this repo:

@@ -9,7 +9,7 @@ all: validate test
 test:
 	$(PYTHON) -m pytest tests/ -v
 
-KIMI_DIR ?= $(HOME)/.kimi
+KIMI_DIR ?= $(HOME)/.kimi-code
 
 validate:
 	@if [ ! -d "$(KIMI_DIR)" ]; then echo "$(KIMI_DIR) does not exist. Run 'make install' first."; exit 1; fi
@@ -46,7 +46,7 @@ lint:
 help:
 	@echo "Kimi CLI Configuration Validator"
 	@echo "  make test            Run pytest suite"
-	@echo "  make validate        Run full validation on ~/.kimi"
+	@echo "  make validate        Run full validation on ~/.kimi-code"
 	@echo "  make validate-config Validate config.toml only"
 	@echo "  make security        Run security checks only"
 	@echo "  make compliance      Run zero-blocker compliance checks"

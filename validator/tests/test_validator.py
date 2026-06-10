@@ -475,7 +475,7 @@ class TestMandatePaths:
 
 class TestAllCommand:
     def test_cmd_all_passes(self, tmp_path):
-        kimi_dir = tmp_path / ".kimi"
+        kimi_dir = tmp_path / ".kimi-code"
         kimi_dir.mkdir()
 
         (kimi_dir / "AGENTS.md").write_text("")

@@ -3,8 +3,8 @@
 
 $ErrorActionPreference = "Stop"
 
-$GlobalConfig = Join-Path $env:USERPROFILE ".kimi" "config.toml"
-$MandateAgent = Join-Path $env:USERPROFILE ".kimi" "mandate-kimiko-agent.yaml"
+$GlobalConfig = Join-Path $env:USERPROFILE ".kimi-code" "config.toml"
+$MandateAgent = Join-Path $env:USERPROFILE ".kimi-code" "mandate-kimiko-agent.yaml"
 
 # Ensure mandate environment is exported
 $env:KIMI_MANDATE_ACTIVE = "kimiko"

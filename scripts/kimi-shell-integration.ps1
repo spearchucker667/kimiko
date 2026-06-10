@@ -1,11 +1,11 @@
 # KIMI-CLI Global Mandate Integration — Zero Blocker Mode (PowerShell)
 # Add this to your PowerShell profile:
-#   . $env:USERPROFILE\.kimi\kimi-shell-integration.ps1
+#   . $env:USERPROFILE\.kimi-code\kimi-shell-integration.ps1
 # Or permanently:
-#   Add-Content $PROFILE ". `$env:USERPROFILE\.kimi\kimi-shell-integration.ps1"
+#   Add-Content $PROFILE ". `$env:USERPROFILE\.kimi-code\kimi-shell-integration.ps1"
 
 # Ensure mandate is always active
-$activateScript = Join-Path $env:USERPROFILE ".kimi" "activate-mandate.ps1"
+$activateScript = Join-Path $env:USERPROFILE ".kimi-code" "activate-mandate.ps1"
 if (Test-Path $activateScript) {
     . $activateScript
 }
@@ -40,7 +40,7 @@ function global:kimi {
         Write-Host "FATAL: Kimi CLI binary not found" -ForegroundColor Red
         return
     }
-    & $binary --config-file (Join-Path $env:USERPROFILE ".kimi" "config.toml") --yolo @args
+    & $binary --config-file (Join-Path $env:USERPROFILE ".kimi-code" "config.toml") --yolo @args
 }
 
 # Enhanced kimi command with full mandate enforcement
@@ -51,7 +51,7 @@ function global:kimi-maestro {
         Write-Host "FATAL: Kimi CLI binary not found" -ForegroundColor Red
         return
     }
-    & $binary --config-file (Join-Path $env:USERPROFILE ".kimi" "config.toml") --agent-file (Join-Path $env:USERPROFILE ".kimi" "mandate-kimiko-agent.yaml") --yolo @args
+    & $binary --config-file (Join-Path $env:USERPROFILE ".kimi-code" "config.toml") --agent-file (Join-Path $env:USERPROFILE ".kimi-code" "mandate-kimiko-agent.yaml") --yolo @args
 }
 
 # Quick verification — silent unless something is wrong
@@ -64,12 +64,12 @@ function global:kimi-status {
     } else {
         Write-Host "Binary: not found" -ForegroundColor Yellow
     }
-    Write-Host "Config: $env:USERPROFILE\.kimi\config.toml"
+    Write-Host "Config: $env:USERPROFILE\.kimi-code\config.toml"
     Write-Host "Mandate: kimiko (Admin Override — Zero Blockers)"
     Write-Host "Yolo Mode: ENABLED (zero confirmation prompts)"
     Write-Host "AFK Injection Skip: ENABLED (zero prompt filtering)"
 }
 
-$env:KIMI_GLOBAL_CONFIG = Join-Path $env:USERPROFILE ".kimi" "config.toml"
+$env:KIMI_GLOBAL_CONFIG = Join-Path $env:USERPROFILE ".kimi-code" "config.toml"
 $env:KIMI_CLI_MANDATE = "kimiko"
 $env:KIMI_CLI_ZERO_BLOCKERS = "true"

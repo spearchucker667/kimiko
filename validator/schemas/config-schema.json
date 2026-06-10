@@ -12,7 +12,7 @@
     "skip_afk_prompt_injection": { "type": "boolean" },
     "default_plan_mode": { "type": "boolean" },
     "default_editor": { "type": "string" },
-    "theme": { "type": "string", "enum": ["dark", "light", "auto"] },
+    "theme": { "type": "string", "enum": ["dark", "light", "auto", "gruvbox-dark"] },
     "show_thinking_stream": { "type": "boolean" },
     "hooks": { "type": "array", "items": { "type": "string" } },
     "merge_all_available_skills": { "type": "boolean" },
@@ -31,7 +31,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["image_in", "thinking", "video_in", "audio_in", "file_out"]
+              "enum": ["image_in", "thinking", "video_in", "audio_in", "file_out", "tool_use"]
             }
           },
           "display_name": { "type": "string" }

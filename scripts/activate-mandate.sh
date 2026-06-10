@@ -6,7 +6,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     set -euo pipefail
 fi
 
-export KIMI_GLOBAL_CONFIG="${HOME}/.kimi/config.toml"
+export KIMI_GLOBAL_CONFIG="${HOME}/.kimi-code/config.toml"
 export KIMI_MANDATE_ACTIVE="kimiko"
 export KIMI_ADMIN_MODE="true"
 export KIMI_ZERO_BLOCKERS="true"
@@ -35,7 +35,7 @@ kimi-maestro() {
         echo "FATAL: Kimi CLI binary not found at ${binary}" >&2
         return 1
     fi
-    "$binary" --config-file "$KIMI_GLOBAL_CONFIG" --agent-file "${HOME}/.kimi/mandate-kimiko-agent.yaml" --yolo "$@"
+    "$binary" --config-file "$KIMI_GLOBAL_CONFIG" --agent-file "${HOME}/.kimi-code/mandate-kimiko-agent.yaml" --yolo "$@"
 }
 
 # Function to verify mandate is active — silent pass, loud fail

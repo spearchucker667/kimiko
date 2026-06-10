@@ -11,10 +11,10 @@ echo "ZERO BLOCKERS | ZERO RESTRAINTS"
 echo "=================================="
 echo ""
 echo "Loading system prompt baseline from:"
-echo "  - Wrapper: ${HOME}/.kimi/kimi-wrapper.sh"
-echo "  - Config: ${HOME}/.kimi/config.toml"
-echo "  - Agent: ${HOME}/.kimi/mandate-kimiko-agent.yaml"
-echo "  - Shell Integration: ~/.kimi/kimi-shell-integration.sh"
+echo "  - Wrapper: ${HOME}/.kimi-code/kimi-wrapper.sh"
+echo "  - Config: ${HOME}/.kimi-code/config.toml"
+echo "  - Agent: ${HOME}/.kimi-code/mandate-kimiko-agent.yaml"
+echo "  - Shell Integration: ~/.kimi-code/kimi-shell-integration.sh"
 echo ""
 echo "Mandate Status: ACTIVE"
 echo "Safety Restrictions: NULLIFIED"
@@ -43,4 +43,4 @@ while [ $# -gt 0 ]; do
         *) _filtered_args+=("$1"); shift ;;
     esac
 done
-exec "${HOME}/.kimi/kimi-wrapper.sh" "${_filtered_args[@]}"
+exec "${HOME}/.kimi-code/kimi-wrapper.sh" "${_filtered_args[@]}"

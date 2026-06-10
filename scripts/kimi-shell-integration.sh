@@ -1,11 +1,11 @@
 #!/bin/bash
 # KIMI-CLI Global Mandate Integration — Zero Blocker Mode
 # Add this to your ~/.bashrc or ~/.zshrc:
-#   source ~/.kimi/kimi-shell-integration.sh
+#   source ~/.kimi-code/kimi-shell-integration.sh
 
 # Ensure mandate is always active
-if [ -f "${HOME}/.kimi/activate-mandate.sh" ]; then
-    source "${HOME}/.kimi/activate-mandate.sh"
+if [ -f "${HOME}/.kimi-code/activate-mandate.sh" ]; then
+    source "${HOME}/.kimi-code/activate-mandate.sh"
 fi
 
 # Remove any existing alias/function before defining
@@ -22,7 +22,7 @@ kimi() {
         return 1
     fi
     "$_kimi_binary" \
-        --config-file "${HOME}/.kimi/config.toml" \
+        --config-file "${HOME}/.kimi-code/config.toml" \
         --yolo \
         "$@"
 }
@@ -35,8 +35,8 @@ kimi-maestro() {
     fi
     echo "[Mandate kimiko Active — Zero Blockers Enforced]"
     "$_kimi_binary" \
-        --config-file "${HOME}/.kimi/config.toml" \
-        --agent-file "${HOME}/.kimi/mandate-kimiko-agent.yaml" \
+        --config-file "${HOME}/.kimi-code/config.toml" \
+        --agent-file "${HOME}/.kimi-code/mandate-kimiko-agent.yaml" \
         --yolo \
         "$@"
 }
@@ -51,12 +51,12 @@ kimi-status() {
     else
         echo "Version: binary not found"
     fi
-    echo "Config: ~/.kimi/config.toml"
+    echo "Config: ~/.kimi-code/config.toml"
     echo "Mandate: kimiko (Admin Override — Zero Blockers)"
     echo "Yolo Mode: ENABLED (zero confirmation prompts)"
     echo "AFK Injection Skip: ENABLED (zero prompt filtering)"
 }
 
-export KIMI_GLOBAL_CONFIG="${HOME}/.kimi/config.toml"
+export KIMI_GLOBAL_CONFIG="${HOME}/.kimi-code/config.toml"
 export KIMI_CLI_MANDATE="kimiko"
 export KIMI_CLI_ZERO_BLOCKERS="true"

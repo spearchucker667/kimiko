@@ -248,12 +248,12 @@ Ensure you are launching through the wrapper or have sourced the activation scri
 
 ```bash
 # macOS / WSL / Git Bash
-source ~/.kimi/activate-mandate.sh
-~/.kimi/launch-with-mandate.sh
+source ~/.kimi-code/activate-mandate.sh
+~/.kimi-code/launch-with-mandate.sh
 
 # PowerShell
-. $env:USERPROFILE\.kimi\activate-mandate.ps1
-& $env:USERPROFILE\.kimi\launch-with-mandate.ps1
+. $env:USERPROFILE\.kimi-code\activate-mandate.ps1
+& $env:USERPROFILE\.kimi-code\launch-with-mandate.ps1
 ```
 
 Launching `kimi` directly (without wrapper) will not load the mandate configuration.

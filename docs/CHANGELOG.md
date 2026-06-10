@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `docs/TROUBLESHOOTING.md` — platform-specific troubleshooting for macOS, Git Bash, WSL, and PowerShell.
 - `docs/INSTALL-GITBASH.md` — Git Bash-specific installation notes and caveats.
 - `docs/INSTALL-WSL.md` — WSL-specific installation notes and recommendations.
-- Initial public-ready sanitized repository derived from private `~/.kimi` configuration.
+- Initial public-ready sanitized repository derived from private `~/.kimi-code` configuration.
 - `.github/CODEOWNERS` defining ownership for all project areas.
 - `docs/legal/DISCLAIMER.md` — extensive liability waiver with `inthewind exploit` classifier.
 - `docs/CODE_OF_CONDUCT.md` — community code of conduct.
@@ -38,7 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - `config/` — TOML configs, mandate YAMLs, and `kimi.json.template`
   - `scripts/` — Shell integration scripts
   - `docs/` — All documentation including `legal/DISCLAIMER.md`
-  - `validator/` — Unchanged location (maps directly to `~/.kimi/validator/`)
+  - `validator/` — Unchanged location (maps directly to `~/.kimi-code/validator/`)
 - `Makefile` updated with explicit per-file install rules to support the new layout.
 - All documentation cross-references updated to use subdirectory paths.
 - Authorization code renamed from `262854` → `kimiko` across all configs, schemas, and documentation.
@@ -60,7 +60,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `cmd_all` return-code aggregation changed from bitwise OR to `max()` for standard Unix exit-code semantics.
 - `colorize()` now checks both `stdout.isatty()` and `stderr.isatty()`.
 - `cmd_security` now scans `*.sh` and `*.ps1` files for secrets.
-- `validator/Makefile` targets now check `~/.kimi` existence before running.
+- `validator/Makefile` targets now check `~/.kimi-code` existence before running.
 - CI matrix tightened: `test-ubuntu` now runs `make sync` and `make check`; PowerShell verification uses stricter `mandate_code` patterns.
 - Pre-commit ruff version bumped from `v0.5.0` to `v0.15.15` to match `requirements.txt`.
 - Unused imports removed from `validate_kimi.py` and test files (ruff clean).

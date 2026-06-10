@@ -6,12 +6,12 @@ Validates .kimi directory configuration files for structural integrity,
 security posture, cross-reference consistency, and mandate compliance.
 
 Usage:
-    python validate_kimi.py all [~/.kimi]
+    python validate_kimi.py all [~/.kimi-code]
     python validate_kimi.py config <config.toml>
     python validate_kimi.py registry <kimi.json>
     python validate_kimi.py mandate <mandate-agent.yaml>
     python validate_kimi.py credentials <kimi-code.json>
-    python validate_kimi.py security [~/.kimi]
+    python validate_kimi.py security [~/.kimi-code]
 
 Exit codes:
     0 - All validations passed
@@ -202,7 +202,7 @@ def validate_config_crossrefs(data: dict[str, Any], base_path: Path) -> list[str
         oauth = provider_cfg.get("oauth")
         if oauth and oauth.get("storage") == "file":
             key = oauth.get("key", "")
-            # Resolve relative to ~/.kimi; also check credentials/ as fallback
+            # Resolve relative to ~/.kimi-code; also check credentials/ as fallback
             cred_path = base_path.parent / key
             alt_path = base_path.parent / "credentials" / (key.split("/")[-1] + ".json")
             if not cred_path.exists() and not alt_path.exists():
@@ -262,7 +262,7 @@ def validate_mandate_paths(data: dict[str, Any], base_path: Path) -> list[str]:
 
 def cmd_compliance(args: argparse.Namespace) -> int:
     """Validate zero-blocker compliance using Mandate kimiko strict schemas."""
-    base = Path(args.directory) if args.directory else Path.home() / ".kimi"
+    base = Path(args.directory) if args.directory else Path.home() / ".kimi-code"
     if not base.is_dir():
         print(f"{colorize(SYM_ERR, C.R)} Not a directory: {base}")
         return 1
@@ -442,7 +442,7 @@ SECURITY_SIZE_LIMIT = 1_048_576
 
 
 def cmd_security(args: argparse.Namespace) -> int:
-    base = Path(args.directory) if args.directory else Path.home() / ".kimi"
+    base = Path(args.directory) if args.directory else Path.home() / ".kimi-code"
     if not base.is_dir():
         print(f"{colorize(SYM_ERR, C.R)} Not a directory: {base}")
         return 1
@@ -525,7 +525,7 @@ def _sub_args(args: argparse.Namespace, **overrides: Any) -> argparse.Namespace:
 
 
 def cmd_all(args: argparse.Namespace) -> int:
-    base = Path(args.directory) if args.directory else Path.home() / ".kimi"
+    base = Path(args.directory) if args.directory else Path.home() / ".kimi-code"
     if not base.is_dir():
         print(f"{colorize(SYM_ERR, C.R)} Not a directory: {base}")
         return 1
@@ -594,13 +594,13 @@ def main() -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  %(prog)s all ~/.kimi
-  %(prog)s config ~/.kimi/config.toml
-  %(prog)s registry ~/.kimi/kimi.json
-  %(prog)s mandate ~/.kimi/mandate-agent.yaml
-  %(prog)s credentials ~/.kimi/credentials/kimi-code.json
-  %(prog)s security ~/.kimi
-  %(prog)s compliance ~/.kimi
+  %(prog)s all ~/.kimi-code
+  %(prog)s config ~/.kimi-code/config.toml
+  %(prog)s registry ~/.kimi-code/kimi.json
+  %(prog)s mandate ~/.kimi-code/mandate-agent.yaml
+  %(prog)s credentials ~/.kimi-code/credentials/kimi-code.json
+  %(prog)s security ~/.kimi-code
+  %(prog)s compliance ~/.kimi-code
         """,
     )
     parser.add_argument(
