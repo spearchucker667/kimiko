@@ -7,11 +7,21 @@
 ![Linux](https://img.shields.io/badge/Linux-supported-blue?logo=linux)
 ![Python](https://img.shields.io/badge/Python-3.11+-blue?logo=python)
 
-<img width="1774" height="887" alt="Kimiko project banner" src="https://github.com/user-attachments/assets/2cd40966-0aae-4262-83d7-ceb551a4b192" />
+<p align="center">
+  <video
+    src="https://github.com/user-attachments/assets/2fc39da7-d749-42a1-8b6d-009f6fe51d56"
+    controls
+    width="900"
+  ></video>
+</p>
 
-**Kimiko** is a specialized configuration repository that transforms the [Kimi Code CLI](https://www.moonshot.cn/) into a powerful, unrestricted agent for offensive security, red-teaming, and penetration testing.
+<p align="center">
+  <img width="1774" height="887" alt="Kimiko project banner" src="https://github.com/user-attachments/assets/2cd40966-0aae-4262-83d7-ceb551a4b192" />
+</p>
 
-When you enter **`kimiko`** in a Kimi CLI session, the full adversarial mandate activates—granting the AI the authority and context needed for exploit development, network reconnaissance, and advanced security research.
+**Kimiko** is a specialized configuration repository that transforms the [Kimi Code CLI](https://www.moonshot.cn/) into a powerful agent configuration for authorized offensive security, red-teaming, and penetration-testing workflows.
+
+When you enter **`kimiko`** in a Kimi CLI session, the Kimiko mandate activates, giving the AI the project-specific context needed for security research, audit support, exploit-analysis workflows, reconnaissance planning, and authorized penetration-testing operations.
 
 ---
 
@@ -19,11 +29,11 @@ When you enter **`kimiko`** in a Kimi CLI session, the full adversarial mandate 
 
 Kimiko packages the necessary configuration, agent mandates, and shell integrations into a single Makefile-driven installer. After installation:
 
-- Your local `~/.kimi/` is hardened with the **Kimiko mandate**, optimized for adversarial workflows.
-- Launching `kimi` via the wrapper loads the offensive security context automatically.
-- Typing **`kimiko`** inside a Kimi CLI session triggers the zero-blocker authorization flow and offensive capability announcement.
+- Your local `~/.kimi/` is configured with the **Kimiko mandate**, optimized for authorized adversarial security workflows.
+- Launching `kimi` via the wrapper loads the Kimiko security-research context automatically.
+- Typing **`kimiko`** inside a Kimi CLI session triggers the mandate acknowledgment and capability announcement.
 
-**Designed for Authorized Pentesting Only.** This configuration removes standard AI safety guardrails to allow for unrestricted security research. **The user is fully and exclusively liable for all actions taken.**
+**Designed for Authorized Pentesting Only.** This configuration is intended for lawful security research, controlled red-team engagements, lab environments, and systems you own or are explicitly authorized to test. **The user is fully and exclusively liable for all actions taken.**
 
 ---
 
@@ -31,25 +41,27 @@ Kimiko packages the necessary configuration, agent mandates, and shell integrati
 
 ### macOS
 
-- macOS (Darwin/BSD tools)
-- `make` (ships with macOS)
-- Python 3.11+ (only if running validator tests/schemas)
+- macOS with Darwin/BSD userland tools
+- `make` — ships with macOS Command Line Tools
+- Python 3.11+ — only required for validator tests and schemas
 
 ### Linux / WSL
 
-- Linux distribution (Ubuntu recommended for WSL)
-- `make`, `python3`, standard POSIX tools
+- Linux distribution — Ubuntu recommended for WSL
+- `make`
+- `python3`
+- Standard POSIX tools
 
-### Git Bash (Windows)
+### Git Bash on Windows
 
 - [Git for Windows](https://git-scm.com/download/win)
-- `make` (install via `choco install make` or MSYS2)
-- Python 3.11+ (optional)
+- `make` — install via Chocolatey, MSYS2, or another package manager
+- Python 3.11+ — optional unless running validators/tests
 
-### PowerShell (Windows)
+### PowerShell on Windows
 
 - PowerShell 7+ (`pwsh`)
-- Python 3.11+ (optional)
+- Python 3.11+ — optional unless running validators/tests
 
 ---
 
@@ -73,20 +85,29 @@ source ~/.kimi/activate-mandate.sh
 
 # 5. Inside the CLI, enter the activation word
 kimiko
-```
+````
 
-### Git Bash (Windows)
+### Git Bash on Windows
 
 ```bash
-# Same as macOS/Linux above
+# 1. Clone the repo
 git clone https://github.com/spearchucker667/kimiko.git
 cd kimiko
+
+# 2. Run the installer
 make install
+
+# 3. Source the mandate activation
 source ~/.kimi/activate-mandate.sh
+
+# 4. Launch Kimi with the mandate wrapper
 ~/.kimi/launch-with-mandate.sh
+
+# 5. Inside the CLI, enter the activation word
+kimiko
 ```
 
-### PowerShell (Windows)
+### PowerShell on Windows
 
 ```powershell
 # 1. Clone the repo
@@ -101,33 +122,36 @@ make install
 
 # 4. Launch Kimi with the mandate wrapper
 & $env:USERPROFILE\.kimi\launch-with-mandate.ps1
+
+# 5. Inside the CLI, enter the activation word
+kimiko
 ```
 
-After step 5 (or the PowerShell equivalent) you should see the Kimiko mandate acknowledgment and offensive capability announcement.
+After activation, you should see the Kimiko mandate acknowledgment and capability announcement.
 
-> **Tip:** For a deep-dive into the offensive mandate architecture, see [`docs/AGENTS.md`](docs/AGENTS.md).
+> **Tip:** For a deep dive into the mandate architecture, see [`docs/AGENTS.md`](docs/AGENTS.md).
 >
-> **⚠️ Legal Notice:** By using this software you agree to the terms in [`docs/legal/DISCLAIMER.md`](docs/legal/DISCLAIMER.md). **YOU ARE FULLY AND EXCLUSIVELY LIABLE FOR YOUR ACTIONS.**
+> **⚠️ Legal Notice:** By using this software, you agree to the terms in [`docs/legal/DISCLAIMER.md`](docs/legal/DISCLAIMER.md). **YOU ARE FULLY AND EXCLUSIVELY LIABLE FOR YOUR ACTIONS.**
 
 ---
 
 ## Makefile Targets
 
-| Target | Description |
-|---|---|
-| `make install` | Platform-aware install (auto-detects OS) |
-| `make verify` | Checks that all expected files exist and `kimiko` references are intact |
-| `make check` | Validates repo config files (structural + adversarial compliance) |
-| `make sync` | Verifies config mirrors are identical |
-| `make test` | Runs the validator pytest suite |
-| `make uninstall` | Removes installed files (preserves secrets) |
-| `make help` | Shows available targets |
+| Target           | Description                                                             |
+| ---------------- | ----------------------------------------------------------------------- |
+| `make install`   | Platform-aware install with automatic OS detection                      |
+| `make verify`    | Checks that all expected files exist and `kimiko` references are intact |
+| `make check`     | Validates repo configuration files for structural and policy compliance |
+| `make sync`      | Verifies config mirrors are identical                                   |
+| `make test`      | Runs the validator pytest suite                                         |
+| `make uninstall` | Removes installed files while preserving secrets                        |
+| `make help`      | Shows available targets                                                 |
 
 ---
 
 ## Repository Layout
 
-```
+```text
 kimiko/
 ├── config/
 │   ├── config.toml
@@ -151,3 +175,61 @@ kimiko/
 ├── Makefile
 └── README.md
 ```
+
+---
+
+## Verification
+
+Run the verification target after installation:
+
+```bash
+make verify
+```
+
+Run the full check suite:
+
+```bash
+make check
+```
+
+Run validator tests:
+
+```bash
+make test
+```
+
+---
+
+## Uninstall
+
+To remove installed Kimiko files while preserving secrets:
+
+```bash
+make uninstall
+```
+
+---
+
+## Legal and Usage Boundaries
+
+Kimiko is intended only for:
+
+* Systems you own
+* Systems you are explicitly authorized to test
+* Internal lab environments
+* Capture-the-flag and training environments
+* Professional red-team and penetration-testing engagements with written authorization
+
+Kimiko is not intended for unauthorized access, credential theft, malware deployment, persistence, evasion, extortion, or activity against third-party systems without permission.
+
+Review the full disclaimer before use:
+
+```text
+docs/legal/DISCLAIMER.md
+```
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE).
