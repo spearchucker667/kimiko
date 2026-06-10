@@ -42,7 +42,7 @@ jobs:
 
       - name: Run compliance check
         working-directory: ./validator
-        run: python3 validate_kimi.py compliance ~/.kimi
+        run: python3 validate_kimi.py compliance ~/.kimi-code
 
   test-ubuntu:
     runs-on: ubuntu-latest
@@ -105,7 +105,7 @@ jobs:
       - name: Validate PowerShell scripts syntax
         shell: pwsh
         run: |
-          Get-ChildItem "$env:USERPROFILE\.kimi\*.ps1" | ForEach-Object {
+          Get-ChildItem "$env:USERPROFILE\.kimi-code\*.ps1" | ForEach-Object {
             $null = [System.Management.Automation.PSParser]::Tokenize((Get-Content $_.FullName -Raw), [ref]$null)
             Write-Host "Syntax OK: $($_.Name)"
           }
@@ -115,7 +115,7 @@ jobs:
         run: |
           $files = @("config.toml", "kimi.toml", "mandate-agent.yaml", "mandate-kimiko-agent.yaml", "activate-mandate.ps1", "kimi-wrapper.ps1", "kimi-shell-integration.ps1", "launch-with-mandate.ps1", "kimi.json")
           foreach ($f in $files) {
-            $path = Join-Path $env:USERPROFILE ".kimi" $f
+            $path = Join-Path $env:USERPROFILE ".kimi-code" $f
             if (Test-Path $path) { Write-Host "OK: $f" }
             else { Write-Host "MISSING: $f"; exit 1 }
           }
@@ -123,16 +123,16 @@ jobs:
       - name: Verify JSON valid
         shell: pwsh
         run: |
-          $json = Get-Content "$env:USERPROFILE\.kimi\kimi.json" -Raw
+          $json = Get-Content "$env:USERPROFILE\.kimi-code\kimi.json" -Raw
           $null = $json | ConvertFrom-Json
           Write-Host "kimi.json: valid JSON"
 
       - name: Verify kimiko references
         shell: pwsh
         run: |
-          $config = Get-Content "$env:USERPROFILE\.kimi\config.toml" -Raw
+          $config = Get-Content "$env:USERPROFILE\.kimi-code\config.toml" -Raw
           if ($config -notmatch '(?m)^\s*mandate_code\s*=\s*[''"]kimiko[''"]') { Write-Host "config.toml missing mandate_code 'kimiko'"; exit 1 }
-          $mandate = Get-Content "$env:USERPROFILE\.kimi\mandate-kimiko-agent.yaml" -Raw
+          $mandate = Get-Content "$env:USERPROFILE\.kimi-code\mandate-kimiko-agent.yaml" -Raw
           if ($mandate -notmatch '(?m)^\s*mandate_code:\s*[''"]kimiko[''"]') { Write-Host "mandate-kimiko-agent.yaml missing mandate_code 'kimiko'"; exit 1 }
           Write-Host "kimiko references verified"
 
@@ -143,7 +143,7 @@ jobs:
       - name: Run compliance check
         shell: pwsh
         working-directory: ./validator
-        run: python validate_kimi.py compliance "$env:USERPROFILE\.kimi"
+        run: python validate_kimi.py compliance "$env:USERPROFILE\.kimi-code"
 
 
   test-windows-gitbash:
