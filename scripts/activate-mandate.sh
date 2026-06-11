@@ -4,6 +4,7 @@
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     set -euo pipefail
+fi
 
 # Resolve KIMI_DIR
 if [ -d "./kimi-code/global" ]; then
@@ -23,8 +24,6 @@ if [ -d "${HOME}/.kimi-code" ]; then
         cp -n "${HOME}/.kimi-code/activate-mandate.sh" "$KIMI_DIR/activate-mandate.sh" 2>/dev/null || true
         cp -n "${HOME}/.kimi-code/kimi-shell-integration.sh" "$KIMI_DIR/kimi-shell-integration.sh" 2>/dev/null || true
     fi
-fi
-
 fi
 
 export KIMI_GLOBAL_CONFIG="$KIMI_DIR/config.toml"
