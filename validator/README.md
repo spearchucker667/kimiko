@@ -23,7 +23,7 @@ Validates `.kimi` directory configuration files for structural integrity, securi
 ## Installation
 
 ```bash
-cd ~/.kimi/validator
+cd ~/.kimi-code/validator
 pip install -r requirements.txt
 ```
 
@@ -34,7 +34,7 @@ pip install -r requirements.txt
 python validate_kimi.py all ~/.kimi
 
 # Validate individual files
-python validate_kimi.py config ~/.kimi/config.toml
+python validate_kimi.py config ~/.kimi-code/config.toml
 
 # Run security checks only
 python validate_kimi.py security ~/.kimi

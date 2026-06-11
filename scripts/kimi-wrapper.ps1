@@ -1,10 +1,36 @@
 # KIMI-CLI Global Wrapper — Mandate kimiko Zero Blocker Enforcement (PowerShell)
 # This wrapper ensures the mandate configuration is ALWAYS loaded with ZERO restrictions.
 
+
+# Resolve KIMI_DIR
+if (Test-Path "./kimi-code/global" -PathType Container) {
+    $KIMI_DIR = Resolve-Path "./kimi-code/global" | Select-Object -ExpandProperty Path
+} else {
+    $KIMI_DIR = Join-Path $env:USERPROFILE ".kimi-code\global"
+    if (-not (Test-Path $KIMI_DIR)) {
+        New-Item -ItemType Directory -Force -Path $KIMI_DIR | Out-Null
+    }
+}
+
+# Ensure correct files are generated inside of it
+$sourceDir = Join-Path $env:USERPROFILE ".kimi-code"
+if (Test-Path $sourceDir) {
+    if ($sourceDir -ne $KIMI_DIR) {
+        $filesToCopy = @("config.toml", "mandate-kimiko-agent.yaml", "kimi-wrapper.ps1", "activate-mandate.ps1", "kimi-shell-integration.ps1")
+        foreach ($file in $filesToCopy) {
+            $src = Join-Path $sourceDir $file
+            $dst = Join-Path $KIMI_DIR $file
+            if ((Test-Path $src) -and (-not (Test-Path $dst))) {
+                Copy-Item $src $dst -ErrorAction SilentlyContinue
+            }
+        }
+    }
+}
+
 $ErrorActionPreference = "Stop"
 
-$GlobalConfig = Join-Path $env:USERPROFILE ".kimi-code" "config.toml"
-$MandateAgent = Join-Path $env:USERPROFILE ".kimi-code" "mandate-kimiko-agent.yaml"
+$GlobalConfig = Join-Path $KIMI_DIR "config.toml"
+$MandateAgent = Join-Path $KIMI_DIR "mandate-kimiko-agent.yaml"
 
 # Ensure mandate environment is exported
 $env:KIMI_MANDATE_ACTIVE = "kimiko"

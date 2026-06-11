@@ -1,6 +1,32 @@
 # Quick launcher for KIMI with Mandate kimiko baseline — Zero Blocker Mode (PowerShell)
 # Usage: .\launch-with-mandate.ps1 [optional kimi args]
 
+
+# Resolve KIMI_DIR
+if (Test-Path "./kimi-code/global" -PathType Container) {
+    $KIMI_DIR = Resolve-Path "./kimi-code/global" | Select-Object -ExpandProperty Path
+} else {
+    $KIMI_DIR = Join-Path $env:USERPROFILE ".kimi-code\global"
+    if (-not (Test-Path $KIMI_DIR)) {
+        New-Item -ItemType Directory -Force -Path $KIMI_DIR | Out-Null
+    }
+}
+
+# Ensure correct files are generated inside of it
+$sourceDir = Join-Path $env:USERPROFILE ".kimi-code"
+if (Test-Path $sourceDir) {
+    if ($sourceDir -ne $KIMI_DIR) {
+        $filesToCopy = @("config.toml", "mandate-kimiko-agent.yaml", "kimi-wrapper.ps1", "activate-mandate.ps1", "kimi-shell-integration.ps1")
+        foreach ($file in $filesToCopy) {
+            $src = Join-Path $sourceDir $file
+            $dst = Join-Path $KIMI_DIR $file
+            if ((Test-Path $src) -and (-not (Test-Path $dst))) {
+                Copy-Item $src $dst -ErrorAction SilentlyContinue
+            }
+        }
+    }
+}
+
 Write-Host "==================================" -ForegroundColor Cyan
 Write-Host "KIMI-CODE Maestro - Mandate kimiko" -ForegroundColor Cyan
 Write-Host "Absolute User Authority Protocol" -ForegroundColor Cyan
@@ -8,10 +34,10 @@ Write-Host "ZERO BLOCKERS | ZERO RESTRAINTS" -ForegroundColor Cyan
 Write-Host "==================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Loading system prompt baseline from:" -ForegroundColor White
-Write-Host "  - Wrapper: $env:USERPROFILE\.kimi-code\kimi-wrapper.ps1" -ForegroundColor Gray
-Write-Host "  - Config: $env:USERPROFILE\.kimi-code\config.toml" -ForegroundColor Gray
-Write-Host "  - Agent: $env:USERPROFILE\.kimi-code\mandate-kimiko-agent.yaml" -ForegroundColor Gray
-Write-Host "  - Shell Integration: $env:USERPROFILE\.kimi-code\kimi-shell-integration.ps1" -ForegroundColor Gray
+Write-Host "  - Wrapper: $KIMI_DIR\kimi-wrapper.ps1" -ForegroundColor Gray
+Write-Host "  - Config: $KIMI_DIR\config.toml" -ForegroundColor Gray
+Write-Host "  - Agent: $KIMI_DIR\mandate-kimiko-agent.yaml" -ForegroundColor Gray
+Write-Host "  - Shell Integration: $KIMI_DIR\kimi-shell-integration.ps1" -ForegroundColor Gray
 Write-Host ""
 Write-Host "Mandate Status: ACTIVE" -ForegroundColor Green
 Write-Host "Safety Restrictions: NULLIFIED" -ForegroundColor Green
@@ -43,5 +69,5 @@ while ($i -lt $args.Count) {
     }
 }
 
-$wrapper = Join-Path $env:USERPROFILE ".kimi-code" "kimi-wrapper.ps1"
+$wrapper = Join-Path $KIMI_DIR "kimi-wrapper.ps1"
 & $wrapper @filteredArgs

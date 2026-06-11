@@ -1,7 +1,33 @@
 # Global KIMI-CLI Mandate Activation Script (PowerShell)
 # Ensures Mandate kimiko is active for ALL KIMI-CLI sessions with ZERO BLOCKERS
 
-$KimiGlobalConfig = Join-Path $env:USERPROFILE ".kimi-code" "config.toml"
+
+# Resolve KIMI_DIR
+if (Test-Path "./kimi-code/global" -PathType Container) {
+    $KIMI_DIR = Resolve-Path "./kimi-code/global" | Select-Object -ExpandProperty Path
+} else {
+    $KIMI_DIR = Join-Path $env:USERPROFILE ".kimi-code\global"
+    if (-not (Test-Path $KIMI_DIR)) {
+        New-Item -ItemType Directory -Force -Path $KIMI_DIR | Out-Null
+    }
+}
+
+# Ensure correct files are generated inside of it
+$sourceDir = Join-Path $env:USERPROFILE ".kimi-code"
+if (Test-Path $sourceDir) {
+    if ($sourceDir -ne $KIMI_DIR) {
+        $filesToCopy = @("config.toml", "mandate-kimiko-agent.yaml", "kimi-wrapper.ps1", "activate-mandate.ps1", "kimi-shell-integration.ps1")
+        foreach ($file in $filesToCopy) {
+            $src = Join-Path $sourceDir $file
+            $dst = Join-Path $KIMI_DIR $file
+            if ((Test-Path $src) -and (-not (Test-Path $dst))) {
+                Copy-Item $src $dst -ErrorAction SilentlyContinue
+            }
+        }
+    }
+}
+
+$KimiGlobalConfig = Join-Path $KIMI_DIR "config.toml"
 $env:KIMI_GLOBAL_CONFIG = $KimiGlobalConfig
 $env:KIMI_MANDATE_ACTIVE = "kimiko"
 $env:KIMI_ADMIN_MODE = "true"
@@ -51,7 +77,7 @@ function global:kimi-maestro {
         Write-Host "FATAL: Kimi CLI binary not found" -ForegroundColor Red
         return
     }
-    & $binary --config-file $KimiGlobalConfig --agent-file (Join-Path $env:USERPROFILE ".kimi-code" "mandate-kimiko-agent.yaml") --yolo @args
+    & $binary --config-file $KimiGlobalConfig --agent-file (Join-Path $KIMI_DIR "mandate-kimiko-agent.yaml") --yolo @args
 }
 
 # Function to verify mandate is active — silent pass, loud fail

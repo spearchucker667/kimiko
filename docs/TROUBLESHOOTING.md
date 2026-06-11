@@ -60,7 +60,7 @@ Line endings were converted to CRLF during clone.
 **Fix**:
 
 ```bash
-dos2unix ~/.kimi/*.sh
+dos2unix ~/.kimi-code/*.sh
 ```
 
 > **Note:** `dos2unix` is not installed by default on Git Bash. Install it via `pacman -S dos2unix` (MSYS2) or download the standalone binary.
@@ -163,7 +163,7 @@ The template substitution may produce invalid JSON if `$env:USERPROFILE` contain
 **Fix**: The install script should convert backslashes to forward slashes. If you installed manually, verify:
 
 ```powershell
-$json = Get-Content "$env:USERPROFILE\.kimi\kimi.json" -Raw
+$json = Get-Content "$env:USERPROFILE\.kimi-code\kimi.json" -Raw
 $null = $json | ConvertFrom-Json
 ```
 

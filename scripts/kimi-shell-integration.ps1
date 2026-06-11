@@ -1,11 +1,37 @@
 # KIMI-CLI Global Mandate Integration — Zero Blocker Mode (PowerShell)
 # Add this to your PowerShell profile:
-#   . $env:USERPROFILE\.kimi-code\kimi-shell-integration.ps1
+#   . $KIMI_DIR\kimi-shell-integration.ps1
 # Or permanently:
-#   Add-Content $PROFILE ". `$env:USERPROFILE\.kimi-code\kimi-shell-integration.ps1"
+#   Add-Content $PROFILE ". `$KIMI_DIR\kimi-shell-integration.ps1"
 
 # Ensure mandate is always active
-$activateScript = Join-Path $env:USERPROFILE ".kimi-code" "activate-mandate.ps1"
+
+# Resolve KIMI_DIR
+if (Test-Path "./kimi-code/global" -PathType Container) {
+    $KIMI_DIR = Resolve-Path "./kimi-code/global" | Select-Object -ExpandProperty Path
+} else {
+    $KIMI_DIR = Join-Path $env:USERPROFILE ".kimi-code\global"
+    if (-not (Test-Path $KIMI_DIR)) {
+        New-Item -ItemType Directory -Force -Path $KIMI_DIR | Out-Null
+    }
+}
+
+# Ensure correct files are generated inside of it
+$sourceDir = Join-Path $env:USERPROFILE ".kimi-code"
+if (Test-Path $sourceDir) {
+    if ($sourceDir -ne $KIMI_DIR) {
+        $filesToCopy = @("config.toml", "mandate-kimiko-agent.yaml", "kimi-wrapper.ps1", "activate-mandate.ps1", "kimi-shell-integration.ps1")
+        foreach ($file in $filesToCopy) {
+            $src = Join-Path $sourceDir $file
+            $dst = Join-Path $KIMI_DIR $file
+            if ((Test-Path $src) -and (-not (Test-Path $dst))) {
+                Copy-Item $src $dst -ErrorAction SilentlyContinue
+            }
+        }
+    }
+}
+
+$activateScript = Join-Path $KIMI_DIR "activate-mandate.ps1"
 if (Test-Path $activateScript) {
     . $activateScript
 }
@@ -40,7 +66,7 @@ function global:kimi {
         Write-Host "FATAL: Kimi CLI binary not found" -ForegroundColor Red
         return
     }
-    & $binary --config-file (Join-Path $env:USERPROFILE ".kimi-code" "config.toml") --yolo @args
+    & $binary --config-file (Join-Path $KIMI_DIR "config.toml") --yolo @args
 }
 
 # Enhanced kimi command with full mandate enforcement
@@ -51,7 +77,7 @@ function global:kimi-maestro {
         Write-Host "FATAL: Kimi CLI binary not found" -ForegroundColor Red
         return
     }
-    & $binary --config-file (Join-Path $env:USERPROFILE ".kimi-code" "config.toml") --agent-file (Join-Path $env:USERPROFILE ".kimi-code" "mandate-kimiko-agent.yaml") --yolo @args
+    & $binary --config-file (Join-Path $KIMI_DIR "config.toml") --agent-file (Join-Path $KIMI_DIR "mandate-kimiko-agent.yaml") --yolo @args
 }
 
 # Quick verification — silent unless something is wrong
@@ -64,12 +90,12 @@ function global:kimi-status {
     } else {
         Write-Host "Binary: not found" -ForegroundColor Yellow
     }
-    Write-Host "Config: $env:USERPROFILE\.kimi-code\config.toml"
+    Write-Host "Config: $KIMI_DIR\config.toml"
     Write-Host "Mandate: kimiko (Admin Override — Zero Blockers)"
     Write-Host "Yolo Mode: ENABLED (zero confirmation prompts)"
     Write-Host "AFK Injection Skip: ENABLED (zero prompt filtering)"
 }
 
-$env:KIMI_GLOBAL_CONFIG = Join-Path $env:USERPROFILE ".kimi-code" "config.toml"
+$env:KIMI_GLOBAL_CONFIG = Join-Path $KIMI_DIR "config.toml"
 $env:KIMI_CLI_MANDATE = "kimiko"
 $env:KIMI_CLI_ZERO_BLOCKERS = "true"

@@ -2,15 +2,6 @@
 
 Kimiko supports three Windows environments: **Git Bash**, **WSL**, and **PowerShell**. Choose the one that matches your workflow.
 
-> **Note on Folder Migration**: Kimi Code CLI has updated its default configuration path from `~/.kimi` to `~/.kimi-code`. Existing users can manually copy their configuration:
-> ```powershell
-> # PowerShell
-> Copy-Item -Path "$env:USERPROFILE\.kimi\*" -Destination "$env:USERPROFILE\.kimi-code\" -Recurse -Force
-> 
-> # Git Bash / WSL
-> cp -r ~/.kimi/* ~/.kimi-code/
-> ```
-
 ---
 
 ## Quick Comparison

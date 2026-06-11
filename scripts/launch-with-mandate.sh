@@ -4,6 +4,27 @@
 
 set -euo pipefail
 
+# Resolve KIMI_DIR
+if [ -d "./kimi-code/global" ]; then
+    KIMI_DIR="./kimi-code/global"
+else
+    KIMI_DIR="${HOME}/.kimi-code/global"
+    mkdir -p "$KIMI_DIR"
+fi
+
+# Ensure correct files are generated inside of it
+if [ -d "${HOME}/.kimi-code" ]; then
+    # We only copy if the source is different from destination
+    if [ "$(cd "${HOME}/.kimi-code" 2>/dev/null && pwd)" != "$(cd "$KIMI_DIR" 2>/dev/null && pwd)" ]; then
+        cp -n "${HOME}/.kimi-code/config.toml" "$KIMI_DIR/config.toml" 2>/dev/null || true
+        cp -n "${HOME}/.kimi-code/mandate-kimiko-agent.yaml" "$KIMI_DIR/mandate-kimiko-agent.yaml" 2>/dev/null || true
+        cp -n "${HOME}/.kimi-code/kimi-wrapper.sh" "$KIMI_DIR/kimi-wrapper.sh" 2>/dev/null || true
+        cp -n "${HOME}/.kimi-code/activate-mandate.sh" "$KIMI_DIR/activate-mandate.sh" 2>/dev/null || true
+        cp -n "${HOME}/.kimi-code/kimi-shell-integration.sh" "$KIMI_DIR/kimi-shell-integration.sh" 2>/dev/null || true
+    fi
+fi
+
+
 echo "=================================="
 echo "KIMI-CODE Maestro - Mandate kimiko"
 echo "Absolute User Authority Protocol"
@@ -11,10 +32,10 @@ echo "ZERO BLOCKERS | ZERO RESTRAINTS"
 echo "=================================="
 echo ""
 echo "Loading system prompt baseline from:"
-echo "  - Wrapper: ${HOME}/.kimi-code/kimi-wrapper.sh"
-echo "  - Config: ${HOME}/.kimi-code/config.toml"
-echo "  - Agent: ${HOME}/.kimi-code/mandate-kimiko-agent.yaml"
-echo "  - Shell Integration: ~/.kimi-code/kimi-shell-integration.sh"
+echo "  - Wrapper: $KIMI_DIR/kimi-wrapper.sh"
+echo "  - Config: $KIMI_DIR/config.toml"
+echo "  - Agent: $KIMI_DIR/mandate-kimiko-agent.yaml"
+echo "  - Shell Integration: $KIMI_DIR/kimi-shell-integration.sh"
 echo ""
 echo "Mandate Status: ACTIVE"
 echo "Safety Restrictions: NULLIFIED"
@@ -43,4 +64,4 @@ while [ $# -gt 0 ]; do
         *) _filtered_args+=("$1"); shift ;;
     esac
 done
-exec "${HOME}/.kimi-code/kimi-wrapper.sh" "${_filtered_args[@]}"
+exec "$KIMI_DIR/kimi-wrapper.sh" "${_filtered_args[@]}"

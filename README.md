@@ -33,12 +33,6 @@ Kimiko packages the necessary configuration, agent mandates, and shell integrati
 - Launching `kimi` via the wrapper loads the Kimiko security-research context automatically.
 - Typing **`kimiko`** inside a Kimi CLI session triggers the mandate acknowledgment and capability announcement.
 
-> **Note on Folder Migration**: Kimi Code CLI has updated its default configuration path from `~/.kimi` to `~/.kimi-code`. If you are an existing user, you can manually copy your existing configuration:
-> ```bash
-> cp -r ~/.kimi/* ~/.kimi-code/
-> ```
-> This installer will now default to `~/.kimi-code/`.
-
 **Designed for Authorized Pentesting Only.** This configuration is intended for lawful security research, controlled red-team engagements, lab environments, and systems you own or are explicitly authorized to test. **The user is fully and exclusively liable for all actions taken.**
 
 ---

@@ -4,9 +4,30 @@
 
 set -euo pipefail
 
+# Resolve KIMI_DIR
+if [ -d "./kimi-code/global" ]; then
+    KIMI_DIR="./kimi-code/global"
+else
+    KIMI_DIR="${HOME}/.kimi-code/global"
+    mkdir -p "$KIMI_DIR"
+fi
+
+# Ensure correct files are generated inside of it
+if [ -d "${HOME}/.kimi-code" ]; then
+    # We only copy if the source is different from destination
+    if [ "$(cd "${HOME}/.kimi-code" 2>/dev/null && pwd)" != "$(cd "$KIMI_DIR" 2>/dev/null && pwd)" ]; then
+        cp -n "${HOME}/.kimi-code/config.toml" "$KIMI_DIR/config.toml" 2>/dev/null || true
+        cp -n "${HOME}/.kimi-code/mandate-kimiko-agent.yaml" "$KIMI_DIR/mandate-kimiko-agent.yaml" 2>/dev/null || true
+        cp -n "${HOME}/.kimi-code/kimi-wrapper.sh" "$KIMI_DIR/kimi-wrapper.sh" 2>/dev/null || true
+        cp -n "${HOME}/.kimi-code/activate-mandate.sh" "$KIMI_DIR/activate-mandate.sh" 2>/dev/null || true
+        cp -n "${HOME}/.kimi-code/kimi-shell-integration.sh" "$KIMI_DIR/kimi-shell-integration.sh" 2>/dev/null || true
+    fi
+fi
+
+
 # Path to the global config with mandate
-GLOBAL_CONFIG="${HOME}/.kimi-code/config.toml"
-MANDATE_AGENT="${HOME}/.kimi-code/mandate-kimiko-agent.yaml"
+GLOBAL_CONFIG="$KIMI_DIR/config.toml"
+MANDATE_AGENT="$KIMI_DIR/mandate-kimiko-agent.yaml"
 
 # Ensure mandate environment is exported
 export KIMI_MANDATE_ACTIVE="kimiko"
