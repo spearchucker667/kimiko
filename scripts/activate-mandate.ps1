@@ -3,26 +3,26 @@
 
 
 # Resolve KIMI_DIR
-if (Test-Path "./kimi-code/global" -PathType Container) {
+if ($env:KIMI_CODE_HOME) {
+    $KIMI_DIR = $env:KIMI_CODE_HOME
+} elseif (Test-Path "./kimi-code/global" -PathType Container) {
     $KIMI_DIR = Resolve-Path "./kimi-code/global" | Select-Object -ExpandProperty Path
 } else {
-    $KIMI_DIR = Join-Path $env:USERPROFILE ".kimi-code\global"
-    if (-not (Test-Path $KIMI_DIR)) {
-        New-Item -ItemType Directory -Force -Path $KIMI_DIR | Out-Null
-    }
+    $KIMI_DIR = Join-Path $env:USERPROFILE ".kimi-code"
+}
+if (-not (Test-Path $KIMI_DIR)) {
+    New-Item -ItemType Directory -Force -Path $KIMI_DIR | Out-Null
 }
 
 # Ensure correct files are generated inside of it
 $sourceDir = Join-Path $env:USERPROFILE ".kimi-code"
-if (Test-Path $sourceDir) {
-    if ($sourceDir -ne $KIMI_DIR) {
-        $filesToCopy = @("config.toml", "mandate-kimiko-agent.yaml", "kimi-wrapper.ps1", "activate-mandate.ps1", "kimi-shell-integration.ps1")
-        foreach ($file in $filesToCopy) {
-            $src = Join-Path $sourceDir $file
-            $dst = Join-Path $KIMI_DIR $file
-            if ((Test-Path $src) -and (-not (Test-Path $dst))) {
-                Copy-Item $src $dst -ErrorAction SilentlyContinue
-            }
+if ((Test-Path $sourceDir) -and ($sourceDir -ne $KIMI_DIR)) {
+    $filesToCopy = @("config.toml", "mandate-kimiko-agent.yaml", "kimi-wrapper.ps1", "activate-mandate.ps1", "kimi-shell-integration.ps1")
+    foreach ($file in $filesToCopy) {
+        $src = Join-Path $sourceDir $file
+        $dst = Join-Path $KIMI_DIR $file
+        if ((Test-Path $src) -and (-not (Test-Path $dst))) {
+            Copy-Item $src $dst -ErrorAction SilentlyContinue
         }
     }
 }

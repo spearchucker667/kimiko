@@ -70,12 +70,20 @@ else
 endif
 
 ifeq ($(PLATFORM),windows)
-    DEST_ABS := $(HOME_DIR)/.kimi-code
+    ifdef KIMI_CODE_HOME
+        DEST_ABS := $(KIMI_CODE_HOME)
+    else
+        DEST_ABS := $(HOME_DIR)/.kimi-code
+    endif
     # Convert to relative path to prevent Windows drive letter colons from breaking Make parsing.
     # Fallback to absolute path if python command fails or paths are on different drives.
     DEST := $(shell $(PYTHON) -c "import os; print(os.path.relpath(r'$(DEST_ABS)', r'$(REPO_ROOT)').replace('\\\\', '/'))" 2>/dev/null || echo "$(DEST_ABS)")
 else
-    DEST := $(HOME_DIR)/.kimi-code
+    ifdef KIMI_CODE_HOME
+        DEST := $(KIMI_CODE_HOME)
+    else
+        DEST := $(HOME_DIR)/.kimi-code
+    endif
 endif
 
 ifeq ($(PLATFORM),$(filter $(PLATFORM),windows gitbash))
