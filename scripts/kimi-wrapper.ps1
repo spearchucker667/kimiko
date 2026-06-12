@@ -17,7 +17,7 @@ if (-not (Test-Path $KIMI_DIR)) {
 # Ensure correct files are generated inside of it
 $sourceDir = Join-Path $env:USERPROFILE ".kimi-code"
 if ((Test-Path $sourceDir) -and ($sourceDir -ne $KIMI_DIR)) {
-    $filesToCopy = @("config.toml", "mandate-kimiko-agent.yaml", "kimi-wrapper.ps1", "activate-mandate.ps1", "kimi-shell-integration.ps1")
+    $filesToCopy = @("config.toml", "tui.toml", "mandate-kimiko-agent.yaml", "kimi-wrapper.ps1", "activate-mandate.ps1", "kimi-shell-integration.ps1")
     foreach ($file in $filesToCopy) {
         $src = Join-Path $sourceDir $file
         $dst = Join-Path $KIMI_DIR $file

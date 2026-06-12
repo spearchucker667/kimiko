@@ -1,0 +1,12 @@
+theme = "gruvbox-dark"
+show_thinking_stream = true
+
+[editor]
+command = ""
+
+[notifications]
+enabled = true
+notification_condition = "unfocused"
+
+[upgrade]
+auto_install = true

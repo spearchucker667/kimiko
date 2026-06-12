@@ -110,6 +110,7 @@ endif
 # All flat files installed directly into ~/.kimi-code
 FLAT_TARGETS := \
     $(DEST)/config.toml \
+    $(DEST)/tui.toml \
     $(DEST)/kimi.toml \
     $(DEST)/mandate-agent.yaml \
     $(DEST)/mandate-kimiko-agent.yaml \
@@ -218,6 +219,13 @@ install-linux: $(DEST)/kimi.json $(FLAT_TARGETS) $(VALIDATOR_TARGETS)
 
 # ── Config Files ─────────────────────────────────────────────────────────────
 $(DEST)/config.toml: $(REPO_ROOT)/config/config.toml
+	@mkdir -p $(dir $@)
+	cp -f $< $@
+ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
+	@chmod 600 $@
+endif
+
+$(DEST)/tui.toml: $(REPO_ROOT)/config/tui.toml
 	@mkdir -p $(dir $@)
 	cp -f $< $@
 ifeq ($(PLATFORM),$(filter $(PLATFORM),macos linux wsl))
