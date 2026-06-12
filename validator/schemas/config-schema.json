@@ -14,7 +14,54 @@
     "default_editor": { "type": "string" },
     "theme": { "type": "string", "enum": ["dark", "light", "auto", "gruvbox-dark"] },
     "show_thinking_stream": { "type": "boolean" },
-    "hooks": { "type": "array", "items": { "type": "string" } },
+    "hooks": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "properties": {
+              "event": { "type": "string" },
+              "matcher": { "type": "string" },
+              "command": { "type": "string" },
+              "timeout": { "type": "integer" }
+            }
+          }
+        ]
+      }
+    },
+    "default_permission_mode": { "type": "string" },
+    "thinking": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string" }
+      }
+    },
+    "experimental": {
+      "type": "object",
+      "properties": {
+        "micro_compaction": { "type": "boolean" },
+        "goal_command": { "type": "boolean" },
+        "background_ask": { "type": "boolean" },
+        "sub_skill": { "type": "boolean" }
+      }
+    },
+    "permission": {
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "decision": { "type": "string" },
+              "pattern": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
     "merge_all_available_skills": { "type": "boolean" },
     "extra_skill_dirs": { "type": "array", "items": { "type": "string" } },
     "telemetry": { "type": "boolean" },

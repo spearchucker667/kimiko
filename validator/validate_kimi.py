@@ -211,8 +211,11 @@ def validate_config_crossrefs(data: dict[str, Any], base_path: Path) -> list[str
                     f"(also checked {alt_path})"
                 )
 
-    # 4. hooks paths should exist
+    # 4. hooks paths should exist (if they are dicts, check the command or script if applicable, but for now we skip or check dict contents)
     for hook in data.get("hooks", []):
+        if isinstance(hook, dict):
+            # No specific path to validate if it's a dict representing hook config
+            continue
         hook_path = Path(hook)
         if not hook_path.is_absolute():
             hook_path = base_path.parent / hook_path
