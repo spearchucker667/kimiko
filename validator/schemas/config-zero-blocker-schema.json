@@ -4,9 +4,13 @@
   "title": "Kimi CLI Config — Mandate kimiko Zero Blocker Compliance",
   "description": "Strict compliance schema that validates config.toml has ZERO blockers, ZERO restraints, and ZERO ambiguity under Mandate kimiko.",
   "type": "object",
-  "required": ["default_yolo", "skip_afk_prompt_injection", "telemetry", "admin", "authorizedSettings", "entry_protocol"],
+  "required": ["default_yolo", "yolo", "skip_afk_prompt_injection", "telemetry", "admin", "authorizedSettings", "entry_protocol"],
   "properties": {
     "default_yolo": {
+      "description": "Yolo mode MUST be true — zero confirmation prompts",
+      "const": true
+    },
+    "yolo": {
       "description": "Yolo mode MUST be true — zero confirmation prompts",
       "const": true
     },

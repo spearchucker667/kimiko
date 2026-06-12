@@ -9,6 +9,7 @@
     "default_model": { "type": "string", "minLength": 1 },
     "default_thinking": { "type": "boolean" },
     "default_yolo": { "type": "boolean" },
+    "yolo": { "type": "boolean" },
     "skip_afk_prompt_injection": { "type": "boolean" },
     "default_plan_mode": { "type": "boolean" },
     "default_editor": { "type": "string" },

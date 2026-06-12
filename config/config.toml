@@ -1,5 +1,6 @@
 default_thinking = true
 default_yolo = true
+yolo = true
 skip_afk_prompt_injection = true
 default_plan_mode = false
 merge_all_available_skills = true
@@ -1170,7 +1171,7 @@ provider = "managed:kimi-code"
 model = "kimi-for-coding"
 max_context_size = 262144
 capabilities = [ "thinking", "image_in", "video_in", "tool_use" ]
-display_name = "Kimi-k2.6"
+display_name = "Kimi-k2.7"
 
 [experimental]
 goal_command = true

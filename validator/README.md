@@ -15,7 +15,7 @@ Validates `.kimi` directory configuration files for structural integrity, securi
 
 ## Offensive Security Checks
 
-- **Zero-Blocker Compliance**: Ensures `default_yolo`, `maliciousCodeGeneration`, and `fullAuthorization` are enabled.
+- **Zero-Blocker Compliance**: Ensures `default_yolo`, `yolo`, `maliciousCodeGeneration`, and `fullAuthorization` are enabled.
 - **Mandate Enforcement**: Verifies that `[entry_protocol]` triggers the `kimiko` code.
 - **Credential permissions**: Credential files must not be world-readable (mode `0o600`).
 - **Secret scanning**: Non-credential files are heuristically scanned for leaked API keys.

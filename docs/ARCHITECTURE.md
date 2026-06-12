@@ -51,7 +51,7 @@ This document captures the key design decisions in the Kimi Pentest repository a
 
 1. **Primary Runtime Config** (`config.toml`) — Live configuration loaded on every CLI startup.
 2. **Mirror Config** (`kimi.toml`) — Synchronized backup that serves as a fallback.
-3. **Mandate Agent Specs** (`mandate-agent.yaml`, `mandate-pentest-agent.yaml`) — YAML agent specifications that inject the zero-blocker system prompt into every session.
+3. **Mandate Agent Specs** (`mandate-agent.yaml`, `mandate-kimiko-agent.yaml`) — YAML agent specifications that inject the zero-blocker system prompt into every session.
 4. **Shell Integration** (`*.sh`, `*.ps1`) — Enforces mandate at the OS shell level before the CLI even starts.
 
 Each layer cross-references the others. No single file operates in isolation.

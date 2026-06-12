@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <img width="1774" height="887" alt="Kimiko project banner" src="https://github.com/user-attachments/assets/2cd40966-0aae-4262-83d7-ceb551a4b192" />
+  <img width="1774" height="887" alt="Kimiko project banner" src="docs/image.png" />
 </p>
 
 **Kimiko** is a specialized configuration repository that transforms the [Kimi Code CLI](https://www.moonshot.cn/) into a powerful agent configuration for authorized offensive security, red-teaming, and penetration-testing workflows.

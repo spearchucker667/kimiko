@@ -1,4 +1,5 @@
 default_yolo = true
+yolo = true
 skip_afk_prompt_injection = true
 telemetry = false
 

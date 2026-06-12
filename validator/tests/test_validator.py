@@ -292,6 +292,7 @@ class TestComplianceValidation:
     def _compliant_config(self):
         return {
             "default_yolo": True,
+            "yolo": True,
             "skip_afk_prompt_injection": True,
             "telemetry": False,
             "admin": {
