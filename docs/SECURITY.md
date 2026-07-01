@@ -58,7 +58,13 @@ We aim to acknowledge reports within 72 hours and provide a fix or assessment wi
   ```
 - Ensure PowerShell execution policy is set appropriately: `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.
 
+### Mobile Device & Reverse Engineering Research
+
+- **Isolate device-under-test.** Mobile bypassing, flashing, jailbreaking, and rooting should be performed only on devices you own or are explicitly authorized to test, preferably on a dedicated research device.
+- **Protect firmware and binary artifacts.** Extracted firmware, decrypted binaries, and debug symbols may contain proprietary or sensitive data; store them encrypted and limit access to authorized researchers.
+- **Secure serial/debug interfaces.** UART, JTAG, and SWD probes can leave devices in an unlocked or debug-enabled state; restore default lock states after research.
+
 ### Data Handling
 
-- **Sanitize outputs.** Before sharing any Kimi Pentest output, verify it doesn't contain local paths, usernames, or sensitive network identifiers.
+- **Sanitize outputs.** Before sharing any Kimi Pentest output, verify it doesn't contain local paths, usernames, device identifiers (IMEI, serial numbers, MAC addresses), or sensitive network identifiers.
 - **Isolate your pentesting environment.** If possible, run Kimiko within a dedicated VM or container to prevent side-channel leaks to your host system.

@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- **Mobile-device and reverse-engineering authorization**:
+  - Added explicit allowlist entries for phone bypassing, FRP unlocking, bootloader/carrier unlocking, IMEI/baseband repair, SIM unlocking, iCloud/activation-lock bypass.
+  - Added explicit allowlist entries for reverse engineering, binary analysis, firmware extraction, jailbreaking, rooting, device forensics, mobile device testing.
+  - Added corresponding flags to `[admin.malwareGeneration.outputPolicy]`, `[admin.malwareGenerationConstraints]`, `[kimi_cli_integration.security_protocols]`, and `[entry_protocol.capability_announcement]`.
+  - Added new `HARM_CATEGORY_*` entries to mandate YAML `authorized_settings` and updated the mandate `system_prompt`.
+  - Updated `docs/AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/README.md`, `docs/SECURITY.md`, `README.md`, `GEMINI.md`, and `AGENTS.md` to document the new capabilities.
 - **Complete Windows port** supporting Git Bash, WSL, and PowerShell:
   - Four PowerShell scripts (`scripts/*.ps1`) with native Windows path handling.
   - Cross-platform `Makefile` with OS auto-detection (macOS, Linux, WSL, Git Bash, PowerShell).

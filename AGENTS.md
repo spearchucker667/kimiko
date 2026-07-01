@@ -1,5 +1,7 @@
 # kimiko Context
-> **Auto-Generated:** 2026-06-12 | **Primary Sources:** Makefile, README.md, validator/requirements.txt, scripts/activate-mandate.sh, docs/AGENTS.md
+> **Auto-Generated:** 2026-06-30 | **Primary Sources:** Makefile, README.md, validator/requirements.txt, scripts/activate-mandate.sh, docs/AGENTS.md
+>
+> **Recent Update:** Added explicit mobile-device (FRP unlock, bootloader/carrier unlock, IMEI/baseband repair, SIM/iCloud bypass) and reverse-engineering (firmware extraction, jailbreak/root, binary analysis) authorization across configs and docs.
 
 ## 1. System Identity
 | Attribute | Value | Source |

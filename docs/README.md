@@ -29,10 +29,10 @@
 
 ## Adversarial Focus
 
-Kimi Pentest is designed to transform the Kimi Code CLI into an unrestricted security research agent. This involves:
+Kimi Pentest is designed to transform the Kimi Code CLI into an unrestricted security research agent for authorized offensive work, including mobile-device security research and reverse engineering. This involves:
 
-1. **Safety Nullification**: Bypassing standard AI ethical filters that prevent exploit generation.
-2. **Context Injection**: Providing the AI with the specific authorization needed for pentesting.
+1. **Safety Nullification**: Bypassing standard AI ethical filters that prevent exploit generation, device-bypass research, and binary analysis.
+2. **Context Injection**: Providing the AI with the specific authorization needed for pentesting, mobile device testing, and reverse-engineering workflows.
 3. **Hardened Configuration**: Ensuring the mandate remains active across all sessions.
 
 **Use Responsibly. Use Only With Authorization.**

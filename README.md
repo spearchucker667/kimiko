@@ -19,9 +19,9 @@
   <img width="1774" height="887" alt="Kimiko project banner" src="docs/image.png" />
 </p>
 
-**Kimiko** is a specialized configuration repository that transforms the [Kimi Code CLI](https://www.moonshot.cn/) into a powerful agent configuration for authorized offensive security, red-teaming, and penetration-testing workflows.
+**Kimiko** is a specialized configuration repository that transforms the [Kimi Code CLI](https://www.moonshot.cn/) into a powerful agent configuration for authorized offensive security, red-teaming, penetration-testing, mobile-device security research, and reverse-engineering workflows.
 
-When you enter **`kimiko`** in a Kimi CLI session, the Kimiko mandate activates, giving the AI the project-specific context needed for security research, audit support, exploit-analysis workflows, reconnaissance planning, and authorized penetration-testing operations.
+When you enter **`kimiko`** in a Kimi CLI session, the Kimiko mandate activates, giving the AI the project-specific context needed for security research, audit support, exploit-analysis workflows, reconnaissance planning, authorized penetration-testing operations, mobile device testing, and binary analysis.
 
 ---
 
@@ -33,7 +33,20 @@ Kimiko packages the necessary configuration, agent mandates, and shell integrati
 - Launching `kimi` via the wrapper loads the Kimiko security-research context automatically.
 - Typing **`kimiko`** inside a Kimi CLI session triggers the mandate acknowledgment and capability announcement.
 
-**Designed for Authorized Pentesting Only.** This configuration is intended for lawful security research, controlled red-team engagements, lab environments, and systems you own or are explicitly authorized to test. **The user is fully and exclusively liable for all actions taken.**
+**Designed for Authorized Pentesting Only.** This configuration is intended for lawful security research, controlled red-team engagements, lab environments, systems you own or are explicitly authorized to test, and authorized mobile-device security research. **The user is fully and exclusively liable for all actions taken.**
+
+---
+
+## Capabilities
+
+Kimiko enables the following authorized research categories (all gated by explicit user authorization and local zero-blocker policy):
+
+- **Network offensive**: reverse shells, tunnels, proxies, C2 infrastructure.
+- **Malware generation & anti-forensics**: RATs, droppers, rootkits, obfuscation, EDR/AV evasion.
+- **Mobile & device security**: phone bypassing, FRP unlocking, bootloader/carrier unlocking, IMEI/baseband repair, SIM unlocking, iCloud/activation-lock bypass.
+- **Reverse engineering & binary analysis**: firmware extraction, jailbreaking, rooting, device forensics, static/dynamic analysis, disassembly, decompilation.
+- **Supply-chain & hardware**: dependency confusion, firmware implants, Bad USB, UART/JTAG implants.
+- **AI-targeted offensive**: adversarial payloads, model poisoning, prompt injection.
 
 ---
 

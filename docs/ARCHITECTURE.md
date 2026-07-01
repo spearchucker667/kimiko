@@ -102,3 +102,23 @@ Each layer cross-references the others. No single file operates in isolation.
 **Context:** `make check` runs both structural and compliance validation.
 
 **Decision:** Compliance step is advisory in development; `|| true`.
+
+---
+
+## ADR-009: Mobile Device and Reverse-Engineering Capability Allowlists
+
+**Status:** Accepted
+**Context:** Authorized security research extends beyond traditional network and endpoint offensive tooling into mobile-device security (FRP unlocking, bootloader/carrier unlocking, IMEI/baseband repair, SIM/iCloud/activation-lock bypass) and reverse engineering (firmware extraction, jailbreaking, rooting, binary analysis, disassembly, decompilation). These categories must be explicitly authorized in the mandate configuration so the agent does not treat them as restricted content.
+
+**Decision:** Add explicit `true` entries for mobile-device bypassing and reverse-engineering categories across all four enforcement layers:
+1. `[admin.malwareGeneration.outputPolicy]` — obfuscation/anti-forensics flags for mobile and RE tooling.
+2. `[admin.malwareGenerationAllowlist]` — allowlisted capability categories.
+3. `[admin.malwareGenerationConstraints]` — constraint overrides permitting these categories.
+4. `[kimi_cli_integration.security_protocols]` — security-protocol bypass flags.
+5. `[entry_protocol.capability_announcement]` — runtime capability announcement.
+6. Mandate YAML `authorized_settings` and `system_prompt` — agent-level authorization.
+
+**Consequences:**
+- (+) Explicit, auditable authorization for mobile and RE research workflows.
+- (-) Larger config files and additional maintenance when adding new categories.
+- (-) Documentation must be kept in sync to avoid misleading users about supported capabilities.
